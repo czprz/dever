@@ -1,0 +1,28 @@
+{
+  "name": "@sgre/dever",
+  "version": "0.6.0",
+  "description": "Helper for local development",
+  "author": "Autonomous Components (AC)",
+  "keywords": [
+    "dev",
+    "helper",
+    "ac"
+  ],
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "registry": "https://artifactory.pte.sgre.one/api/npm/windpower-npm/"
+  },
+  "license": "ISC",
+  "bin": {
+    "dever": "bin/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "mssql": "^7.2.1",
+    "sudo-prompt": "^9.2.1",
+    "yargs": "^17.1.1"
+  }
+}

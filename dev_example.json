@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "component": "smartyaw",
+    "keywords": ["smartyaw", "sy"],
+    "dependencies": {
+        "mssql": {
+            "type": "predefined-docker-container",
+            "name": "mssql"
+        },
+        "fake-wpmc": {
+            "type": "predefined-docker-container",
+            "name": "fake-wpmc"
+        },
+        "fake-nginx": {
+            "type": "predefined-docker-container",
+            "name": "fake-nginx"
+        },
+        "test": {
+            "type": "docker-container",
+            "name": "mssql",
+            "image": "mcr.microsoft.com/mssql/server:2019-latest",
+            "arguments": "-e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d"
+        }, 
+        "run-migration": {
+            "type": "powershell-script",
+            "file": "/development/script.ps1",
+            "wait": {
+                "when": "before",
+                "time": 5000
+            }
+        },
+        "create-database": {
+            "type": "sql-db",
+            "database": {
+                "option": "create-database",
+                "db_name": "TestDb"
+            }
+        },
+        "docker-supported-docker-start": {
+            "type": "docker-container",
+            "container": {
+                "name": "mssql",
+                "ports": ["1433:1433"],
+                "variables": ["ACCEPT_EULA=Y", "SA_PASSWORD=156test"],
+                "image": "mcr.microsoft.com/mssql/server:2019-latest"
+            }
+        },
+        "run-container": {
+            "type": "powershell",
+            "start": "docker run -n mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
+        },
+        "run_command": {
+            "type": "run-command",
+            "start": "docker container start test"
+        }
+    }
+}
