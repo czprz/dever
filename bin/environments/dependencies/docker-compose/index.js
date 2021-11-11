@@ -1,8 +1,10 @@
 const docker = require('../../../common/helper/docker');
 const shell = require('../../../common/helper/shell');
-const path = require("path");
 
-const docker_states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
+const path = require("path");
+const {execSync} = require("child_process");
+
+const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
 module.exports = new class {
     /**
@@ -46,7 +48,7 @@ module.exports = new class {
     #start(component, file, args, name) {
         const state = this.#run_state();
         switch (state) {
-            case docker_states.NotRunning: {
+            case states.NotRunning: {
                 if (this.#recreate(component, file, name, args.clean)) {
                     return;
                 }
@@ -55,7 +57,7 @@ module.exports = new class {
                 shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
                 break;
             }
-            case docker_states.Running: {
+            case states.Running: {
                 if (this.#recreate(component, file, name, args.clean)) {
                     return;
                 }
@@ -63,10 +65,10 @@ module.exports = new class {
                 console.log(`docker-compose: '${name}' already running!`);
                 break;
             }
-            case docker_states.NotFound: {
+            case states.NotFound: {
                 const filePath = path.join(component.location, file);
                 shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
-                console.log(`docker-compose: '${name}' completed successfully`);
+                console.log(`docker-compose: '${name}' created successfully`);
                 break;
             }
         }
@@ -87,7 +89,7 @@ module.exports = new class {
         const filePath = path.join(component.location, file);
         shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d --force-recreate`);
 
-        console.log(`docker-compose: '${name}' completed successfully recreated`);
+        console.log(`docker-compose: '${name}' recreated successfully`);
 
         return true;
     }
@@ -103,7 +105,7 @@ module.exports = new class {
         console.log(filePath);
         shell.executeSync(`docker-compose --file ${filePath} --project-name dever down`);
 
-        console.log(`docker-compose: '${name}' completed successfully`);
+        console.log(`docker-compose: '${name}' stopped successfully`);
     }
 
     /**
@@ -111,7 +113,6 @@ module.exports = new class {
      * @returns {Readonly<{NotRunning: number, Running: number, NotFound: number}>|number}
      */
     #run_state() {
-        const {execSync} = require("child_process");
         try {
             const result = execSync(`docker-compose -p dever ps`, {
                 windowsHide: true,
@@ -119,12 +120,12 @@ module.exports = new class {
             });
 
             if (result.includes('Exit 0')) {
-                return docker_states.NotRunning;
+                return states.NotRunning;
             }
 
-            return result.includes('Up') ? docker_states.Running : docker_states.NotFound;
+            return result.includes('Up') ? states.Running : states.NotFound;
         } catch {
-            return docker_states.NotFound;
+            return states.NotFound;
         }
     }
 }

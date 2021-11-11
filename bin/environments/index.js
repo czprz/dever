@@ -28,10 +28,8 @@ function builder(yargs) {
 async function handler(args) {
     switch(true) {
         case args.start:
-            await start(args);
-            break;
         case args.stop:
-            console.error('Not yet implemented');
+            await startOrStop(args);
             break;
         case args.config:
             showConfig(args.component);
@@ -57,7 +55,12 @@ function hasWait(dependency, timing) {
     }
 }
 
-async function start(args) {
+/**
+ * Handles handlers for each environment dependency
+ * @param args {Args}
+ * @returns {Promise<void>}
+ */
+async function startOrStop(args) {
     const keyword = args.component != null ? args.component.toLowerCase() : null;
 
     if (keyword == null) {
@@ -76,7 +79,7 @@ async function start(args) {
         return;
     }
 
-    if (!isAllDependenciesAvailable(component.dependencies)) {
+    if (!checkAvailabilityOfDependencies(component.dependencies)) {
         return;
     }
 
@@ -96,17 +99,14 @@ async function start(args) {
             case "docker-container":
                 docker_container.handle(dependency, args);
                 break;
-            case "run-command":
-                console.error(`${dependency.type} not yet implemented`);
-                break;
             case "powershell-script":
                 powershell_script.handle(component, dependency, args, name);
                 break;
             case "powershell-command":
-                powershell_command.handle(dependency, name);
+                powershell_command.handle(dependency, args, name);
                 break;
             case "sql-db":
-                await sql_db.handle(dependency, name);
+                await sql_db.handle(dependency, args, name);
                 break;
             default:
                 console.error(`"${name}::${dependency.type}" not found`);
@@ -162,7 +162,7 @@ function showLocation(keyword) {
     console.log(component.location);
 }
 
-function isAllDependenciesAvailable(dependencies) {
+function checkAvailabilityOfDependencies(dependencies) {
     for (let v in dependencies) {
         if (!dependencies.hasOwnProperty(v)) {
             throw Error(`Property '${v}' not found`);

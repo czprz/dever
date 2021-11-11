@@ -13,8 +13,17 @@ const path = require("path");
  * @param name {string}
  */
 function handle(component, dependency, args, name) {
-    const file = path.join(component.location, dependency.file);
-    powershell.executeFileSync(file);
+    switch(true) {
+        case args.start: {
+            const file = path.join(component.location, dependency.file);
+            powershell.executeFileSync(file);
 
-    console.log(`powershell-script: '${name}' completed successfully`);
+            console.log(`powershell-script: '${name}' completed successfully`);
+
+            break;
+        }
+        case args.stop:
+            // Todo: Any reason for having this? / How can this be implemented?
+        break;
+    }
 }
