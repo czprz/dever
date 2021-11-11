@@ -5,7 +5,7 @@ Tool for helping development and local environment setup
 ## Getting Started
 
 ```
-git clone
+git clone https://github.com/czprz/dever.git
 ```
 
 ### Prerequisites
@@ -64,7 +64,8 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever env -l | lists all components with their name and keywords |
 | dever env -c | shows content of dever_config.json |
 | dever env [component] | shows help context for dever env [component] options |
-| dever env [component] --start --clean | attempts to start environment for the specific component according to its dever.json cleanly. e.g. docker containers are recreated. |
+| dever env [component] --start | attempts to start all dependencies for specific component environment |
+| dever env [component] --start --clean | attempts to start all dependencies for specific component environment cleanly e.g. recreating docker containers |
 | dever env [component] --location | shows location of components dever.json |
 | dever env [component] -c, --config | shows content of components dever.json |
 
