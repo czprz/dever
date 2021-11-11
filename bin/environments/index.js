@@ -5,6 +5,7 @@ module.exports = {
 
 const config_handler = require('../configuration/handleConfigFile');
 
+const docker_compose = require('./dependencies/docker-compose');
 const docker_container = require('./dependencies/docker-container');
 const powershell_script = require('./dependencies/powershell-script');
 const powershell_command = require('./dependencies/powershell-command');
@@ -89,6 +90,9 @@ async function start(args) {
         await hasWait(dependency, 'before');
 
         switch(dependency.type) {
+            case "docker-compose":
+                docker_compose.handle(component, dependency, args, name);
+                break;
             case "docker-container":
                 docker_container.handle(dependency, args);
                 break;
@@ -167,6 +171,8 @@ function isAllDependenciesAvailable(dependencies) {
         const dependency = dependencies[v];
 
         switch(dependency.type) {
+            case "docker-compose":
+                return docker_compose.check();
             case "docker-container":
             case "run-command":
             case "powershell-script":
@@ -249,7 +255,7 @@ class Args {
 
     /**
      * Option (optional) included with start for starting environment cleanly
-     * @var {bool}
+     * @var {boolean}
      */
     clean;
 

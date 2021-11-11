@@ -39,13 +39,3 @@ yargs
 if (yargs.argv._.length === 0) {
     yargs.showHelp();
 }
-
-// ideas
-// 1. Add support for msmq with WPMC installed
-// 2. Make install more flexible. Make user able to choose packages.
-// 3. Best ways to store node.js cli config files to avoid it being cleared when upgraded
-// 4. Support for creating configuration files for each component. Somehow through dever.json?
-// 5. Add confirm to 'dever init' if components is not empty
-
-// To be fixed
-// Add npmjs & sgre registry to user .npmrc file (Cannot be done, due to this being necessary for installing dever. Should be added to README)
