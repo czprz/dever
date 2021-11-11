@@ -7,9 +7,14 @@ const mssql = require('../../../common/helper/mssql');
 /**
  * Handler for mssql dependencies
  * @param dependency {Dependency}
+ * @param args {Args}
  * @param name {string}
  */
-async function handle(dependency, name) {
+async function handle(dependency, args, name) {
+    if (args.stop) {
+        return;
+    }
+
     switch (dependency.option) {
         case "create-database":
             await createDatabase(dependency, name);

@@ -4,7 +4,6 @@ module.exports = {
 
 const shell = require('./common/helper/shell');
 const powershell = require('./common/helper/powershell');
-const sudo = require('sudo-prompt');
 
 /**
  * Installs tools related to web or backend development
@@ -18,8 +17,7 @@ function install(args) {
 
     install_chocolatey();
 
-    // Will need to run choco install as elevated
-    // sudo.exec
+    // Todo: Add support for elevating permissions for installing choco packages
 
     switch(true) {
         case args.all: {

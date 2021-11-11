@@ -5,7 +5,7 @@ module.exports = {
 
 const config_handler = require('../configuration/handleConfigFile');
 
-const predefined_docker_container = require('./dependencies/predefined-docker-container');
+const docker_compose = require('./dependencies/docker-compose');
 const docker_container = require('./dependencies/docker-container');
 const powershell_script = require('./dependencies/powershell-script');
 const powershell_command = require('./dependencies/powershell-command');
@@ -28,10 +28,8 @@ function builder(yargs) {
 async function handler(args) {
     switch(true) {
         case args.start:
-            await start(args);
-            break;
         case args.stop:
-            console.error('Not yet implemented');
+            await startOrStop(args);
             break;
         case args.config:
             showConfig(args.component);
@@ -57,7 +55,12 @@ function hasWait(dependency, timing) {
     }
 }
 
-async function start(args) {
+/**
+ * Handles handlers for each environment dependency
+ * @param args {Args}
+ * @returns {Promise<void>}
+ */
+async function startOrStop(args) {
     const keyword = args.component != null ? args.component.toLowerCase() : null;
 
     if (keyword == null) {
@@ -76,7 +79,7 @@ async function start(args) {
         return;
     }
 
-    if (!isAllDependenciesAvailable(component.dependencies)) {
+    if (!checkAvailabilityOfDependencies(component.dependencies)) {
         return;
     }
 
@@ -90,23 +93,20 @@ async function start(args) {
         await hasWait(dependency, 'before');
 
         switch(dependency.type) {
-            case "predefined-docker-container":
-                await predefined_docker_container.handle(dependency, args);
+            case "docker-compose":
+                docker_compose.handle(component, dependency, args, name);
                 break;
             case "docker-container":
                 docker_container.handle(dependency, args);
-                break;
-            case "run-command":
-                console.error(`${dependency.type} not yet implemented`);
                 break;
             case "powershell-script":
                 powershell_script.handle(component, dependency, args, name);
                 break;
             case "powershell-command":
-                powershell_command.handle(dependency, name);
+                powershell_command.handle(dependency, args, name);
                 break;
             case "sql-db":
-                await sql_db.handle(dependency, name);
+                await sql_db.handle(dependency, args, name);
                 break;
             default:
                 console.error(`"${name}::${dependency.type}" not found`);
@@ -162,7 +162,7 @@ function showLocation(keyword) {
     console.log(component.location);
 }
 
-function isAllDependenciesAvailable(dependencies) {
+function checkAvailabilityOfDependencies(dependencies) {
     for (let v in dependencies) {
         if (!dependencies.hasOwnProperty(v)) {
             throw Error(`Property '${v}' not found`);
@@ -171,12 +171,8 @@ function isAllDependenciesAvailable(dependencies) {
         const dependency = dependencies[v];
 
         switch(dependency.type) {
-            case "predefined-docker-container": {
-                if (!predefined_docker_container.checkDependencies()) {
-                    return false;
-                }
-                break;
-            }
+            case "docker-compose":
+                return docker_compose.check();
             case "docker-container":
             case "run-command":
             case "powershell-script":
@@ -259,7 +255,7 @@ class Args {
 
     /**
      * Option (optional) included with start for starting environment cleanly
-     * @var {bool}
+     * @var {boolean}
      */
     clean;
 

@@ -1,20 +1,8 @@
 {
     "version": 1,
-    "component": "smartyaw",
-    "keywords": ["smartyaw", "sy"],
+    "component": "example-component",
+    "keywords": ["example", "example-component", "ex"],
     "dependencies": {
-        "mssql": {
-            "type": "predefined-docker-container",
-            "name": "mssql"
-        },
-        "fake-wpmc": {
-            "type": "predefined-docker-container",
-            "name": "fake-wpmc"
-        },
-        "fake-nginx": {
-            "type": "predefined-docker-container",
-            "name": "fake-nginx"
-        },
         "test": {
             "type": "docker-container",
             "name": "mssql",
@@ -50,7 +38,7 @@
             "start": "docker run -n mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
         },
         "run_command": {
-            "type": "run-command",
+            "type": "powershell-command",
             "start": "docker container start test"
         }
     }
