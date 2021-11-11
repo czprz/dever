@@ -3,18 +3,6 @@
     "component": "smartyaw",
     "keywords": ["smartyaw", "sy"],
     "dependencies": {
-        "mssql": {
-            "type": "predefined-docker-container",
-            "name": "mssql"
-        },
-        "fake-wpmc": {
-            "type": "predefined-docker-container",
-            "name": "fake-wpmc"
-        },
-        "fake-nginx": {
-            "type": "predefined-docker-container",
-            "name": "fake-nginx"
-        },
         "test": {
             "type": "docker-container",
             "name": "mssql",

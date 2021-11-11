@@ -5,7 +5,6 @@ module.exports = {
 
 const config_handler = require('../configuration/handleConfigFile');
 
-const predefined_docker_container = require('./dependencies/predefined-docker-container');
 const docker_container = require('./dependencies/docker-container');
 const powershell_script = require('./dependencies/powershell-script');
 const powershell_command = require('./dependencies/powershell-command');
@@ -90,9 +89,6 @@ async function start(args) {
         await hasWait(dependency, 'before');
 
         switch(dependency.type) {
-            case "predefined-docker-container":
-                await predefined_docker_container.handle(dependency, args);
-                break;
             case "docker-container":
                 docker_container.handle(dependency, args);
                 break;
@@ -171,12 +167,6 @@ function isAllDependenciesAvailable(dependencies) {
         const dependency = dependencies[v];
 
         switch(dependency.type) {
-            case "predefined-docker-container": {
-                if (!predefined_docker_container.checkDependencies()) {
-                    return false;
-                }
-                break;
-            }
             case "docker-container":
             case "run-command":
             case "powershell-script":

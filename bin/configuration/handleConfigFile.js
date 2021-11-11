@@ -112,7 +112,7 @@ class Config {
 
 class Dependency {
     /**
-     * Define which handler you're using ('docker-container','powershell-command','powershell-script','predefined-docker-container','sql-db')
+     * Define which handler you're using ('docker-container','powershell-command','powershell-script','sql-db')
      * @return string
      */
     type;
