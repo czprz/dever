@@ -1,6 +1,6 @@
 # dever
 
-Tool for helping development and local environment setup
+Tool to help speed up local development and keep it consistent across a team
 
 ## Getting Started
 
