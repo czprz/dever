@@ -78,88 +78,94 @@ function getComponentDeverJsonConfig(filePath) {
 
 class LocalConfig {
     /**
-     * @return Config[]
+     * @return {Config[]}
      */
     components;
 }
 
 class Config {
     /**
-     * @return string
+     * @return {string}
      */
     version;
 
     /**
-     * @return string
+     * @return {string}
      */
     component;
 
     /**
-     * @return string[]
+     * @return {string[]}
      */
     keywords;
 
     /**
-     * @return Dependency[]
+     * @return {Dependency[]}
      */
     dependencies;
 
     /**
-     * @return string
+     * @return {string}
      */
     location;
 }
 
 class Dependency {
     /**
-     * Define which handler you're using ('docker-container','powershell-command','powershell-script','sql-db')
-     * @return string
+     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','sql-db')
+     * @return {string}
      */
     type;
 
     /**
-     * @return string
+     * @return {string}
      */
     name;
 
     /**
-     * @return string
+     * @return {string}
      */
     file;
 
     /**
-     * @return string
+     * @return {string}
      */
     command;
 
     /**
      * Container object only used when type is 'docker-container'
-     * @var {Container}
+     * @return {Container}
      */
     container;
 
     /**
      * Sql object only used when type is 'database'
-     * @var {Database}
+     * @return {Database}
      */
     database;
 
     /**
-     * @return Wait
+     * @return {Wait}
      */
-    wait; // Class Wait
+    wait;
+
+    /**
+     * Informs whether a dependency needs to be run as elevated user
+     * @return {boolean}
+     */
+    runAsElevated;
 }
 
 class Wait {
     /**
      * Choose when wait should occur ('before', 'after')
-     * @return string
+     * @return {string}
      */
     when;
 
     /**
      * Choose for how long it should wait
-     * @return number
+     * @return {number}
      */
     time; // in milliseconds
 }

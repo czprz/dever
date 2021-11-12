@@ -1,4 +1,5 @@
 const sudo = require('sudo-prompt');
+const execa = require("execa");
 
 module.exports = new class {
     /**
@@ -13,10 +14,36 @@ module.exports = new class {
     }
 
     /**
-     * Check if process is already running with elevated privileges
+     * Check if process is already running with elevated privileges<br>
+     * @deprecated Deprecated since 0.6 - Will be removed when dever supports importing and replaced with usage of 'is-elevated' npmjs package
      * @return {Promise<boolean>}
      */
-    isElevated() {
-        return new Promise(() => true);
+    async isElevated() {
+        if (process.platform !== 'win32') {
+            return false;
+        }
+
+        try {
+            await execa('fsutil', ['dirty', 'query', process.env.systemdrive]);
+            return true;
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                return this.#testFltmc();
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * @returns {Promise<boolean>}
+     */
+    async #testFltmc() {
+        try {
+            await execa('fltmc');
+            return true;
+        } catch {
+            return false;
+        }
     }
 }

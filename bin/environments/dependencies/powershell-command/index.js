@@ -10,11 +10,11 @@ const powershell = require('../../../common/helper/powershell');
  * @param args {Args}
  * @param name {string}
  */
-function handle(dependency, args, name) {
+async function handle(dependency, args, name) {
     switch(true) {
         case args.start: {
             try {
-                powershell.executeSync(dependency.command);
+                await powershell.executeSync(dependency.command, dependency.runAsElevated);
 
                 console.log(`powershell-command: '${name}' completed successfully`);
             } catch (e) {

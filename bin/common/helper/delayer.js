@@ -1,5 +1,15 @@
 module.exports = new class {
     /**
+     * Instantiates a new delayer
+     * @return {Delayer}
+     */
+    create() {
+        return new Delayer();
+    }
+}
+
+class Delayer {
+    /**
      * @type {number}
      */
     #timer;
@@ -19,7 +29,7 @@ module.exports = new class {
      *
      * @param ms {number} Milliseconds until delay ends
      * @param value {string | boolean} @Optional include with promise when delay is expired
-     * @returns {Promise<void>}
+     * @returns {Promise<unknown>}
      */
     async delay(ms, value) {
         this.#setValue(value)
@@ -49,11 +59,11 @@ module.exports = new class {
      * @return {void}
      */
     #setValue(value) {
-       if (value == null) {
-           return;
-       }
+        if (value == null) {
+            return;
+        }
 
-       this.#value = value;
+        this.#value = value;
     }
 
     /**

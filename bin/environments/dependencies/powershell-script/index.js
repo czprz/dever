@@ -11,12 +11,13 @@ const path = require("path");
  * @param dependency {Dependency}
  * @param args {Args}
  * @param name {string}
+ * @return {Promise<void>}
  */
-function handle(component, dependency, args, name) {
+async function handle(component, dependency, args, name) {
     switch(true) {
         case args.start: {
             const file = path.join(component.location, dependency.file);
-            powershell.executeFileSync(file);
+            await powershell.executeFileSync(file, dependency.runAsElevated);
 
             console.log(`powershell-script: '${name}' completed successfully`);
 
