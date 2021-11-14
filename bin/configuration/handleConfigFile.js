@@ -169,3 +169,29 @@ class Wait {
      */
     time; // in milliseconds
 }
+
+class Container {
+    /**
+     * Name
+     * @var {string}
+     */
+    name;
+
+    /**
+     * Port mappings
+     * @var {string[]}
+     */
+    ports;
+
+    /**
+     * Environment variables
+     * @var {string[]}
+     */
+    variables;
+
+    /**
+     * Name of docker image
+     * @var {string}
+     */
+    image;
+}
