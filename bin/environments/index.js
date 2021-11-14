@@ -3,7 +3,11 @@ module.exports = {
     handler: handler
 };
 
+const chalk = require('chalk');
+
 const config_handler = require('../configuration/handleConfigFile');
+const sudo = require('../common/helper/elevated');
+const delayer = require('../common/helper/delayer');
 
 const docker_compose = require('./dependencies/docker-compose');
 const docker_container = require('./dependencies/docker-container');
@@ -12,6 +16,7 @@ const powershell_command = require('./dependencies/powershell-command');
 const sql_db = require('./dependencies/sql-db');
 
 const components_handler = require('../configuration/handleComponents');
+const readline = require("readline");
 
 let env_options;
 
@@ -26,7 +31,7 @@ function builder(yargs) {
  * @returns {Promise<void>}
  */
 async function handler(args) {
-    switch(true) {
+    switch (true) {
         case args.start:
         case args.stop:
             await startOrStop(args);
@@ -83,6 +88,10 @@ async function startOrStop(args) {
         return;
     }
 
+    if (!await confirmRunningWithoutElevated(args.ignore, component.dependencies)) {
+        return;
+    }
+
     for (const name in component.dependencies) {
         if (!component.dependencies.hasOwnProperty(name)) {
             throw Error(`Property '${name}' not found`);
@@ -92,7 +101,7 @@ async function startOrStop(args) {
 
         await hasWait(dependency, 'before');
 
-        switch(dependency.type) {
+        switch (dependency.type) {
             case "docker-compose":
                 docker_compose.handle(component, dependency, args, name);
                 break;
@@ -100,10 +109,10 @@ async function startOrStop(args) {
                 docker_container.handle(dependency, args);
                 break;
             case "powershell-script":
-                powershell_script.handle(component, dependency, args, name);
+                await powershell_script.handle(component, dependency, args, name);
                 break;
             case "powershell-command":
-                powershell_command.handle(dependency, args, name);
+                await powershell_command.handle(dependency, args, name);
                 break;
             case "sql-db":
                 await sql_db.handle(dependency, args, name);
@@ -162,6 +171,61 @@ function showLocation(keyword) {
     console.log(component.location);
 }
 
+/**
+ * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
+ * @param ignore {boolean}
+ * @param dependencies {Dependency[]}
+ * @returns {Promise<boolean>}
+ */
+async function confirmRunningWithoutElevated(ignore, dependencies) {
+    if (ignore) {
+        return true;
+    }
+
+    if (await sudo.isElevated()) {
+        return true;
+    }
+
+    if (!anyDependencyWhichNeedsElevatedPermissions(dependencies)) {
+        return true;
+    }
+
+    console.log(chalk.redBright('There is one or more dependencies which needs elevated permissions.'));
+    console.log(chalk.redBright(`It's recommended to run this command again with a terminal started with elevated permissions.`));
+    console.log();
+
+    const timer = delayer.create();
+
+    const rl = readline.createInterface(process.stdin, process.stdout);
+    await rl.question('Are you sure you want to continue? [yes]/no:', async (answer) => {
+        if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+            timer.done(true);
+        } else {
+            timer.done(false);
+        }
+
+        rl.close();
+    });
+
+    return timer.delay(36000000, false);
+}
+
+/**
+ * Check if any dependencies wants to run with elevated permissions
+ * @param dependencies {Dependency[]}
+ * @return {boolean}
+ */
+function anyDependencyWhichNeedsElevatedPermissions(dependencies) {
+    for (const name in dependencies) {
+        const dependency = dependencies[name];
+        if (dependency != null && dependency.runAsElevated) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function checkAvailabilityOfDependencies(dependencies) {
     for (let v in dependencies) {
         if (!dependencies.hasOwnProperty(v)) {
@@ -170,7 +234,7 @@ function checkAvailabilityOfDependencies(dependencies) {
 
         const dependency = dependencies[v];
 
-        switch(dependency.type) {
+        switch (dependency.type) {
             case "docker-compose":
                 return docker_compose.check();
             case "docker-container":
@@ -203,6 +267,10 @@ function handler_with_component(yargs) {
         })
         .option('clean', {
             describe: `Usage '--start --clean' which will do a clean startup`
+        })
+        .option('i', {
+            alias: 'ignore',
+            describe: 'ignore confirmation messages'
         })
         .option('location', {
             describe: 'Show component location'
@@ -288,4 +356,10 @@ class Args {
      * @var {bool}
      */
     list;
+
+    /**
+     * Ignore warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
+     * @return {boolean}
+     */
+    ignore;
 }
