@@ -66,6 +66,7 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever env [component] | shows help context for dever env [component] options |
 | dever env [component] --start | attempts to start all dependencies for specific component environment |
 | dever env [component] --start --clean | attempts to start all dependencies for specific component environment cleanly e.g. recreating docker containers |
+| dever env [component] --start --ignore | attempts to start all dependencies for specific component environment with any need for confirmations |
 | dever env [component] --location | shows location of components dever.json |
 | dever env [component] -c, --config | shows content of components dever.json |
 
