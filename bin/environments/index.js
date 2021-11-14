@@ -69,12 +69,12 @@ async function startOrStop(args) {
     const keyword = args.component != null ? args.component.toLowerCase() : null;
 
     if (keyword == null) {
-        console.error(`Must have a component keyword. Please attempt with 'dever env [component]'`);
+        console.error(`Must have a component keyword. Please attempt with ${chalk.blue('dever env [component]')}`);
         return;
     }
 
     if (!args.start && !args.stop) {
-        console.error('Missing flag. Must have one of either --start or --stop');
+        console.error(`Missing key option. Must have one of either ${chalk.green('--start')} or ${chalk.green('--stop')} defined`);
         return;
     }
 
@@ -145,20 +145,20 @@ function showConfig(keyword) {
 function listAllComponents() {
     const components = components_handler.getAllComponents();
     if (components == null || components.length === 0) {
-        console.error(`Could not find any components. Please try running 'dever init'`);
+        console.error(`could not find any components. Please try running ${chalk.green('dever init')}`);
         return;
     }
 
+    console.log(`List of all components found after last ${chalk.green('dever init')} scan`);
+
     for (const component of components) {
-        console.log('');
-        console.log(`Component: ${component.component}`);
-        console.log(`Keywords: ${component.keywords}`);
+        console.log(`${chalk.blue(component.component)} - ${chalk.green(component.keywords)}`);
     }
 }
 
 function showLocation(keyword) {
     if (keyword == null) {
-        console.error(`Missing component. Please try again with component. 'dever env [component] --location'`);
+        console.error(`Missing [component]. Please try again with ${chalk.green('dever env [component] --location')}`);
         return;
     }
 
@@ -261,10 +261,11 @@ function handler_with_component(yargs) {
         .option('stop', {
             describe: 'Stop component dependencies'
         })
-        .option('t', {
-            alias: 'turbines',
-            describe: 'Number of turbines added to inventory'
-        })
+        // Todo: Turbine option needs to come as custom option
+        // .option('t', {
+        //     alias: 'turbines',
+        //     describe: 'Number of turbines added to inventory'
+        // })
         .option('clean', {
             describe: `Usage '--start --clean' which will do a clean startup`
         })
@@ -326,12 +327,6 @@ class Args {
      * @var {boolean}
      */
     clean;
-
-    /**
-     * Number of turbines added to inventory
-     * @var {number}
-     */
-    turbines;
 
     /**
      * Show dever or component configuration

@@ -60,7 +60,7 @@ function getComponent(keyword) {
 
 /**
  * Gets all components from dever_config.json
- * @returns {null|[]}
+ * @returns {Config[] | null}
  */
 function getAllComponents() {
     const config = get();
