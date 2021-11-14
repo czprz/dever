@@ -102,7 +102,6 @@ module.exports = new class {
      */
     #stop(component, file, name) {
         const filePath = path.join(component.location, file);
-        console.log(filePath);
         shell.executeSync(`docker-compose --file ${filePath} --project-name dever down`);
 
         console.log(`docker-compose: '${name}' stopped successfully`);
