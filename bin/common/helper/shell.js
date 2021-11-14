@@ -1,33 +1,36 @@
-module.exports = {
-    execute: execute,
-    executeSync: executeSync
-}
+const { exec, execSync} = require("child_process");
 
-function execute(command, withoutLog = true) {
-    const { exec } = require("child_process");
-    exec(command, (error, stdout, stderr) => {
-        if (withoutLog) {
-            return;
-        }
+module.exports = new class {
+    /**
+     * Execute command asynchronous
+     * @param command {string}
+     * @param withoutLog {boolean}
+     * @return {void}
+     */
+    execute(command, withoutLog = true) {
+        exec(command, (error, stdout, stderr) => {
+            if (withoutLog) {
+                return;
+            }
 
-        if (error) {
-            console.log(`${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`${stderr}`);
-            return;
-        }
-        console.log(`${stdout}`);
-    });
-}
+            if (error) {
+                console.log(`${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`${stderr}`);
+                return;
+            }
+            console.log(`${stdout}`);
+        });
+    }
 
-/**
- * Execute command synchronously
- * @param command
- * @returns {string|*}
- */
-function executeSync(command) {
-    const { execSync } = require("child_process");
-    return execSync(command, { windowsHide: true, encoding: 'utf-8' });
+    /**
+     * Execute command synchronously
+     * @param command
+     * @returns {string|*}
+     */
+    executeSync(command) {
+        return execSync(command, { windowsHide: true, encoding: 'utf-8' });
+    }
 }
