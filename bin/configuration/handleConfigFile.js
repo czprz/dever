@@ -112,7 +112,7 @@ class Config {
 
 class Dependency {
     /**
-     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','sql-db')
+     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
      * @return {string}
      */
     type;
@@ -139,10 +139,10 @@ class Dependency {
     container;
 
     /**
-     * Sql object only used when type is 'database'
-     * @return {Database}
+     *  Currently only used to select between mssql options
+     *  @return {string}
      */
-    database;
+    option;
 
     /**
      * @return {Wait}

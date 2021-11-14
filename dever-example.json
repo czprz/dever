@@ -18,7 +18,7 @@
             }
         },
         "create-database": {
-            "type": "sql-db",
+            "type": "mssql",
             "database": {
                 "option": "create-database",
                 "db_name": "TestDb"

@@ -13,7 +13,7 @@ const docker_compose = require('./dependencies/docker-compose');
 const docker_container = require('./dependencies/docker-container');
 const powershell_script = require('./dependencies/powershell-script');
 const powershell_command = require('./dependencies/powershell-command');
-const sql_db = require('./dependencies/sql-db');
+const mssql = require('./dependencies/mssql');
 
 const components_handler = require('../configuration/handleComponents');
 const readline = require("readline");
@@ -114,8 +114,8 @@ async function startOrStop(args) {
             case "powershell-command":
                 await powershell_command.handle(dependency, args, name);
                 break;
-            case "sql-db":
-                await sql_db.handle(dependency, args, name);
+            case "mssql":
+                await mssql.handle(dependency, args, name);
                 break;
             default:
                 console.error(`"${name}::${dependency.type}" not found`);
