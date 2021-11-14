@@ -134,15 +134,21 @@ class Dependency {
 
     /**
      * Container object only used when type is 'docker-container'
-     * @return {Container}
+     * @return {Container | null}
      */
     container;
 
     /**
      *  Currently only used to select between mssql options
-     *  @return {string}
+     *  @return {string | null}
      */
     option;
+
+    /**
+     * Custom options that will be passed along to dependency
+     * @return {Option[] | null}
+     */
+    options;
 
     /**
      * @return {Wait}
@@ -194,4 +200,57 @@ class Container {
      * @var {string}
      */
     image;
+}
+
+class Option {
+    /**
+     * Check if dependency is allowed to execute without option
+     * @return {boolean}
+     */
+    required;
+
+    /**
+     * Possibility for having an alias for the option
+     * @Optional
+     * @return {string}
+     */
+    alias;
+
+    /**
+     * Describe what this option will be used for
+     * @return {string}
+     */
+    describe;
+
+    /**
+     * Replace specific area given in value area e.g. "__give__" if e.g. command is "docker run __give__"
+     * @return {string}
+     */
+    replace;
+
+    /**
+     * Replace with contains the argument going to be passed e.g. '--new-command=$value' where value will be replaced with option value given
+     * @return {string}
+     */
+    replaceWith;
+
+    /**
+     * Condition for which this option is allowed to receive a value
+     * @return {OptionRule}
+     */
+    rule;
+}
+
+class OptionRule {
+    /**
+     * Check whether value being passed is as expected using regex match
+     * @return {string}
+     */
+    match;
+
+    /**
+     * If condition check fails this message will be shown
+     * @return {string}
+     */
+    message;
 }
