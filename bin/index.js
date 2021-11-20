@@ -29,10 +29,9 @@ yargs
         install.install(argv);
     })
     .command('env', 'Development Environment Helper')
-    .command('env [component]', 'Development Environment Helper', (yargs) => {
-        return env.builder(yargs, 0);
+    .command('env [component]', 'Development Environment Helper', () => {
     }, (argv) => {
-        env.handler(argv).catch(console.error);
+        env.handler(yargs, argv).catch(console.error);
     })
     .scriptName("dever");
 

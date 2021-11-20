@@ -14,7 +14,7 @@ const filePath = path.join(root, fileName);
 
 function readJson(filePath) {
     try {
-        let rawData = fs.readFileSync(filePath)
+        let rawData = fs.readFileSync(filePath);
         return JSON.parse(rawData);
     }
     catch (e) {
@@ -146,9 +146,10 @@ class Dependency {
 
     /**
      * Custom options that will be passed along to dependency
-     * @return {Option[] | null}
+     * @return {CustomOption[] | null}
      */
     options;
+    // Todo: Consider new name for this property
 
     /**
      * @return {Wait}
@@ -202,12 +203,18 @@ class Container {
     image;
 }
 
-class Option {
+class CustomOption {
     /**
      * Check if dependency is allowed to execute without option
      * @return {boolean}
      */
     required;
+
+    /**
+     * Option key can be used in console
+     * @return {string}
+     */
+    key;
 
     /**
      * Possibility for having an alias for the option
@@ -223,25 +230,19 @@ class Option {
     describe;
 
     /**
-     * Replace specific area given in value area e.g. "__give__" if e.g. command is "docker run __give__"
+     * Replace specific area given in value area e.g. "$0" if e.g. command is "docker run $0 nginx"
      * @return {string}
      */
-    replace;
-
-    /**
-     * Replace with contains the argument going to be passed e.g. '--new-command=$value' where value will be replaced with option value given
-     * @return {string}
-     */
-    replaceWith;
+    insert;
 
     /**
      * Condition for which this option is allowed to receive a value
-     * @return {OptionRule}
+     * @return {CustomOptionRule}
      */
     rule;
 }
 
-class OptionRule {
+class CustomOptionRule {
     /**
      * Check whether value being passed is as expected using regex match
      * @return {string}

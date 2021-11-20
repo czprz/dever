@@ -3,6 +3,7 @@ module.exports = {
 }
 
 const powershell = require('../../../common/helper/powershell');
+const customOptions = require('../../../common/helper/custom_options');
 
 /**
  *
@@ -14,7 +15,8 @@ async function handle(dependency, args, name) {
     switch(true) {
         case args.start: {
             try {
-                await powershell.executeSync(dependency.command, dependency.runAsElevated);
+                const command = customOptions.addOptionsToCommand(dependency.command, dependency.options, args);
+                await powershell.executeSync(command, dependency.runAsElevated);
 
                 console.log(`powershell-command: '${name}' completed successfully`);
             } catch (e) {
