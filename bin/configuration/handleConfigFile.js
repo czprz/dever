@@ -14,7 +14,7 @@ const filePath = path.join(root, fileName);
 
 function readJson(filePath) {
     try {
-        let rawData = fs.readFileSync(filePath)
+        let rawData = fs.readFileSync(filePath);
         return JSON.parse(rawData);
     }
     catch (e) {
@@ -134,15 +134,22 @@ class Dependency {
 
     /**
      * Container object only used when type is 'docker-container'
-     * @return {Container}
+     * @return {Container | null}
      */
     container;
 
     /**
      *  Currently only used to select between mssql options
-     *  @return {string}
+     *  @return {string | null}
      */
     option;
+
+    /**
+     * Custom options that will be passed along to dependency
+     * @return {CustomOption[] | null}
+     */
+    options;
+    // Todo: Consider new name for this property
 
     /**
      * @return {Wait}
@@ -194,4 +201,57 @@ class Container {
      * @var {string}
      */
     image;
+}
+
+class CustomOption {
+    /**
+     * Check if dependency is allowed to execute without option
+     * @return {boolean}
+     */
+    required;
+
+    /**
+     * Option key can be used in console
+     * @return {string}
+     */
+    key;
+
+    /**
+     * Possibility for having an alias for the option
+     * @Optional
+     * @return {string}
+     */
+    alias;
+
+    /**
+     * Describe what this option will be used for
+     * @return {string}
+     */
+    describe;
+
+    /**
+     * Replace specific area given in value area e.g. "$0" if e.g. command is "docker run $0 nginx"
+     * @return {string}
+     */
+    insert;
+
+    /**
+     * Condition for which this option is allowed to receive a value
+     * @return {CustomOptionRule}
+     */
+    rule;
+}
+
+class CustomOptionRule {
+    /**
+     * Check whether value being passed is as expected using regex match
+     * @return {string}
+     */
+    match;
+
+    /**
+     * If condition check fails this message will be shown
+     * @return {string}
+     */
+    message;
 }

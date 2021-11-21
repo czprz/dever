@@ -30,9 +30,9 @@ yargs
     })
     .command('env', 'Development Environment Helper')
     .command('env [component]', 'Development Environment Helper', (yargs) => {
-        return env.builder(yargs, 0);
+        return env.getOptions(yargs);
     }, (argv) => {
-        env.handler(argv).catch(console.error);
+        env.handler(yargs, argv).catch(console.error);
     })
     .scriptName("dever");
 

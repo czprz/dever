@@ -39,7 +39,20 @@
         },
         "run_command": {
             "type": "powershell-command",
-            "start": "docker container start test"
+            "start": "docker container start $container_name",
+            "options": [
+                {
+                    "required": true,
+                    "key": "container_name",
+                    "alias": "cn",
+                    "describe": "docker container name",
+                    "insert": "$value",
+                    "rule": {
+                        "match": "^[0-9A-z-_]+$",
+                        "message": "Invalid naming format for docker container"
+                    }
+                }
+            ]
         }
     }
 }
