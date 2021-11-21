@@ -75,6 +75,27 @@ module.exports = new class {
     }
 
     /**
+     * @param file {string} File path
+     * @param options {CustomOption[]}
+     * @param args {Args}
+     * @return {string}
+     */
+    addOptionsToFile(file, options, args) {
+        if (options.length === 0) {
+            return file;
+        }
+
+        let fileModified = file;
+
+        for (const option of options) {
+            const customOption = this.#replaceWith(option.key, option.insert, args);
+            fileModified = `${fileModified} ${customOption}`;
+        }
+
+        return fileModified;
+    }
+
+    /**
      * Create value which will replace ref in command
      * @param key {string}
      * @param insert {string}

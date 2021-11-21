@@ -18,7 +18,7 @@ async function handle(component, dependency, args, name) {
     switch(true) {
         case args.start: {
             const file = path.join(component.location, dependency.file);
-            const fileWithParameters = customOptions.addOptionsToCommand(file, dependency.options, args);
+            const fileWithParameters = customOptions.addOptionsToFile(file, dependency.options, args);
             await powershell.executeFileSync(fileWithParameters, dependency.runAsElevated);
 
             console.log(`powershell-script: '${name}' completed successfully`);
