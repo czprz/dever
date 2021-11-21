@@ -435,4 +435,10 @@ class Args {
      * @return {boolean}
      */
     ignore;
+
+    /**
+     * Show command/file that will be executed when running 'fix [problem]' command
+     * @return {boolean}
+     */
+    show;
 }

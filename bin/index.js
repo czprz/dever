@@ -5,6 +5,7 @@ const yargs = require("yargs")(process.argv.slice(2));
 const env = require('./environments');
 const install = require('./install');
 const init = require('./init');
+const fix = require('./fix');
 
 const usage = "\nUsage: dever <command> <option>";
 yargs
@@ -28,8 +29,14 @@ yargs
     }, (argv) => {
         install.install(argv);
     })
-    .command('env', 'Development Environment Helper')
-    .command('env [component]', 'Development Environment Helper', (yargs) => {
+    .command('fix', 'Fix common possibly repeatable issues')
+    .command('fix [problem]', 'Fix common possibly repeatable issues', (yargs) => {
+        return fix.getOptions(yargs);
+    }, (argv) => {
+        fix.handler(yargs, argv).catch(console.error);
+    })
+    .command('env', 'Development environment organizer')
+    .command('env [component]', 'Development environment organizer', (yargs) => {
         return env.getOptions(yargs);
     }, (argv) => {
         env.handler(yargs, argv).catch(console.error);
