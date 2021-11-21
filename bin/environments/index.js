@@ -176,7 +176,7 @@ module.exports = new class {
      * @return void
      */
     #showHelp(yargs) {
-        const options = this.#getOptions(yargs);
+        const options = this.getOptions(yargs);
         if (options == null) {
             console.log('Could not find component');
             return;
@@ -211,7 +211,7 @@ module.exports = new class {
      * @param yargs
      * @returns {*|Object}
      */
-    #getOptions(yargs) {
+    getOptions(yargs) {
         const keyword = this.#getKeywordFromArgv(yargs.argv);
         return keyword == null ?
             this.#optionsWithoutComponent(yargs) :

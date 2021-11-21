@@ -29,7 +29,8 @@ yargs
         install.install(argv);
     })
     .command('env', 'Development Environment Helper')
-    .command('env [component]', 'Development Environment Helper', () => {
+    .command('env [component]', 'Development Environment Helper', (yargs) => {
+        return env.getOptions(yargs);
     }, (argv) => {
         env.handler(yargs, argv).catch(console.error);
     })
