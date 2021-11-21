@@ -42,6 +42,18 @@ module.exports = new class {
     }
 
     /**
+     * Generate default or component options
+     * @param yargs
+     * @returns {*|Object}
+     */
+    getOptions(yargs) {
+        const keyword = this.#getKeywordFromArgv(yargs.argv);
+        return keyword == null ?
+            this.#optionsWithoutComponent(yargs) :
+            this.#optionsWithComponent(yargs, keyword);
+    }
+
+    /**
      * Handles handlers for each environment dependency
      * @param args {Args}
      * @returns {Promise<void>}
@@ -176,13 +188,7 @@ module.exports = new class {
      * @return void
      */
     #showHelp(yargs) {
-        const options = this.getOptions(yargs);
-        if (options == null) {
-            console.log('Could not find component');
-            return;
-        }
-
-        options.showHelp();
+        yargs.showHelp();
     }
 
     /**
@@ -204,18 +210,6 @@ module.exports = new class {
                 alias: 'config',
                 describe: 'Show dever configuration'
             });
-    }
-
-    /**
-     * Generate default or component options
-     * @param yargs
-     * @returns {*|Object}
-     */
-    getOptions(yargs) {
-        const keyword = this.#getKeywordFromArgv(yargs.argv);
-        return keyword == null ?
-            this.#optionsWithoutComponent(yargs) :
-            this.#optionsWithComponent(yargs, keyword);
     }
 
     /**

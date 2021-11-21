@@ -37,7 +37,7 @@ module.exports = new class {
             const value = args[option.key];
 
             if (value == null && !option.required) {
-                return {status: true, message: null};
+                continue;
             }
 
             if (value == null && option.required) {
