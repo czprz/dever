@@ -68,7 +68,7 @@ module.exports = new class {
 
         for (const option of options) {
             const replaceWith = this.#replaceWith(option.key, option.insert, args);
-            modifiedCommand.replace(`$${option.key}`, replaceWith);
+            modifiedCommand = modifiedCommand.replace(`$${option.key}`, replaceWith);
         }
 
         return modifiedCommand;
