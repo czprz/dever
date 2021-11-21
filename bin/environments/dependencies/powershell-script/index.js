@@ -3,6 +3,7 @@ module.exports = {
 };
 
 const powershell = require('../../../common/helper/powershell');
+const customOptions = require('../../../common/helper/custom_options');
 const path = require("path");
 
 /**
@@ -17,7 +18,8 @@ async function handle(component, dependency, args, name) {
     switch(true) {
         case args.start: {
             const file = path.join(component.location, dependency.file);
-            await powershell.executeFileSync(file, dependency.runAsElevated);
+            const fileWithParameters = customOptions.addOptionsToCommand(file, dependency.options, args);
+            await powershell.executeFileSync(fileWithParameters, dependency.runAsElevated);
 
             console.log(`powershell-script: '${name}' completed successfully`);
 
