@@ -387,6 +387,26 @@ module.exports = new class {
     }
 };
 
+class FixArgs {
+    /**
+     * Defined which 'problem' fix should solve
+     * @return {string}
+     */
+    problem;
+
+    /**
+     * Show command/file that will be executed when running 'fix [problem]' command
+     * @return {boolean}
+     */
+    show;
+
+    /**
+     * Show list of possible fixes
+     * @var {bool}
+     */
+    list;
+}
+
 class Args {
     /**
      * Option for starting environment
@@ -435,10 +455,4 @@ class Args {
      * @return {boolean}
      */
     ignore;
-
-    /**
-     * Show command/file that will be executed when running 'fix [problem]' command
-     * @return {boolean}
-     */
-    show;
 }
