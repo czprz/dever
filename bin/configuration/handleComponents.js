@@ -19,7 +19,7 @@ function get() {
     }
 
     return {
-        components: config.components.map(x => config_handler.getComponentDeverJsonConfig(x))
+        components: config.components.map(x => config_handler.getComponentConfig(x))
     }
 }
 
