@@ -375,6 +375,7 @@ module.exports = new class {
                 case "docker-compose":
                     return docker_compose.check();
                 case "docker-container":
+                    return docker_container.check();
                 case "run-command":
                 case "powershell-script":
                 case "powershell-command":

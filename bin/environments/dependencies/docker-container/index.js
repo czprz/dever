@@ -18,6 +18,19 @@ module.exports = new class {
     }
 
     /**
+     * Check if docker-container dependencies are available
+     * @returns {boolean}
+     */
+    check() {
+        if (!docker.is_docker_running()) {
+            console.error(`Docker engine not running. Please start docker and retry command`);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Start docker container
      * @param container {Container}
      * @param args {Args}
