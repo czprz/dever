@@ -1,4 +1,5 @@
 const fix_config = require('../configuration/handleFixConfig');
+const powershell = require('../common/helper/powershell');
 
 module.exports = new class {
     /**
@@ -18,7 +19,7 @@ module.exports = new class {
                 this.#showFix(args);
                 break;
             default:
-                this.#showHelp(yargs);
+                this.#showHelpOrFix(yargs, args);
         }
     }
 
@@ -99,7 +100,7 @@ module.exports = new class {
         }
 
         for (const fix of fixes) {
-            switch(fix.type) {
+            switch (fix.type) {
                 case "powershell-command":
                 case "powershell-script":
                     console.log(`${fix.type}: ${fix.command}`);
@@ -122,6 +123,43 @@ module.exports = new class {
 
         for (const fix of fixes) {
             console.log(fix.key);
+        }
+    }
+
+    /**
+     * Fix or show help depending on whether 'problem' is defined or not
+     * @param yargs {object}
+     * @param args {FixArgs}
+     */
+    #showHelpOrFix(yargs, args) {
+        if (args.problem != null) {
+            this.#fix(args.problem);
+            return;
+        }
+
+        this.#showHelp(yargs);
+    }
+
+    /**
+     * Fix problem
+     * @param problem {string}
+     */
+    #fix(problem) {
+        const fix = fix_config.get(problem)[0];
+
+        // Todo: support listing of all fix's with same key together with their type and command/file. With a number which user can input and then it'll run that fix
+
+        switch (fix.type) {
+            case 'powershell-command':
+                powershell.executeSync(fix.command);
+                console.log(`fix: '${fix.key}' powershell-command has been executed.`);
+                break;
+            case 'powershell-script':
+                powershell.executeFileSync(fix.file);
+                console.log(`fix: '${fix.key}' powershell-script has been executed.`);
+                break;
+            default:
+                throw new Error('Fix type not supported');
         }
     }
 }
