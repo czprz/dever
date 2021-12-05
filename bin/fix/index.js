@@ -125,8 +125,12 @@ module.exports = new class {
             return;
         }
 
+        console.log();
+
         for (const fix of fixes) {
-            console.log(fix.key);
+            console.log(chalk.blue(`'${fix.key}' from ${fix.component}`));
+            console.log(chalk.green(`${fix.type}: ${fix.command}`));
+            console.log();
         }
     }
 
@@ -137,7 +141,7 @@ module.exports = new class {
      */
     #showHelpOrFix(yargs, args) {
         if (args.problem != null) {
-            this.#fix(args.problem);
+            this.#fix(args.problem).catch(console.error);
             return;
         }
 
@@ -176,13 +180,14 @@ module.exports = new class {
      * @param fixes {Fix[]}
      * @returns {Promise<Fix|null>}
      */
-    async #getFix(fixes) {
+    #getFix(fixes) {
         if (fixes == null || fixes.length < 1) {
             return null;
         }
 
         if (fixes.length === 1) {
-            return fixes[0];
+            // Todo: Test if working
+            return new Promise((resolve) => resolve(fixes[0]));
         }
 
         console.log(`Found multiple fixes with same keyword.`);
@@ -193,7 +198,7 @@ module.exports = new class {
         for (const fix of fixes) {
             n++;
 
-            console.log(chalk.blue(`${n}. ${fix.key}`));
+            console.log(chalk.blue(`${n}. '${fix.key}' from ${fix.component}`));
             console.log(chalk.green(`${fix.type}: ${fix.command}`));
             console.log();
         }
@@ -201,7 +206,7 @@ module.exports = new class {
         const timer = delayer.create();
 
         const rl = readline.createInterface(process.stdin, process.stdout);
-        await rl.question('Choose which fix you would like to run:', async (answer) => {
+        rl.question('Choose which fix you would like to run [number]:', (answer) => {
             let result = null;
 
             const option = +answer;

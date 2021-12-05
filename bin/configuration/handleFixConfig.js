@@ -7,9 +7,12 @@ module.exports = new class {
      */
     getAll() {
         const components = config_handler.getAllComponentsConfig();
-        const listOfFix = [];
+        if (components == null) {
+            return null;
+        }
 
-        for (const fixes of components.map(x => x.fix)) {
+        const listOfFix = [];
+        for (const fixes of components.map(x => this.#addComponentToFix(x.fix, x.component))) {
             if (fixes == null) {
                 continue;
             }
@@ -34,5 +37,20 @@ module.exports = new class {
         }
 
         return fix.filter(x => x.key === problem);
+    }
+
+    /**
+     * Add component to each fix
+     * @param fixes {Fix[]}
+     * @param component {string}
+     * @returns {{}}
+     */
+    #addComponentToFix(fixes, component) {
+        let objMerge = {};
+        for (const key of Object.keys(fixes)) {
+            objMerge[key] = {...fixes[key], component};
+        }
+
+        return objMerge;
     }
 }

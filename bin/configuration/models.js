@@ -185,6 +185,12 @@ class CustomOptionRule {
 
 class Fix {
     /**
+     * Name of the component which the fix is coming from
+     * @return {string}
+     */
+    component;
+
+    /**
      * Keyword for fix command
      * @return {string}
      */
