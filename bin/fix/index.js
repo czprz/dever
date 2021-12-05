@@ -1,5 +1,9 @@
+const readline = require("readline");
+const chalk = require('chalk');
+
 const fix_config = require('../configuration/handleFixConfig');
 const powershell = require('../common/helper/powershell');
+const delayer = require("../common/helper/delayer");
 
 module.exports = new class {
     /**
@@ -144,10 +148,14 @@ module.exports = new class {
      * Fix problem
      * @param problem {string}
      */
-    #fix(problem) {
-        const fix = fix_config.get(problem)[0];
+    async #fix(problem) {
+        const fixes = fix_config.get(problem);
 
-        // Todo: support listing of all fix's with same key together with their type and command/file. With a number which user can input and then it'll run that fix
+        const fix = await this.#getFix(fixes);
+        if (fix == null) {
+            console.error(`Fix not found!`);
+            return;
+        }
 
         switch (fix.type) {
             case 'powershell-command':
@@ -161,6 +169,53 @@ module.exports = new class {
             default:
                 throw new Error('Fix type not supported');
         }
+    }
+
+    /**
+     * Get fix that user chooses to run
+     * @param fixes {Fix[]}
+     * @returns {Promise<Fix|null>}
+     */
+    async #getFix(fixes) {
+        if (fixes == null || fixes.length < 1) {
+            return null;
+        }
+
+        if (fixes.length === 1) {
+            return fixes[0];
+        }
+
+        console.log(`Found multiple fixes with same keyword.`);
+        console.log('Please select one using the indicated number:');
+        console.log();
+
+        let n = 0;
+        for (const fix of fixes) {
+            n++;
+
+            console.log(chalk.blue(`${n}. ${fix.key}`));
+            console.log(chalk.green(`${fix.type}: ${fix.command}`));
+            console.log();
+        }
+
+        const timer = delayer.create();
+
+        const rl = readline.createInterface(process.stdin, process.stdout);
+        await rl.question('Choose which fix you would like to run:', async (answer) => {
+            let result = null;
+
+            const option = +answer;
+
+            if (typeof option === 'number' && option > 0 && option <= fixes.length) {
+                result = fixes[option - 1];
+            }
+
+            timer.done(result);
+
+            rl.close();
+        });
+
+        return timer.delay(36000000, null);
     }
 }
 

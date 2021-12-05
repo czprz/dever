@@ -21,14 +21,14 @@ class Delayer {
 
     /**
      * Message to be included with promise when delay ends
-     * @var {string | boolean}
+     * @var {unknown}
      */
     #value;
 
     /**
      *
      * @param ms {number} Milliseconds until delay ends
-     * @param value {string | boolean} @Optional include with promise when delay is expired
+     * @param value {unknown} @Optional include with promise when delay is expired
      * @returns {Promise<unknown>}
      */
     async delay(ms, value) {
@@ -38,7 +38,7 @@ class Delayer {
 
     /**
      * Will stop delay before expiration
-     * @param value {string | boolean} @Optional Value will be included with promise
+     * @param value {unknown} @Optional Value will be included with promise
      * @return {void}
      */
     done(value) {
@@ -55,7 +55,7 @@ class Delayer {
 
     /**
      * Sets message that will be included when delay promise ends
-     * @param value {string | boolean | null}
+     * @param value {unknown}
      * @return {void}
      */
     #setValue(value) {
