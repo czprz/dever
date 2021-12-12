@@ -5,6 +5,7 @@ const yargs = require("yargs")(process.argv.slice(2));
 const env = require('./environments');
 const init = require('./init');
 const fix = require('./fix');
+const install = require('./install');
 
 yargs
     .usage('\nUsage: $0 <command> [keyword]')
@@ -13,6 +14,15 @@ yargs
         desc: 'Initializes dever and searches for dever.json files',
         handler: (argv) => {
             init.init(argv).catch(console.error);
+        }
+    })
+    .command('install', 'Install project depended packages and functionality')
+    .command({
+        command: 'install [keyword]',
+        desc: 'Install project depended packages and functionality',
+        builder: (yargs) => install.getOptions(yargs),
+        handler: (argv) => {
+            install.handler(yargs, argv).catch(console.error);
         }
     })
     .command('fix', 'Fix common possibly repeatable issues')

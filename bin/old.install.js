@@ -1,5 +1,5 @@
 module.exports = {
-    install: install
+    install: oldInstall
 };
 
 const shell = require('./common/helper/shell');
@@ -9,7 +9,7 @@ const powershell = require('./common/helper/powershell');
  * Installs tools related to web or backend development
  * @param args
  */
-function install(args) {
+function oldInstall(args) {
     if (!args.all && !args.web && !args.backend) {
         console.error("Missing flag. Must have one of either --all, --web or --backend flag");
         return;
