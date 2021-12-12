@@ -1,58 +1,73 @@
 {
-    "version": 1,
-    "component": "example-component",
-    "keywords": ["example", "example-component", "ex"],
-    "dependencies": {
-        "test": {
-            "type": "docker-container",
-            "name": "mssql",
-            "image": "mcr.microsoft.com/mssql/server:2019-latest",
-            "arguments": "-e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d"
-        }, 
-        "run-migration": {
-            "type": "powershell-script",
-            "file": "/development/script.ps1",
-            "wait": {
-                "when": "before",
-                "time": 5000
-            }
-        },
-        "create-database": {
-            "type": "mssql",
-            "database": {
-                "option": "create-database",
-                "db_name": "TestDb"
-            }
-        },
-        "docker-supported-docker-start": {
-            "type": "docker-container",
-            "container": {
-                "name": "mssql",
-                "ports": ["1433:1433"],
-                "variables": ["ACCEPT_EULA=Y", "SA_PASSWORD=156test"],
-                "image": "mcr.microsoft.com/mssql/server:2019-latest"
-            }
-        },
-        "run-container": {
-            "type": "powershell",
-            "start": "docker run -n mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
-        },
-        "run_command": {
-            "type": "powershell-command",
-            "start": "docker container start $container_name",
-            "options": [
-                {
-                    "required": true,
-                    "key": "container_name",
-                    "alias": "cn",
-                    "describe": "docker container name",
-                    "insert": "$value",
-                    "rule": {
-                        "match": "^[0-9A-z-_]+$",
-                        "message": "Invalid naming format for docker container"
-                    }
-                }
-            ]
-        }
+  "version": 2,
+  "component": "example-component",
+  "keywords": [
+    "example",
+    "example-component",
+    "ex"
+  ],
+  "fix": {
+    "docker": {
+      "type": "powershell-command",
+      "command": "run this"
     }
+  },
+  "dependencies": {
+    "test": {
+      "type": "docker-container",
+      "name": "mssql",
+      "image": "mcr.microsoft.com/mssql/server:2019-latest",
+      "arguments": "-e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d"
+    },
+    "run-migration": {
+      "type": "powershell-script",
+      "file": "/development/script.ps1",
+      "wait": {
+        "when": "before",
+        "time": 5000
+      }
+    },
+    "create-database": {
+      "type": "mssql",
+      "database": {
+        "option": "create-database",
+        "db_name": "TestDb"
+      }
+    },
+    "docker-supported-docker-start": {
+      "type": "docker-container",
+      "container": {
+        "name": "mssql",
+        "ports": [
+          "1433:1433"
+        ],
+        "variables": [
+          "ACCEPT_EULA=Y",
+          "SA_PASSWORD=156test"
+        ],
+        "image": "mcr.microsoft.com/mssql/server:2019-latest"
+      }
+    },
+    "run-container": {
+      "type": "powershell",
+      "start": "docker run -n mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
+    },
+    "run_command": {
+      "type": "powershell-command",
+      "start": "docker container start $container_name",
+      "options": [
+        {
+          "required": true,
+          "key": "container_name",
+          "alias": "cn",
+          "describe": "docker container name",
+          "insert": "$value",
+          "rule": {
+            "match": "^[0-9A-z-_]+$",
+            "message": "Invalid naming format for docker container"
+          }
+        }
+      ]
+    }
+  }
 }

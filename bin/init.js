@@ -1,36 +1,38 @@
-module.exports = {
-    init: init
-}
-
 const powershell = require('./common/helper/powershell');
 const componentHandler = require('./configuration/handleComponents');
 
 const path = require("path");
 const fs = require("fs");
 
-function getConfigFiles(filePath) {
-    const file = filePath.trim();
+module.exports = new class {
+    async init() {
+        const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
-    if (!file) {
-        return;
+        console.log('Initialization has started.. Please wait..');
+
+        componentHandler.clearComponents();
+
+        const raw = await powershell.executeFileSync(file);
+        const paths = raw.trim().split('\n');
+
+        for (const path of paths) {
+            this.#getConfigFiles(path);
+        }
+
+        console.log('Initialization has been completed!');
     }
 
-    if ('dever.json' !== path.basename(file)) {
-        return;
-    }
+    #getConfigFiles(filePath) {
+        const file = filePath.trim();
 
-    componentHandler.addComponent(file);
-}
+        if (!file) {
+            return;
+        }
 
-function init(args) {
-    const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
+        if ('dever.json' !== path.basename(file)) {
+            return;
+        }
 
-    componentHandler.clearComponents();
-
-    const raw = powershell.executeFileSync(file);
-    const paths  = raw.trim().split('\n');
-
-    for (const path of paths) {
-        getConfigFiles(path);
+        componentHandler.addComponent(file);
     }
 }
