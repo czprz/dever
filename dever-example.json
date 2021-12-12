@@ -6,6 +6,17 @@
     "example-component",
     "ex"
   ],
+  "install": [
+    {
+      "type": "chocolatey",
+      "package": "git",
+      "group": "primary",
+      "after": {
+        "type": "powershell-command",
+        "command": "run this"
+      }
+    }
+  ],
   "fix": {
     "docker": {
       "type": "powershell-command",
