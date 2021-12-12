@@ -8,6 +8,8 @@ module.exports = new class {
     async init() {
         const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
+        console.log('Initialization has started.. Please wait..');
+
         componentHandler.clearComponents();
 
         const raw = await powershell.executeFileSync(file);
@@ -16,6 +18,8 @@ module.exports = new class {
         for (const path of paths) {
             this.#getConfigFiles(path);
         }
+
+        console.log('Initialization has been completed!');
     }
 
     #getConfigFiles(filePath) {

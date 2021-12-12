@@ -13,8 +13,6 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async handler(yargs, args) {
-        // Todo: Missing handling of fixes
-
         switch (true) {
             case args.list:
                 this.#showListOfProblems();
@@ -34,6 +32,7 @@ module.exports = new class {
      */
     getOptions(yargs) {
         const keyword = this.#getKeywordFromArgv(yargs.argv);
+        // Todo: How to handle .argv causing javascript execution not being able to continue when using --help
         return keyword == null ?
             this.#optionsWithoutComponent(yargs) :
             this.#optionsWithComponent(yargs, keyword);

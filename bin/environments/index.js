@@ -28,13 +28,13 @@ module.exports = new class {
                 await this.#startOrStop(args);
                 break;
             case args.config:
-                this.#showConfig(args.component);
+                this.#showConfig(args.keyword);
                 break;
             case args.list:
                 this.#listAllComponents();
                 break;
             case args.location:
-                this.#showLocation(args.component);
+                this.#showLocation(args.keyword);
                 break;
             default:
                 this.#showHelp(yargs);
@@ -59,7 +59,7 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #startOrStop(args) {
-        const keyword = args.component != null ? args.component.toLowerCase() : null;
+        const keyword = args.keyword != null ? args.keyword.toLowerCase() : null;
 
         if (keyword == null) {
             console.error(`Must have a component keyword. Please attempt with ${chalk.blue('dever env [component]')}`);
@@ -73,7 +73,7 @@ module.exports = new class {
 
         const component = components_handler.getComponent(keyword);
         if (component == null) {
-            console.log('Could not find component');
+            console.error(chalk.redBright('Could not find component with keyword'));
             return;
         }
 
@@ -131,13 +131,13 @@ module.exports = new class {
      */
     #showLocation(keyword) {
         if (keyword == null) {
-            console.error(`Missing [component]. Please try again with ${chalk.green('dever env [component] --location')}`);
+            console.error(`Missing [keyword]. Please try again with ${chalk.green('dever env [keyword] --location')}`);
             return;
         }
 
         const component = components_handler.getComponent(keyword);
         if (component == null) {
-            console.error('Could not find component');
+            console.error(chalk.redBright('Could not find component with keyword'));
             return;
         }
 
@@ -158,7 +158,7 @@ module.exports = new class {
         }
 
         if (config == null) {
-            console.error(chalk.redBright(keyword == null ? 'Could not find dever configuration' : 'Could not find component'));
+            console.error(chalk.redBright(keyword == null ? 'Could not find dever configuration' : 'Could not find component with keyword'));
             return;
         }
 
@@ -171,7 +171,7 @@ module.exports = new class {
     #listAllComponents() {
         const components = components_handler.getAllComponents();
         if (components == null || components.length === 0) {
-            console.error(`could not find any components. Please try running ${chalk.green('dever init')}`);
+            console.error(`Could not find any components. Please try running ${chalk.green('dever init')}`);
             return;
         }
 
@@ -198,7 +198,7 @@ module.exports = new class {
      */
     #optionsWithoutComponent(yargs) {
         return yargs
-            .positional('component', {
+            .positional('keyword', {
                 describe: 'Keyword for component',
                 type: 'string'
             })
@@ -219,14 +219,9 @@ module.exports = new class {
      * @returns {object}
      */
     #optionsWithComponent(yargs, keyword) {
-        const component = components_handler.getComponent(keyword);
-        if (component == null) {
-            return null;
-        }
-
         const options = yargs
-            .positional('component', {
-                describe: 'Name of component to start or stop',
+            .positional('keyword', {
+                describe: 'Keyword for component',
                 type: 'string'
             })
             .option('start', {
@@ -249,6 +244,11 @@ module.exports = new class {
                 alias: 'config',
                 describe: 'Show component configuration'
             });
+
+        const component = components_handler.getComponent(keyword);
+        if (component == null) {
+            return options;
+        }
 
         const customOptions = this.#getCustomOptions(component.dependencies);
         return customOption.addOptionsToYargs(options, customOptions);
@@ -417,7 +417,7 @@ class Args {
      * Component
      * @var {string}
      */
-    component;
+    keyword;
 
     /**
      * How component location
