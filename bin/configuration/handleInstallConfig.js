@@ -12,6 +12,19 @@ module.exports = new class {
             return null;
         }
 
-        return projects.filter(x => x.keywords.includes(keyword)).map(x => x.install);
+        return projects.find(x => x.keywords.includes(keyword)).install;
+    }
+
+    /**
+     * Get all installs for all projects
+     * @returns {Config[]}
+     */
+    getProjectsWithInstalls() {
+        const projects = config_handler.getAllComponentsConfig();
+        if (projects == null) {
+            return null;
+        }
+
+        return projects.filter(x => x.install != null);
     }
 }

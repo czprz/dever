@@ -1,4 +1,5 @@
 const config = require('../configuration/handleInstallConfig');
+const chalk = require("chalk");
 
 module.exports = new class {
     /**
@@ -11,6 +12,9 @@ module.exports = new class {
         switch (true) {
             case args.listGroups:
                 this.#listGroups(args);
+                break;
+            case args.list:
+                this.#list(args);
                 break;
             default:
                 yargs.showHelp();
@@ -40,6 +44,8 @@ module.exports = new class {
             return;
         }
 
+        console.log('Lists all available installs for the project by group')
+
         const sorted = installs.sort(x => x.group);
         let prevGroup = null;
 
@@ -50,14 +56,65 @@ module.exports = new class {
                 prevGroup = install.group;
             }
 
-            switch(install.type) {
+            console.log();
+
+            switch (install.type) {
                 case 'chocolatey': {
-                    console.log(`Type: Chocolatey, Package: ${install.package}`);
+                    console.log(`Type: ` + chalk.blue('Chocolatey'));
+                    console.log('Package: ' + chalk.green(install.package));
                     break;
                 }
                 default:
                     throw new Error('Install type not supported');
             }
+
+            if (install.after || install.before) {
+                console.log((install.after ? 'After' : 'Before') + `: powershell-command "${install.after ? install.after.command : install.before.command}"`);
+            }
+        }
+    }
+
+    /**
+     * List all projects
+     * @param args {InstallArgs}
+     */
+    #list(args) {
+        if (args.keyword) {
+            console.log('Lists all available installs for the project.');
+            const installs = config.get(args.keyword);
+            for (const install of installs) {
+                console.log();
+                // Todo: Move logic to shared function to avoid duplication
+
+                switch (install.type) {
+                    case 'chocolatey': {
+                        console.log(`Type: ` + chalk.blue('Chocolatey'));
+                        console.log('Package: ' + chalk.green(install.package));
+                        break;
+                    }
+                    default:
+                        throw new Error('Install type not supported');
+                }
+
+                if (install.after || install.before) {
+                    console.log((install.after ? 'After' : 'Before') + `: powershell-command "${install.after ? install.after.command : install.before.command}"`);
+                }
+            }
+
+            return;
+        }
+
+        const projects = config.getProjectsWithInstalls();
+
+        if (projects == null || projects.length === 0) {
+            console.error(`Could not find any projects which has an install section. Please try running ${chalk.green('dever init')}`);
+            return;
+        }
+
+        console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
+
+        for (const project of projects) {
+            console.log(`${chalk.blue(project.component)} - ${chalk.green(project.keywords)}`);
         }
     }
 
