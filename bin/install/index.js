@@ -14,7 +14,9 @@ module.exports = new class {
                 this.#listGroups(args);
                 break;
             case args.list:
-                this.#list(args);
+                args.keyword ?
+                    this.#showListOfPackages(args) :
+                    this.#showListOfProjects();
                 break;
             default:
                 yargs.showHelp();
@@ -62,19 +64,8 @@ module.exports = new class {
 
     /**
      * List all projects
-     * @param args {InstallArgs}
      */
-    #list(args) {
-        if (args.keyword) {
-            console.log('Lists all available installs for the project.');
-            const installs = config.get(args.keyword);
-            for (const install of installs) {
-                this.#showPackage(install);
-            }
-
-            return;
-        }
-
+    #showListOfProjects() {
         const projects = config.getProjectsWithInstalls();
 
         if (projects == null || projects.length === 0) {
@@ -82,10 +73,22 @@ module.exports = new class {
             return;
         }
 
-        console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
+        console.log(`List of all projects with an install section found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
             console.log(`${chalk.blue(project.component)} - ${chalk.green(project.keywords)}`);
+        }
+    }
+
+    /**
+     * List all packages for project
+     * @param args {InstallArgs}
+     */
+    #showListOfPackages(args) {
+        console.log('Lists all available installs for the project.');
+        const installs = config.get(args.keyword);
+        for (const install of installs) {
+            this.#showPackage(install);
         }
     }
 
