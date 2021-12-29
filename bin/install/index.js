@@ -1,5 +1,6 @@
 const config = require('../configuration/handleInstallConfig');
 const chalk = require("chalk");
+const shell = require("../common/helper/shell");
 
 module.exports = new class {
     /**
@@ -17,6 +18,15 @@ module.exports = new class {
                 args.keyword ?
                     this.#showListOfPackages(args) :
                     this.#showListOfProjects();
+                break;
+            case args.listGroup != null:
+                this.#showAllInstallsForSpecificGroup(args);
+                break;
+            case args.group != null:
+                this.#installAllGroupInstalls(args);
+                break;
+            case args.only != null:
+                this.#installOnlyPackage(args);
                 break;
             default:
                 yargs.showHelp();
@@ -42,7 +52,7 @@ module.exports = new class {
     #listGroups(args) {
         const installs = config.get(args.keyword);
         if (installs == null) {
-            console.error('Project could not be found');
+            console.log('Could not find any projects with [keyword]');
             return;
         }
 
@@ -85,10 +95,80 @@ module.exports = new class {
      * @param args {InstallArgs}
      */
     #showListOfPackages(args) {
-        console.log('Lists all available installs for the project.');
         const installs = config.get(args.keyword);
+        if (installs == null) {
+            console.log('Could not find any projects with [keyword]');
+            return;
+        }
+
+        console.log('Lists all available installs for the project.');
+
         for (const install of installs) {
             this.#showPackage(install);
+        }
+    }
+
+    /**
+     * List all installs for a specific install group
+     * @param args {InstallArgs}
+     */
+    #showAllInstallsForSpecificGroup(args) {
+        const installs = config.get(args.keyword);
+        if (installs == null) {
+            console.log('Could not find any projects with [keyword]');
+            return;
+        }
+
+        if (installs.length === 0) {
+            console.log('Project does not have an install section');
+            return;
+        }
+
+        if (typeof args.listGroup !== 'string') {
+            console.log('Missing input. Please include group name');
+            return;
+        }
+
+        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
+        if (groupInstalls.length === 0) {
+            console.log('Could not find any installs for this project with that specific group');
+            return;
+        }
+
+        console.log('List of installs found:');
+
+        for (const install of groupInstalls) {
+            this.#showPackage(install);
+        }
+    }
+
+    /**
+     * Installs all items defined under a project install group
+     * @param args {InstallArgs}
+     */
+    #installAllGroupInstalls(args) {
+        const installs = config.get(args.keyword);
+        if (installs == null) {
+            console.log('Could not find any projects with [keyword]');
+            return;
+        }
+
+        if (installs.length === 0) {
+            console.log('Project does not have an install section');
+            return;
+        }
+
+        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
+        if (groupInstalls.length === 0) {
+            console.log('Could not find any installs for this project with that specific group');
+            return;
+        }
+
+        // Todo: Create confirm that lists all packages about to be installed
+
+        for (const install of groupInstalls) {
+            // Todo: Add before and after executions
+            this.#installPackage(install);
         }
     }
 
@@ -108,6 +188,14 @@ module.exports = new class {
         if (install.after || install.before) {
             console.log((install.after ? 'After' : 'Before') + `: powershell-command "${install.after ? install.after.command : install.before.command}"`);
         }
+    }
+
+    /**
+     * Install chocolatey package
+     * @param install {Install}
+     */
+    #installPackage(install) {
+        shell.executeSync(`choco install ${install.package} -y`);
     }
 
     /**
@@ -140,7 +228,7 @@ module.exports = new class {
                 describe: `List all options under install section in the projects dever.json`,
             })
             .option('list-groups', {
-                alias: 'g',
+                alias: 'lgs',
                 describe: 'List of all installation groups under install section in the projects dever.json'
             })
             .option('list-group', {
@@ -148,7 +236,7 @@ module.exports = new class {
                 describe: 'List of all installs underneath a specific group in the projects dever.json'
             })
             .option('group', {
-                alias: 'ig',
+                alias: 'g',
                 describe: 'Install all items underneath a specific group in the projects dever.json'
             })
             .option('only', {
@@ -156,7 +244,7 @@ module.exports = new class {
                 describe: 'Install only specific package'
             })
             .option('no-before-after', {
-                alias: 'nbf',
+                alias: 'nba',
                 describe: 'Disables running of before and after functionality if defined in project dever.json'
             });
     }
@@ -172,6 +260,34 @@ module.exports = new class {
         }
 
         return argv._[1];
+    }
+
+    /**
+     * Install only specific project install package
+     * @param args {InstallArgs}
+     */
+    #installOnlyPackage(args) {
+        const installs = config.get(args.keyword);
+        if (installs == null) {
+            console.log('Could not find any projects with [keyword]');
+            return;
+        }
+
+        if (installs.length === 0) {
+            console.log('Project does not have an install section');
+            return;
+        }
+
+        const install = installs.find(x => x.package.toLowerCase() === args.only.toLowerCase());
+        if (install == null) {
+            console.log('Could not find any install package');
+            return;
+        }
+
+        // Todo: Show confirmation of what your about to install
+        // Todo: Create new option to ignore confirmations
+
+        this.#installPackage(install);
     }
 }
 

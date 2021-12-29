@@ -12,7 +12,12 @@ module.exports = new class {
             return null;
         }
 
-        return projects.find(x => x.keywords.includes(keyword)).install;
+        const project = projects.find(x => x.keywords.includes(keyword));
+        if (project == null) {
+            return [];
+        }
+
+        return project.install;
     }
 
     /**
