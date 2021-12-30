@@ -160,18 +160,116 @@ module.exports = new class {
             return;
         }
 
-        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
+        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.group.toLowerCase());
         if (groupInstalls.length === 0) {
             console.log('Could not find any installs for this project with that specific group');
             return;
         }
 
-        // Todo: Create confirm that lists all packages about to be installed
-
-        for (const install of groupInstalls) {
-            // Todo: Add before and after executions
-            this.#installPackage(install);
+        for (const install of installs) {
+            this.#showPackage(install);
         }
+
+        console.log();
+
+        this.#confirmInstall(args, () => {
+            for (const install of groupInstalls) {
+                // Todo: Add before and after executions
+                this.#installPackage(install);
+            }
+        });
+    }
+
+    /**
+     * Install only specific project install package
+     * @param args {InstallArgs}
+     */
+    #installOnlyPackage(args) {
+        const installs = config.get(args.keyword);
+        if (installs == null) {
+            console.log('Could not find any projects with [keyword]');
+            return;
+        }
+
+        if (installs.length === 0) {
+            console.log('Project does not have an install section');
+            return;
+        }
+
+        const install = installs.find(x => x.package.toLowerCase() === args.only.toLowerCase());
+        if (install == null) {
+            console.log('Could not find any install package');
+            return;
+        }
+
+        // Todo: Add elevated check.
+        // Todo: Add support for before and after commands
+
+        this.#confirmInstall(args, () => {
+            this.#installPackage(install);
+        });
+    }
+
+    /**
+     * Install all items for specific project or show help
+     * @param yargs {object}
+     * @param args {InstallArgs}
+     */
+    #installAllOrShowHelp(yargs, args) {
+        if (args.keyword) {
+            // Todo: Add elevated check.
+            // Todo: Add support for before and after commands
+
+            console.log('Packages about to be installed:');
+
+            const installs = config.get(args.keyword);
+            if (installs == null || installs.length === 0) {
+                console.log('No or empty install section found for project');
+                return;
+            }
+
+            for (const install of installs) {
+                this.#showPackage(install);
+            }
+
+            console.log();
+
+            this.#confirmInstall(args, () => {
+                for (const install of installs) {
+                    // Todo: Better handling of error/progress messages
+                    this.#installPackage(install);
+                }
+            })
+
+            return;
+        }
+
+        yargs.showHelp();
+    }
+
+    /**
+     * Confirm before callback is executed
+     * @param args {InstallArgs}
+     * @param callback {function}
+     */
+    #confirmInstall(args, callback) {
+        if (args.ignore) {
+            callback();
+            return;
+        }
+
+        const rl = readline.createInterface(process.stdin, process.stdout);
+        rl.question('Are you sure you want to install all packages? [yes]/no:', (answer) => {
+            if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+                rl.close();
+
+                return;
+            }
+
+            callback();
+
+            rl.close();
+        });
     }
 
     #showPackage(install) {
@@ -245,6 +343,10 @@ module.exports = new class {
                 alias: 'o',
                 describe: 'Install only specific package'
             })
+            .option('ignore', {
+                alias: 'i',
+                describe: 'Ignore confirmations'
+            })
             .option('no-before-after', {
                 alias: 'nba',
                 describe: 'Disables running of before and after functionality if defined in project dever.json'
@@ -263,89 +365,6 @@ module.exports = new class {
 
         return argv._[1];
     }
-
-    /**
-     * Install only specific project install package
-     * @param args {InstallArgs}
-     */
-    #installOnlyPackage(args) {
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
-        if (installs.length === 0) {
-            console.log('Project does not have an install section');
-            return;
-        }
-
-        const install = installs.find(x => x.package.toLowerCase() === args.only.toLowerCase());
-        if (install == null) {
-            console.log('Could not find any install package');
-            return;
-        }
-
-        // Todo: Show confirmation of what your about to install
-        // Todo: Create new option to ignore confirmations
-        // Todo: Add elevated check.
-
-        this.#installPackage(install);
-    }
-
-    /**
-     * Install all items for specific project or show help
-     * @param yargs {object}
-     * @param args {InstallArgs}
-     */
-    #installAllOrShowHelp(yargs, args) {
-        if (args.keyword) {
-            // Todo: Add installation confirmation and list packages being installed.
-            // Todo: Add elevated check.
-
-            const installs = config.get(args.keyword);
-            if (installs == null || installs.length === 0) {
-                console.log('No or empty install section found for project');
-                return;
-            }
-
-            for (const install of installs) {
-                this.#showPackage(install);
-            }
-
-            console.log('Packages about to be installed.');
-
-            this.#confirmInstall(() => {
-                for (const install of installs) {
-                    // Todo: Better handling of error/progress messages
-                    this.#installPackage(install);
-                }
-            })
-
-            return;
-        }
-
-        yargs.showHelp();
-    }
-
-    /**
-     * Confirm before callback is executed
-     * @param callback {function}
-     */
-    #confirmInstall(callback) {
-        const rl = readline.createInterface(process.stdin, process.stdout);
-        rl.question('Are you sure you want to install all packages? [yes]/no:', (answer) => {
-            if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
-                rl.close();
-
-                return;
-            }
-
-            callback();
-
-            rl.close();
-        });
-    }
 }
 
 class InstallArgs {
@@ -362,7 +381,7 @@ class InstallArgs {
     list;
 
     /**
-     * List all groups and which items is underneath each group
+     * List all groups and which items are underneath each group
      * @return {boolean}
      */
     listGroups;
@@ -390,4 +409,10 @@ class InstallArgs {
      * @return {boolean}
      */
     noBeforeAfter;
+
+    /**
+     * Ignore confirmations
+     * @return {boolean}
+     */
+    ignore;
 }
