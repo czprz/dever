@@ -3,6 +3,7 @@ const chalk = require("chalk");
 
 const config = require('../configuration/handleInstallConfig');
 const shell = require("../common/helper/shell");
+const sudo = require('../common/helper/elevated');
 
 module.exports = new class {
     /**
@@ -148,7 +149,12 @@ module.exports = new class {
      * Installs all items defined under a project install group
      * @param args {InstallArgs}
      */
-    #installAllGroupInstalls(args) {
+    async #installAllGroupInstalls(args) {
+        if (!await sudo.isElevated()) {
+            console.log('Install of packages requires elevated permissions');
+            return;
+        }
+
         const installs = config.get(args.keyword);
         if (installs == null) {
             console.log('Could not find any projects with [keyword]');
@@ -176,8 +182,7 @@ module.exports = new class {
 
         this.#confirmInstall(args, () => {
             for (const install of groupInstalls) {
-                // Todo: Add before and after executions
-                this.#installPackage(install);
+                this.#installPackage(args, install);
             }
         });
     }
@@ -186,7 +191,12 @@ module.exports = new class {
      * Install only specific project install package
      * @param args {InstallArgs}
      */
-    #installOnlyPackage(args) {
+    async #installOnlyPackage(args) {
+        if (!await sudo.isElevated()) {
+            console.log('Install of packages requires elevated permissions');
+            return;
+        }
+
         const installs = config.get(args.keyword);
         if (installs == null) {
             console.log('Could not find any projects with [keyword]');
@@ -204,11 +214,8 @@ module.exports = new class {
             return;
         }
 
-        // Todo: Add elevated check.
-        // Todo: Add support for before and after commands
-
         this.#confirmInstall(args, () => {
-            this.#installPackage(install);
+            this.#installPackage(args, install);
         });
     }
 
@@ -217,10 +224,12 @@ module.exports = new class {
      * @param yargs {object}
      * @param args {InstallArgs}
      */
-    #installAllOrShowHelp(yargs, args) {
+    async #installAllOrShowHelp(yargs, args) {
         if (args.keyword) {
-            // Todo: Add elevated check.
-            // Todo: Add support for before and after commands
+            if (!await sudo.isElevated()) {
+                console.log('Install of packages requires elevated permissions');
+                return;
+            }
 
             console.log('Packages about to be installed:');
 
@@ -239,7 +248,7 @@ module.exports = new class {
             this.#confirmInstall(args, () => {
                 for (const install of installs) {
                     // Todo: Better handling of error/progress messages
-                    this.#installPackage(install);
+                    this.#installPackage(args, install);
                 }
             })
 
@@ -294,10 +303,34 @@ module.exports = new class {
 
     /**
      * Install chocolatey package
+     * @param args {InstallArgs}
      * @param install {Install}
      */
-    #installPackage(install) {
+    #installPackage(args, install) {
+        this.executeStep(args, install.before);
+
         shell.executeSync(`choco install ${install.package} -y`);
+
+        this.executeStep(args, install.after);
+    }
+
+    /**
+     * Execute either before or after
+     * @param args {InstallArgs}
+     * @param step {Step}
+     */
+    executeStep(args, step) {
+        if (args.noBeforeAfter || step == null) {
+            return;
+        }
+
+        switch(step.type) {
+            case 'powershell-command':
+                shell.executeSync(step.command);
+                break;
+            default:
+                throw new Error('Install before or after command type not supported');
+        }
     }
 
     /**
