@@ -166,6 +166,8 @@ module.exports = new class {
             return;
         }
 
+        console.log('Packages about to be installed:');
+
         for (const install of installs) {
             this.#showPackage(install);
         }
