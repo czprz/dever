@@ -29,7 +29,7 @@ module.exports = new class {
                 this.#installOnlyPackage(args);
                 break;
             default:
-                yargs.showHelp();
+                this.#installAll(yargs, args);
         }
     }
 
@@ -286,8 +286,35 @@ module.exports = new class {
 
         // Todo: Show confirmation of what your about to install
         // Todo: Create new option to ignore confirmations
+        // Todo: Add elevated check.
 
         this.#installPackage(install);
+    }
+
+    /**
+     * Install all items for specific project or show help
+     * @param yargs {object}
+     * @param args {InstallArgs}
+     */
+    #installAll(yargs, args) {
+        if (args.keyword) {
+            // Todo: Add installation confirmation and list packages being installed.
+            // Todo: Add elevated check.
+            const installs = config.get(args.keyword);
+            if (installs == null) {
+                console.log('No install section found for project');
+                return;
+            }
+
+            for (const install of installs) {
+                // Todo: Better handling of error/progress messages
+                this.#installPackage(install);
+            }
+
+            return;
+        }
+
+        yargs.showHelp();
     }
 }
 
