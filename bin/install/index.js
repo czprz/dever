@@ -1,5 +1,7 @@
-const config = require('../configuration/handleInstallConfig');
+const readline = require("readline");
 const chalk = require("chalk");
+
+const config = require('../configuration/handleInstallConfig');
 const shell = require("../common/helper/shell");
 
 module.exports = new class {
@@ -29,7 +31,7 @@ module.exports = new class {
                 this.#installOnlyPackage(args);
                 break;
             default:
-                this.#installAll(yargs, args);
+                this.#installAllOrShowHelp(yargs, args);
         }
     }
 
@@ -296,25 +298,53 @@ module.exports = new class {
      * @param yargs {object}
      * @param args {InstallArgs}
      */
-    #installAll(yargs, args) {
+    #installAllOrShowHelp(yargs, args) {
         if (args.keyword) {
             // Todo: Add installation confirmation and list packages being installed.
             // Todo: Add elevated check.
+
             const installs = config.get(args.keyword);
-            if (installs == null) {
-                console.log('No install section found for project');
+            if (installs == null || installs.length === 0) {
+                console.log('No or empty install section found for project');
                 return;
             }
 
             for (const install of installs) {
-                // Todo: Better handling of error/progress messages
-                this.#installPackage(install);
+                this.#showPackage(install);
             }
+
+            console.log('Packages about to be installed.');
+
+            this.#confirmInstall(() => {
+                for (const install of installs) {
+                    // Todo: Better handling of error/progress messages
+                    this.#installPackage(install);
+                }
+            })
 
             return;
         }
 
         yargs.showHelp();
+    }
+
+    /**
+     * Confirm before callback is executed
+     * @param callback {function}
+     */
+    #confirmInstall(callback) {
+        const rl = readline.createInterface(process.stdin, process.stdout);
+        rl.question('Are you sure you want to install all packages? [yes]/no:', (answer) => {
+            if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+                rl.close();
+
+                return;
+            }
+
+            callback();
+
+            rl.close();
+        });
     }
 }
 
