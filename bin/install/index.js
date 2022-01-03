@@ -151,7 +151,7 @@ module.exports = new class {
      */
     async #installAllGroupInstalls(args) {
         if (!await sudo.isElevated()) {
-            console.log('Install of packages requires elevated permissions');
+            console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
@@ -193,7 +193,7 @@ module.exports = new class {
      */
     async #installOnlyPackage(args) {
         if (!await sudo.isElevated()) {
-            console.log('Install of packages requires elevated permissions');
+            console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
@@ -227,7 +227,7 @@ module.exports = new class {
     async #installAllOrShowHelp(yargs, args) {
         if (args.keyword) {
             if (!await sudo.isElevated()) {
-                console.log('Install of packages requires elevated permissions');
+                console.log(chalk.red('Install of packages requires elevated permissions'));
                 return;
             }
 
