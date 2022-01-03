@@ -26,7 +26,7 @@ module.exports = new class {
                 this.#showAllInstallsForSpecificGroup(args);
                 break;
             case args.group != null:
-                this.#installAllGroupInstalls(args);
+                this.#installAllWithSameGroup(args);
                 break;
             case args.only != null:
                 this.#installOnlyPackage(args);
@@ -149,7 +149,7 @@ module.exports = new class {
      * Installs all items defined under a project install group
      * @param args {InstallArgs}
      */
-    async #installAllGroupInstalls(args) {
+    async #installAllWithSameGroup(args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
