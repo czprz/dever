@@ -39,6 +39,11 @@ module.exports = new class {
         return fix.filter(x => x.key === problem);
     }
 
+    getProject(keyword) {
+        return config_handler.getAllComponentsConfig();
+
+    }
+
     /**
      * Add component to each fix
      * @param fixes {Fix[]}

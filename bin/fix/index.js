@@ -15,7 +15,7 @@ module.exports = new class {
     async handler(yargs, args) {
         switch (true) {
             case args.list:
-                this.#showListOfProblems();
+                this.#showList(args);
                 break;
             case args.show:
                 this.#showFix(args);
@@ -34,8 +34,8 @@ module.exports = new class {
         const keyword = this.#getKeywordFromArgv(yargs.argv);
         // Todo: How to handle .argv causing javascript execution not being able to continue when using --help
         return keyword == null ?
-            this.#optionsWithoutComponent(yargs) :
-            this.#optionsWithComponent(yargs, keyword);
+            this.#optionsWithoutKeyword(yargs) :
+            this.#optionsWithKeyword(yargs, keyword);
     }
 
     /**
@@ -52,15 +52,15 @@ module.exports = new class {
      * @param yargs {object}
      * @returns {object}
      */
-    #optionsWithoutComponent(yargs) {
+    #optionsWithoutKeyword(yargs) {
         return yargs
-            .positional('problem', {
-                describe: 'Name of problem that you would like to fix that is listed in dever.json',
+            .positional('keyword', {
+                describe: 'One of the defined project keywords',
                 type: 'string'
             })
             .option('list', {
                 alias: 'l',
-                describe: 'List of all problems which is supported',
+                describe: 'List all projects which has an available fixes',
             });
     }
 
@@ -70,11 +70,19 @@ module.exports = new class {
      * @param keyword {string}
      * @returns {object}
      */
-    #optionsWithComponent(yargs, keyword) {
+    #optionsWithKeyword(yargs, keyword) {
         return yargs
+            .option('fix', {
+                alias: 'f',
+                describe: 'Name of fix you want to execute'
+            })
             .option('show', {
                 alias: 's',
-                describe: `Shows what 'fix [problem]' will execute`,
+                describe: `Instead of executing fix it'll show what it will do`,
+            })
+            .option('list', {
+                alias: 'l',
+                describe: 'List all available fixes for project'
             });
     }
 
@@ -116,20 +124,18 @@ module.exports = new class {
 
     /**
      * Show a list of problems which can be solved using 'fix [problem]'
+     * @param args {FixArgs}
      */
-    #showListOfProblems() {
-        const fixes = fix_config.getAll();
-        if (fixes == null) {
-            console.log(`no 'fix' commands available in any dever.json`);
-            return;
-        }
-
-        console.log();
-
-        for (const fix of fixes) {
-            console.log(chalk.blue(`'${fix.key}' from ${fix.component}`));
-            console.log(chalk.green(`${fix.type}: ${fix.command}`));
-            console.log();
+    #showList(args) {
+        switch(args.keyword) {
+            case null:
+                this.#listProjectsWithFixes();
+                break;
+            case !null:
+                this.#listAllProjectFixes(args.keyword);
+                break;
+            default:
+                throw new Error('List type not supported');
         }
     }
 
@@ -221,14 +227,34 @@ module.exports = new class {
 
         return timer.delay(36000000, null);
     }
+
+    #listProjectsWithFixes() {
+        const fixes = fix_config.getAll();
+        if (fixes == null) {
+            console.log(`no fixes available in any project`);
+            return;
+        }
+
+        console.log();
+
+        for (const fix of fixes) {
+            console.log(chalk.blue(`'${fix.key}' from ${fix.component}`));
+            console.log(chalk.green(`${fix.type}: ${fix.command}`));
+            console.log();
+        }
+    }
+
+    #listAllProjectFixes() {
+        const fixes = fix_config
+    }
 }
 
 class FixArgs {
     /**
-     * Defined which 'problem' fix should solve
+     * Unique project keyword
      * @return {string}
      */
-    problem;
+    keyword;
 
     /**
      * Show command/file that will be executed when running 'fix [problem]' command
