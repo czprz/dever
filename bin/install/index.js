@@ -89,7 +89,7 @@ module.exports = new class {
         console.log(`List of all projects with an install section found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
-            console.log(`${chalk.blue(project.component)} - ${chalk.green(project.keywords)}`);
+            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
         }
     }
 

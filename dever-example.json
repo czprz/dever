@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "component": "example-component",
+  "name": "example-component",
   "keywords": [
     "example",
     "example-component",
@@ -17,12 +17,13 @@
       }
     }
   ],
-  "fix": {
-    "docker": {
+  "fix": [
+    {
+      "key": "docker",
       "type": "powershell-command",
       "command": "run this"
     }
-  },
+  ],
   "dependencies": {
     "test": {
       "type": "docker-container",

@@ -20,8 +20,11 @@ module.exports = new class {
             case args.show:
                 this.#showFix(args);
                 break;
+            case args.fix:
+                this.#fix(args);
+                break;
             default:
-                this.#showHelpOrFix(yargs, args);
+                yargs.showHelp();
         }
     }
 
@@ -36,15 +39,6 @@ module.exports = new class {
         return keyword == null ?
             this.#optionsWithoutKeyword(yargs) :
             this.#optionsWithKeyword(yargs, keyword);
-    }
-
-    /**
-     * Show help context menu when called
-     * @param yargs
-     * @return void
-     */
-    #showHelp(yargs) {
-        yargs.showHelp();
     }
 
     /**
@@ -104,6 +98,7 @@ module.exports = new class {
      * @param args {FixArgs}
      */
     #showFix(args) {
+        // Todo: Fix
         const fixes = fix_config.get(args.problem);
         if (fixes == null) {
             console.log(`fix could not be found`);
@@ -127,40 +122,20 @@ module.exports = new class {
      * @param args {FixArgs}
      */
     #showList(args) {
-        switch(args.keyword) {
-            case null:
-                this.#listProjectsWithFixes();
-                break;
-            case !null:
-                this.#listAllProjectFixes(args.keyword);
-                break;
-            default:
-                throw new Error('List type not supported');
-        }
-    }
-
-    /**
-     * Fix or show help depending on whether 'problem' is defined or not
-     * @param yargs {object}
-     * @param args {FixArgs}
-     */
-    #showHelpOrFix(yargs, args) {
-        if (args.problem != null) {
-            this.#fix(args.problem).catch(console.error);
+        if (args.keyword == null) {
+            this.#listProjectsWithFixes();
             return;
         }
 
-        this.#showHelp(yargs);
+        this.#listAllProjectFixes(args.keyword);
     }
 
     /**
      * Fix problem
-     * @param problem {string}
+     * @param args {FixArgs}
      */
-    async #fix(problem) {
-        const fixes = fix_config.get(problem);
-
-        const fix = await this.#getFix(fixes);
+    #fix(args) {
+        const fix = fix_config.getFix(args.keyword, args.fix);
         if (fix == null) {
             console.error(`Fix not found!`);
             return;
@@ -180,72 +155,47 @@ module.exports = new class {
         }
     }
 
-    /**
-     * Get fix that user chooses to run
-     * @param fixes {Fix[]}
-     * @returns {Promise<Fix|null>}
-     */
-    #getFix(fixes) {
-        if (fixes == null || fixes.length < 1) {
-            return null;
-        }
-
-        if (fixes.length === 1) {
-            // Todo: Test if working
-            return new Promise((resolve) => resolve(fixes[0]));
-        }
-
-        console.log(`Found multiple fixes with same keyword.`);
-        console.log('Please select one using the indicated number:');
-        console.log();
-
-        let n = 0;
-        for (const fix of fixes) {
-            n++;
-
-            console.log(chalk.blue(`${n}. '${fix.key}' from ${fix.component}`));
-            console.log(chalk.green(`${fix.type}: ${fix.command}`));
-            console.log();
-        }
-
-        const timer = delayer.create();
-
-        const rl = readline.createInterface(process.stdin, process.stdout);
-        rl.question('Choose which fix you would like to run [number]:', (answer) => {
-            let result = null;
-
-            const option = +answer;
-
-            if (typeof option === 'number' && option > 0 && option <= fixes.length) {
-                result = fixes[option - 1];
-            }
-
-            timer.done(result);
-
-            rl.close();
-        });
-
-        return timer.delay(36000000, null);
-    }
-
     #listProjectsWithFixes() {
-        const fixes = fix_config.getAll();
-        if (fixes == null) {
-            console.log(`no fixes available in any project`);
+        const projects = fix_config.getAllProjectsWithFix();
+        if (projects == null) {
+            console.log(`no projects available with fix section`);
             return;
         }
 
-        console.log();
+        console.log('Projects which has fixes available.');
 
-        for (const fix of fixes) {
-            console.log(chalk.blue(`'${fix.key}' from ${fix.component}`));
-            console.log(chalk.green(`${fix.type}: ${fix.command}`));
+        for (const project of projects) {
             console.log();
+            console.log(chalk.blue('Project: ') + chalk.green(project.name));
+            console.log(chalk.blue('Keywords: ') + chalk.green(project.keywords.join(', ')));
         }
     }
 
-    #listAllProjectFixes() {
-        const fixes = fix_config
+    /**
+     * List all project fixes
+     * @param keyword {string}
+     */
+    #listAllProjectFixes(keyword) {
+        const project = fix_config.getProjectWithFixes(keyword);
+        if (project == null) {
+            console.log(chalk.redBright('Could not find any project with given keyword'));
+            return;
+        }
+
+        for (const fix of project.fix) {
+            this.#showFixInConsole(fix, project.name);
+        }
+    }
+
+    /**
+     * Show fix in the console
+     * @param fix {Fix}
+     * @param projectName {string}
+     */
+    #showFixInConsole(fix, projectName) {
+        console.log();
+        console.log(chalk.blue(`'${fix.key}' from ${projectName}`));
+        console.log(chalk.green(`${fix.type}: ${fix.command}`));
     }
 }
 
@@ -264,7 +214,13 @@ class FixArgs {
 
     /**
      * Show list of possible fixes
-     * @var {bool}
+     * @return {boolean}
      */
     list;
+
+    /**
+     * Name of fix to be executed
+     * @return {string}
+     */
+    fix;
 }

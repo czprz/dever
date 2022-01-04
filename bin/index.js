@@ -27,7 +27,7 @@ yargs
     })
     .command('fix', 'Fix common possibly repeatable issues')
     .command({
-        command: 'fix [problem]',
+        command: 'fix [keyword]',
         desc: 'Fix common possibly repeatable issues',
         builder: (yargs) => fix.getOptions(yargs),
         handler: (argv) => {
