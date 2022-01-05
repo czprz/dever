@@ -1,9 +1,7 @@
-const readline = require("readline");
 const chalk = require('chalk');
 
 const fix_config = require('../configuration/handleFixConfig');
 const powershell = require('../common/helper/powershell');
-const delayer = require("../common/helper/delayer");
 
 module.exports = new class {
     /**
@@ -17,10 +15,10 @@ module.exports = new class {
             case args.list:
                 this.#showList(args);
                 break;
-            case args.show:
+            case args.show != null:
                 this.#showFix(args);
                 break;
-            case args.fix:
+            case args.fix != null:
                 this.#fix(args);
                 break;
             default:
@@ -98,22 +96,19 @@ module.exports = new class {
      * @param args {FixArgs}
      */
     #showFix(args) {
-        // Todo: Fix
-        const fixes = fix_config.get(args.problem);
-        if (fixes == null) {
-            console.log(`fix could not be found`);
+        const fix = fix_config.getFix(args.keyword, args.show);
+        if (fix == null) {
+            console.log(`Could not find project or fix.`);
             return;
         }
 
-        for (const fix of fixes) {
-            switch (fix.type) {
-                case "powershell-command":
-                case "powershell-script":
-                    console.log(`${fix.type}: ${fix.command}`);
-                    break;
-                default:
-                    console.error('fix type not supported');
-            }
+        switch (fix.type) {
+            case "powershell-command":
+            case "powershell-script":
+                console.log(chalk.blue(fix.type + ':') + ' ' + chalk.green(fix.command));
+                break;
+            default:
+                console.error('fix type not supported');
         }
     }
 
@@ -135,9 +130,10 @@ module.exports = new class {
      * @param args {FixArgs}
      */
     #fix(args) {
+        console.log(args);
         const fix = fix_config.getFix(args.keyword, args.fix);
         if (fix == null) {
-            console.error(`Fix not found!`);
+            console.error('Could not find project or fix');
             return;
         }
 
@@ -208,7 +204,7 @@ class FixArgs {
 
     /**
      * Show command/file that will be executed when running 'fix [problem]' command
-     * @return {boolean}
+     * @return {string}
      */
     show;
 
