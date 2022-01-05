@@ -130,7 +130,6 @@ module.exports = new class {
      * @param args {FixArgs}
      */
     #fix(args) {
-        console.log(args);
         const fix = fix_config.getFix(args.keyword, args.fix);
         if (fix == null) {
             console.error('Could not find project or fix');
