@@ -178,7 +178,7 @@ module.exports = new class {
         console.log(`List of all components found after last ${chalk.green('dever init')} scan`);
 
         for (const component of components) {
-            console.log(`${chalk.blue(component.component)} - ${chalk.green(component.keywords)}`);
+            console.log(`${chalk.blue(component.name)} - ${chalk.green(component.keywords)}`);
         }
     }
 
