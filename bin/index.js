@@ -7,45 +7,21 @@ const init = require('./init');
 const fix = require('./fix');
 const install = require('./install');
 
+const yargsGenerator = require('./common/yargs-generator');
+
 yargs
-    .usage('\nUsage: $0 <command> [keyword]')
+    .usage('\nUsage: $0 [keyword] <command>')
     .command({
         command: 'init',
         desc: 'Initializes dever and searches for dever.json files',
         handler: (argv) => {
             init.init(argv).catch(console.error);
         }
-    })
-    .command('install', 'Install project depended packages and functionality')
-    .command({
-        command: 'install [keyword]',
-        desc: 'Install project depended packages and functionality',
-        builder: (yargs) => install.getOptions(yargs),
-        handler: (argv) => {
-            install.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .command('fix', 'Fix common possibly repeatable issues')
-    .command({
-        command: 'fix [keyword]',
-        desc: 'Fix common possibly repeatable issues',
-        builder: (yargs) => fix.getOptions(yargs),
-        handler: (argv) => {
-            fix.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .command('env', 'Development environment organizer')
-    .command({
-        command: 'env [keyword]',
-        desc: 'Development environment organizer',
-        builder: (yargs) => env.getOptions(yargs),
-        handler: (argv) => {
-            env.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .scriptName("dever")
-    .wrap(100);
+    });
 
-if (yargs.argv._.length === 0) {
-    yargs.showHelp();
-}
+yargsGenerator.get(yargs);
+
+yargs
+    .scriptName("dever")
+    .wrap(100)
+    .parse();
