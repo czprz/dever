@@ -3,12 +3,64 @@ const projectConfig = require('../configuration/handleComponents');
 const install = require("../install");
 const fix = require("../fix");
 const env = require("../environments");
+const init = require("../init");
 
 module.exports = new class {
+    /**
+     * Get yargs structure for default
+     * @param yargs {object}
+     * @return void
+     */
+    default(yargs) {
+        yargs
+            .command({
+                command: 'init',
+                desc: 'Initializes dever and searches for dever.json files',
+                handler: (argv) => {
+                    console.log('hit');
+                    //init.init(argv).catch(console.error);
+                }
+            })
+            .command({
+                command: '[keyword]',
+                desc: 'Project keyword',
+                handler: (argv) => {
+                    console.log('test');
+                },
+            })
+            .option('list', {
+                alias: 'l',
+                describe: 'List all available projects found by running dever init',
+            });
+    }
+
+    /**
+     * Run show help for default
+     * @param yargs {object}
+     */
+    defaultAction(yargs) {
+        if (yargs.argv._.length === 0) {
+            yargs.showHelp();
+        }
+    }
+
+    /**
+     * Get yargs structure for project
+     * @param keyword {string}
+     * @param config {Config}
+     * @param yargs {object}
+     * @return void
+     */
+    project(keyword, config, yargs) {
+        this.#createInstall(keyword, config, yargs);
+        this.#createEnvironment(keyword, config, yargs);
+        this.#createFix(keyword, config, yargs);
+    }
+
     get(yargs) {
         yargs
             .command({
-                command: '$0',
+                command: ['$0'],
                 desc: 'install, fix or run project environment from here. Using one of the project keywords',
                 builder: (yargs) => this.#options(yargs),
                 handler: (argv) => {
@@ -22,6 +74,7 @@ module.exports = new class {
     }
 
     #run(yargs, argv) {
+        console.log(argv);
         if (argv.list) {
             this.#list();
             return;
@@ -29,7 +82,7 @@ module.exports = new class {
 
         const keyword = this.#getKeywordFromArgv(argv);
         if (keyword != null) {
-            this.#choose(keyword, argv);
+            this.#choose(keyword, yargs, argv);
             return;
         }
 
@@ -53,8 +106,8 @@ module.exports = new class {
         this.#createFix(config, yargs);
     }
 
-    #choose(keyword, argv) {
-        const section = this.#getSectionFromArgv(argv).toLowerCase();
+    #choose(keyword, yargs, argv) {
+        const section = this.#getSectionFromArgv(argv);
         switch (section) {
             case 'install':
                 console.log('install');
@@ -66,8 +119,7 @@ module.exports = new class {
                 console.log('fix');
                 break;
             default:
-                console.log('did not hit');
-                console.log(argv);
+                yargs.showHelp();
         }
     }
 
@@ -83,18 +135,18 @@ module.exports = new class {
 
     /**
      * Create commands for install section
+     * @param keyword {string}
      * @param config {Config}
      * @param yargs
      */
-    #createInstall(config, yargs) {
+    #createInstall(keyword, config, yargs) {
         if (config.install == null) {
             return;
         }
 
         yargs
-            .command('[keyword] install', 'Install project depended packages and functionality')
             .command({
-                command: '[keyword] install',
+                command: `install`,
                 desc: 'Install project depended packages and functionality',
                 builder: (yargs) => install.getOptions(yargs),
                 handler: (argv) => {
@@ -105,18 +157,18 @@ module.exports = new class {
 
     /**
      * Create commands for environment section
+     * @param keyword {string}
      * @param config {Config}
      * @param yargs
      */
-    #createEnvironment(config, yargs) {
+    #createEnvironment(keyword, config, yargs) {
         if (config.dependencies == null) {
             return;
         }
 
         yargs
-            .command('env', 'Development environment organizer')
             .command({
-                command: 'env [keyword]',
+                command: 'env',
                 desc: 'Development environment organizer',
                 builder: (yargs) => env.getOptions(yargs),
                 handler: (argv) => {
@@ -127,15 +179,18 @@ module.exports = new class {
 
     /**
      * Create commands for fix section
+     * @param keyword {string}
      * @param config {Config}
      * @param yargs
      */
-    #createFix(config, yargs) {
-        if (yargs)
+    #createFix(keyword, config, yargs) {
+        if (config.fix == null) {
+            return;
+        }
+
             yargs
-                .command('fix', 'Fix common possibly repeatable issues')
                 .command({
-                    command: 'fix [keyword]',
+                    command: 'fix',
                     desc: 'Fix common possibly repeatable issues',
                     builder: (yargs) => fix.getOptions(yargs),
                     handler: (argv) => {
@@ -163,10 +218,10 @@ module.exports = new class {
      * @returns {null|*}
      */
     #getSectionFromArgv(argv) {
-        if (argv.length < 2) {
+        if (argv._ == null || argv._.length < 2) {
             return null;
         }
 
-        return argv._[1];
+        return argv._[1].toLowerCase();
     }
 }
