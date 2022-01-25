@@ -31,6 +31,14 @@ module.exports = new class {
     }
 
     /**
+     * Get file path to dever.json
+     * @return {string}
+     */
+    getFilePath() {
+        return this.#filePath;
+    }
+
+    /**
      * Get dever configuration
      * @returns {LocalConfig}
      */

@@ -11,7 +11,7 @@ module.exports = new class {
      * Handle starting and stopping of docker-compose
      * @param component {Config} Component configuration
      * @param dependency {Dependency} Dependency options
-     * @param args {Args} shell arguments
+     * @param args {EnvArgs} shell arguments
      * @param name {string} Name of docker-compose sequence
      */
     handle(component, dependency, args, name) {
@@ -42,7 +42,7 @@ module.exports = new class {
      * Start docker-compose
      * @param component {Config} Component configuration
      * @param file {string} FilePath to docker-compose
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @param name {string} Name of docker-compose sequence
      */
     #start(component, file, args, name) {
