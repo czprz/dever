@@ -4,7 +4,7 @@ module.exports = new class {
     /**
      * Handler for mssql dependencies
      * @param dependency {Dependency}
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @param name {string}
      */
     async handle(dependency, args, name) {

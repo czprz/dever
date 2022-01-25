@@ -10,7 +10,7 @@ const path = require("path");
  *
  * @param component {Config}
  * @param dependency {Dependency}
- * @param args {Args}
+ * @param args {EnvArgs}
  * @param name {string}
  * @return {Promise<void>}
  */

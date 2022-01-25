@@ -1,51 +1,43 @@
 #! /usr/bin/env node
 
-const yargs = require("yargs")(process.argv.slice(2));
+const defaultYargsGenerator = require('./common/default-yargs-generator');
+const projectYargsGenerator = require('./common/project-yargs-generator');
+const projectConfig = require('./configuration/handleComponents');
 
-const env = require('./environments');
-const init = require('./init');
-const fix = require('./fix');
-const install = require('./install');
+let argv = process.argv.slice(2);
 
-yargs
-    .usage('\nUsage: $0 <command> [keyword]')
-    .command({
-        command: 'init',
-        desc: 'Initializes dever and searches for dever.json files',
-        handler: (argv) => {
-            init.init(argv).catch(console.error);
-        }
-    })
-    .command('install', 'Install project depended packages and functionality')
-    .command({
-        command: 'install [keyword]',
-        desc: 'Install project depended packages and functionality',
-        builder: (yargs) => install.getOptions(yargs),
-        handler: (argv) => {
-            install.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .command('fix', 'Fix common possibly repeatable issues')
-    .command({
-        command: 'fix [keyword]',
-        desc: 'Fix common possibly repeatable issues',
-        builder: (yargs) => fix.getOptions(yargs),
-        handler: (argv) => {
-            fix.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .command('env', 'Development environment organizer')
-    .command({
-        command: 'env [keyword]',
-        desc: 'Development environment organizer',
-        builder: (yargs) => env.getOptions(yargs),
-        handler: (argv) => {
-            env.handler(yargs, argv).catch(console.error);
-        }
-    })
-    .scriptName("dever")
-    .wrap(100);
+function defaultYargs() {
+    const yargs = require("yargs")(argv);
+    yargs
+        .scriptName("dever")
+        .wrap(100)
+        .usage('\nUsage: $0 [keyword] <cmd>');
 
-if (yargs.argv._.length === 0) {
-    yargs.showHelp();
+    defaultYargsGenerator.create(yargs);
+    defaultYargsGenerator.defaultAction(yargs);
 }
+
+function projectYargs(keyword, config) {
+    const yargs = require("yargs")(process.argv.slice(3));
+    yargs
+        .scriptName("dever " + keyword)
+        .wrap(100)
+        .usage('\nUsage: $0 <cmd> [args]');
+
+    projectYargsGenerator.create(keyword, config, yargs);
+    projectYargsGenerator.defaultAction(yargs);
+}
+
+if (argv.length !== 0 && !['init', 'list', 'config'].some(x => x === argv[0])) {
+    const keyword = argv[0];
+    const config = projectConfig.getComponent(keyword);
+    if (config !== null) {
+        projectYargs(keyword, config);
+        return;
+    }
+
+    argv = [];
+    console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
+}
+
+defaultYargs();

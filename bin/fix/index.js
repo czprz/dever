@@ -1,25 +1,25 @@
 const chalk = require('chalk');
 
-const fix_config = require('../configuration/handleFixConfig');
 const powershell = require('../common/helper/powershell');
 
 module.exports = new class {
     /**
      * Handler for fixes
+     * @param config {Config}
      * @param yargs {object}
      * @param args {FixArgs}
      * @returns {Promise<void>}
      */
-    async handler(yargs, args) {
+    async handler(config, yargs, args) {
         switch (true) {
             case args.list:
-                this.#showList(args);
+                this.#showList(config);
                 break;
             case args.show != null:
-                this.#showFix(args);
+                this.#showFix(config, args);
                 break;
-            case args.fix != null:
-                this.#fix(args);
+            case args.key != null:
+                this.#fix(config, args);
                 break;
             default:
                 yargs.showHelp();
@@ -32,41 +32,10 @@ module.exports = new class {
      * @returns {*|Object}
      */
     getOptions(yargs) {
-        const keyword = this.#getKeywordFromArgv(yargs.argv);
-        // Todo: How to handle .argv causing javascript execution not being able to continue when using --help
-        return keyword == null ?
-            this.#optionsWithoutKeyword(yargs) :
-            this.#optionsWithKeyword(yargs, keyword);
-    }
-
-    /**
-     * Get all options without component
-     * @param yargs {object}
-     * @returns {object}
-     */
-    #optionsWithoutKeyword(yargs) {
         return yargs
-            .positional('keyword', {
-                describe: 'One of the defined project keywords',
+            .positional('[key]', {
+                describe: 'Name of fix available for execution for project',
                 type: 'string'
-            })
-            .option('list', {
-                alias: 'l',
-                describe: 'List all projects which has an available fixes',
-            });
-    }
-
-    /**
-     * Get all component options
-     * @param yargs {object}
-     * @param keyword {string}
-     * @returns {object}
-     */
-    #optionsWithKeyword(yargs, keyword) {
-        return yargs
-            .option('fix', {
-                alias: 'f',
-                describe: 'Name of fix you want to execute'
             })
             .option('show', {
                 alias: 's',
@@ -79,26 +48,19 @@ module.exports = new class {
     }
 
     /**
-     * Get keyword from yargs
-     * @param argv {object}
-     * @returns {null|*}
-     */
-    #getKeywordFromArgv(argv) {
-        if (argv.length < 2) {
-            return null;
-        }
-
-        return argv._[1];
-    }
-
-    /**
      * Show in console what the 'fix [problem]' will execute
+     * @param config {Config}
      * @param args {FixArgs}
      */
-    #showFix(args) {
-        const fix = fix_config.getFix(args.keyword, args.show);
+    #showFix(config, args) {
+        if (args.key == null) {
+            console.error('Missing [key] for finding fix');
+            return;
+        }
+
+        const fix = config?.fix.find(x => x.key === args.key);
         if (fix == null) {
-            console.log(`Could not find project or fix.`);
+            console.log(`Fix could not be found`);
             return;
         }
 
@@ -114,25 +76,30 @@ module.exports = new class {
 
     /**
      * Show a list of problems which can be solved using 'fix [problem]'
-     * @param args {FixArgs}
+     * @param config {Config}
      */
-    #showList(args) {
-        if (args.keyword == null) {
-            this.#listProjectsWithFixes();
+    #showList(config) {
+        if (config == null) {
+            console.log(chalk.redBright('Could not find any project with given keyword'));
             return;
         }
 
-        this.#listAllProjectFixes(args.keyword);
+        for (const fix of config.fix) {
+            console.log();
+            console.log('key: ' + chalk.blue(fix.key));
+            console.log(chalk.green(`${fix.type}: ${fix.command}`));
+        }
     }
 
     /**
      * Fix problem
+     * @param config {Config}
      * @param args {FixArgs}
      */
-    #fix(args) {
-        const fix = fix_config.getFix(args.keyword, args.fix);
+    #fix(config, args) {
+        const fix = config?.fix.find(x => x.key === args.key);
         if (fix == null) {
-            console.error('Could not find project or fix');
+            console.error('Fix could not be found');
             return;
         }
 
@@ -149,58 +116,9 @@ module.exports = new class {
                 throw new Error('Fix type not supported');
         }
     }
-
-    #listProjectsWithFixes() {
-        const projects = fix_config.getAllProjectsWithFix();
-        if (projects == null) {
-            console.log(`no projects available with fix section`);
-            return;
-        }
-
-        console.log('Projects which has fixes available.');
-
-        for (const project of projects) {
-            console.log();
-            console.log(chalk.blue('Project: ') + chalk.green(project.name));
-            console.log(chalk.blue('Keywords: ') + chalk.green(project.keywords.join(', ')));
-        }
-    }
-
-    /**
-     * List all project fixes
-     * @param keyword {string}
-     */
-    #listAllProjectFixes(keyword) {
-        const project = fix_config.getProjectWithFixes(keyword);
-        if (project == null) {
-            console.log(chalk.redBright('Could not find any project with given keyword'));
-            return;
-        }
-
-        for (const fix of project.fix) {
-            this.#showFixInConsole(fix, project.name);
-        }
-    }
-
-    /**
-     * Show fix in the console
-     * @param fix {Fix}
-     * @param projectName {string}
-     */
-    #showFixInConsole(fix, projectName) {
-        console.log();
-        console.log(chalk.blue(`'${fix.key}' from ${projectName}`));
-        console.log(chalk.green(`${fix.type}: ${fix.command}`));
-    }
 }
 
 class FixArgs {
-    /**
-     * Unique project keyword
-     * @return {string}
-     */
-    keyword;
-
     /**
      * Show command/file that will be executed when running 'fix [problem]' command
      * @return {string}
@@ -217,5 +135,5 @@ class FixArgs {
      * Name of fix to be executed
      * @return {string}
      */
-    fix;
+    key;
 }

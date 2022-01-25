@@ -8,7 +8,7 @@ const customOptions = require('../../../common/helper/custom_options');
 /**
  *
  * @param dependency {Dependency}
- * @param args {Args}
+ * @param args {EnvArgs}
  * @param name {string}
  */
 async function handle(dependency, args, name) {

@@ -27,7 +27,7 @@ module.exports = new class {
 
     /**
      * Validate arguments against options rules
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @param options {CustomOption[]}
      * @return { { status: boolean, message: string|null } }
      */
@@ -56,7 +56,7 @@ module.exports = new class {
     /**
      * @param command {string} Command that is going to receive additional options
      * @param options {CustomOption[]}
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @return {string}
      */
     addOptionsToCommand(command, options, args) {
@@ -77,7 +77,7 @@ module.exports = new class {
     /**
      * @param file {string} File path
      * @param options {CustomOption[]}
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @return {string}
      */
     addOptionsToFile(file, options, args) {
@@ -99,7 +99,7 @@ module.exports = new class {
      * Create value which will replace ref in command
      * @param key {string}
      * @param insert {string}
-     * @param args {Args}
+     * @param args {EnvArgs}
      * @return {string}
      */
     #replaceWith(key, insert, args) {

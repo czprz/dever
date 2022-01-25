@@ -4,7 +4,7 @@ module.exports = new class {
     /**
      * Handle starting and stopping of docker containers
      * @param dependency {Dependency}
-     * @param args {Args}
+     * @param args {EnvArgs}
      */
     handle(dependency, args) {
         switch(true) {
@@ -33,7 +33,7 @@ module.exports = new class {
     /**
      * Start docker container
      * @param container {Container}
-     * @param args {Args}
+     * @param args {EnvArgsv}
      */
     #start(container, args) {
         const state = docker.container.getRunState(container.name);

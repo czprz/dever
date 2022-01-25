@@ -1,38 +1,36 @@
 const readline = require("readline");
 const chalk = require("chalk");
 
-const config = require('../configuration/handleInstallConfig');
 const shell = require("../common/helper/shell");
 const sudo = require('../common/helper/elevated');
 
 module.exports = new class {
     /**
      * Handler for fixes
+     * @param config {Config}
      * @param yargs {object}
      * @param args {InstallArgs}
      * @returns {Promise<void>}
      */
-    async handler(yargs, args) {
+    async handler(config, yargs, args) {
         switch (true) {
             case args.listGroups:
-                this.#listGroups(args);
+                this.#listGroups(config);
                 break;
             case args.list:
-                args.keyword ?
-                    this.#showListOfPackages(args) :
-                    this.#showListOfProjects();
+                this.#showListOfPackages(config);
                 break;
             case args.listGroup != null:
-                this.#showAllInstallsForSpecificGroup(args);
+                this.#showAllInstallsForSpecificGroup(config, args);
                 break;
             case args.group != null:
-                this.#installAllWithSameGroup(args);
+                await this.#installAllWithSameGroup(config, args);
                 break;
             case args.only != null:
-                this.#installOnlyPackage(args);
+                await this.#installOnlyPackage(config, args);
                 break;
             default:
-                this.#installAllOrShowHelp(yargs, args);
+                await this.#installAllPackages(config, args);
         }
     }
 
@@ -42,26 +40,45 @@ module.exports = new class {
      * @returns {*|Object}
      */
     getOptions(yargs) {
-        const keyword = this.#getKeywordFromArgv(yargs.argv);
-        return keyword == null ?
-            this.#getOptionsWithoutKeyword(yargs) :
-            this.#getOptionsWithKeyword(yargs, keyword);
+        return yargs
+            .option('list', {
+                alias: 'l',
+                describe: `List all options under install section in the projects dever.json`,
+            })
+            .option('list-groups', {
+                alias: 'lgs',
+                describe: 'List of all installation groups under install section in the projects dever.json'
+            })
+            .option('list-group', {
+                alias: 'lg',
+                describe: 'List of all installs underneath a specific group in the projects dever.json'
+            })
+            .option('group', {
+                alias: 'g',
+                describe: 'Install all items underneath a specific group in the projects dever.json'
+            })
+            .option('only', {
+                alias: 'o',
+                describe: 'Install only specific package'
+            })
+            .option('ignore', {
+                alias: 'i',
+                describe: 'Ignore confirmations'
+            })
+            .option('no-before-after', {
+                alias: 'nba',
+                describe: 'Disables running of before and after functionality if defined in project dever.json'
+            });
     }
 
     /**
      * Show all groups and what they will install
-     * @param args {InstallArgs}
+     * @param config {Config}
      */
-    #listGroups(args) {
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
+    #listGroups(config) {
         console.log('Lists all available installs for the project by group.')
 
-        const sorted = installs.sort(x => x.group);
+        const sorted = config.install.sort(x => x.group);
         let prevGroup = null;
 
         for (const install of sorted) {
@@ -76,53 +93,24 @@ module.exports = new class {
     }
 
     /**
-     * List all projects
-     */
-    #showListOfProjects() {
-        const projects = config.getProjectsWithInstalls();
-
-        if (projects == null || projects.length === 0) {
-            console.error(`Could not find any projects which has an install section. Please try running ${chalk.green('dever init')}`);
-            return;
-        }
-
-        console.log(`List of all projects with an install section found after last ${chalk.green('dever init')} scan`);
-
-        for (const project of projects) {
-            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
-        }
-    }
-
-    /**
      * List all packages for project
-     * @param args {InstallArgs}
+     * @param config {Config}
      */
-    #showListOfPackages(args) {
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
+    #showListOfPackages(config) {
         console.log('Lists all available installs for the project.');
 
-        for (const install of installs) {
+        for (const install of config.install) {
             this.#showPackage(install);
         }
     }
 
     /**
      * List all installs for a specific install group
+     * @param config {Config}
      * @param args {InstallArgs}
      */
-    #showAllInstallsForSpecificGroup(args) {
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
-        if (installs.length === 0) {
+    #showAllInstallsForSpecificGroup(config, args) {
+        if (config.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
@@ -132,7 +120,7 @@ module.exports = new class {
             return;
         }
 
-        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
+        const groupInstalls = config.install.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
         if (groupInstalls.length === 0) {
             console.log('Could not find any installs for this project with that specific group');
             return;
@@ -147,26 +135,21 @@ module.exports = new class {
 
     /**
      * Installs all items defined under a project install group
+     * @param config {Config}
      * @param args {InstallArgs}
      */
-    async #installAllWithSameGroup(args) {
+    async #installAllWithSameGroup(config, args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
-        if (installs.length === 0) {
+        if (config.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
 
-        const groupInstalls = installs.filter(x => x.group.toLowerCase() === args.group.toLowerCase());
+        const groupInstalls = config.install.filter(x => x.group.toLowerCase() === args.group.toLowerCase());
         if (groupInstalls.length === 0) {
             console.log('Could not find any installs for this project with that specific group');
             return;
@@ -174,7 +157,7 @@ module.exports = new class {
 
         console.log('Packages about to be installed:');
 
-        for (const install of installs) {
+        for (const install of config.install) {
             this.#showPackage(install);
         }
 
@@ -189,26 +172,21 @@ module.exports = new class {
 
     /**
      * Install only specific project install package
+     * @param config {Config}
      * @param args {InstallArgs}
      */
-    async #installOnlyPackage(args) {
+    async #installOnlyPackage(config, args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        const installs = config.get(args.keyword);
-        if (installs == null) {
-            console.log('Could not find any projects with [keyword]');
-            return;
-        }
-
-        if (installs.length === 0) {
+        if (config.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
 
-        const install = installs.find(x => x.package.toLowerCase() === args.only.toLowerCase());
+        const install = config.install.find(x => x.package.toLowerCase() === args.only.toLowerCase());
         if (install == null) {
             console.log('Could not find any install package');
             return;
@@ -221,41 +199,29 @@ module.exports = new class {
 
     /**
      * Install all items for specific project or show help
-     * @param yargs {object}
+     * @param config {Config}
      * @param args {InstallArgs}
      */
-    async #installAllOrShowHelp(yargs, args) {
-        if (args.keyword) {
-            if (!await sudo.isElevated()) {
-                console.log(chalk.red('Install of packages requires elevated permissions'));
-                return;
-            }
-
-            console.log('Packages about to be installed:');
-
-            const installs = config.get(args.keyword);
-            if (installs == null || installs.length === 0) {
-                console.log('No or empty install section found for project');
-                return;
-            }
-
-            for (const install of installs) {
-                this.#showPackage(install);
-            }
-
-            console.log();
-
-            this.#confirmInstall(args, () => {
-                for (const install of installs) {
-                    // Todo: Better handling of error/progress messages
-                    this.#installPackage(args, install);
-                }
-            })
-
+    async #installAllPackages(config, args) {
+        if (!await sudo.isElevated()) {
+            console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        yargs.showHelp();
+        console.log('Packages about to be installed:');
+
+        for (const install of config.install) {
+            this.#showPackage(install);
+        }
+
+        console.log();
+
+        this.#confirmInstall(args, () => {
+            for (const install of config.install) {
+                // Todo: Better handling of error/progress messages
+                this.#installPackage(args, install);
+            }
+        })
     }
 
     /**
@@ -324,81 +290,13 @@ module.exports = new class {
             return;
         }
 
-        switch(step.type) {
+        switch (step.type) {
             case 'powershell-command':
                 shell.executeSync(step.command);
                 break;
             default:
                 throw new Error('Install before or after command type not supported');
         }
-    }
-
-    /**
-     * Get all options without project
-     * @param yargs {object}
-     * @returns {object}
-     */
-    #getOptionsWithoutKeyword(yargs) {
-        return yargs
-            .positional('keyword', {
-                describe: 'One of the defined project keywords',
-                type: 'string'
-            })
-            .option('list', {
-                alias: 'l',
-                describe: 'List all currently known projects which has install section defined in dever.json',
-            });
-    }
-
-    /**
-     * Get all project install options
-     * @param yargs {object}
-     * @param keyword {string}
-     * @returns {object}
-     */
-    #getOptionsWithKeyword(yargs, keyword) {
-        return yargs
-            .option('list', {
-                alias: 'l',
-                describe: `List all options under install section in the projects dever.json`,
-            })
-            .option('list-groups', {
-                alias: 'lgs',
-                describe: 'List of all installation groups under install section in the projects dever.json'
-            })
-            .option('list-group', {
-                alias: 'lg',
-                describe: 'List of all installs underneath a specific group in the projects dever.json'
-            })
-            .option('group', {
-                alias: 'g',
-                describe: 'Install all items underneath a specific group in the projects dever.json'
-            })
-            .option('only', {
-                alias: 'o',
-                describe: 'Install only specific package'
-            })
-            .option('ignore', {
-                alias: 'i',
-                describe: 'Ignore confirmations'
-            })
-            .option('no-before-after', {
-                alias: 'nba',
-                describe: 'Disables running of before and after functionality if defined in project dever.json'
-            });
-    }
-
-    /**
-     * Get keyword from yargs
-     * @param argv {object}
-     * @returns {null|*}
-     */
-    #getKeywordFromArgv(argv) {
-        if (argv.length < 2) {
-            return null;
-        }
-
-        return argv._[1];
     }
 }
 
