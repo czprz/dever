@@ -31,25 +31,25 @@ dever init
 Afterwards you can list all available components by running the command
 
 ```
-dever env -l
+dever list
 ```
 
-If the component you're interested in starting an local environment for is available. Use any of the keywords as [component] in dever env [component]
+If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword] in `dever [keyword] env`
 
-As as example you might want to run the environment for an component. Then the command would possibly be like this
+As an example, you might want to run the environment for a project. Then the command would possibly be like this
 
 ```
-dever env ec --start
+dever ec env --start
 ```
 
 Additional commands are available for environment setup / help therefore it's a good idea to check possible commands like this
 
 ```
-dever env ec
+dever ec env
 ```
 or
 ```
-dever env ec --help
+dever ec env --help
 ```
 
 Or you could also check the list of commands below in the [Available Commands](#available-commands)
@@ -60,25 +60,28 @@ Or you could also check the list of commands below in the [Available Commands](#
 | ---  | ---     |
 | dever | shows help context for dever options |
 | dever init | initializes dever by finding all dever.json files on your machine |
-| dever install | Show help context for dever install options |
-| dever install -l, --list | List all currently known projects which has install section defined in dever.json |
-| dever install [keyword] | Installs all available packages for specified project keyword if available or shows help |
-| dever install [keyword] -l, --list | List all options under install section in the projects dever.json |
-| dever install [keyword] -lgs, --list-groups | List of all installation groups under install section in the projects dever.json |
-| dever install [keyword] -lg, --list-group | List of all installs underneath a specific group in the projects dever.json |
-| dever install [keyword] -g, --group | Install all items underneath a specific group in the projects dever.json |
-| dever install [keyword] -o, --only | Install only specific package |
-| dever install [keyword] -i, --ignore | Ignore confirmations |
-| dever install [keyword] -nba, --no-before-after | Disables running of before and after functionality if defined in project dever.json |
-| dever env | shows help context for dever env options |
-| dever env -l | lists all components with their name and keywords |
-| dever env -c | shows content of dever_config.json |
-| dever env [keyword] | shows help context for dever env [keyword] options |
-| dever env [keyword] --start | attempts to start all dependencies for specific project environment |
-| dever env [keyword] --start --clean | attempts to start all dependencies for specific project environment cleanly e.g. recreating docker containers |
-| dever env [keyword] --start --ignore | attempts to start all dependencies for specific project environment with any need for confirmations |
-| dever env [keyword] --location | shows location of project dever.json |
-| dever env [keyword] -c, --config | shows content of project dever.json |
+| dever list | List all found projects |
+| dever config | Show content of project dever.json |
+| dever config --location, -l | Show location of project dever.json |
+| dever [keyword] install | Installs all available packages for specified project keyword if available or shows help |
+| dever [keyword] install -l, --list | List all options under install section in the projects dever.json |
+| dever [keyword] install -lgs, --list-groups | List of all installation groups under install section in the projects dever.json |
+| dever [keyword] install -lg, --list-group | List of all installs underneath a specific group in the projects dever.json |
+| dever [keyword] install -g, --group | Install all items underneath a specific group in the projects dever.json |
+| dever [keyword] install -o, --only | Install only specific package |
+| dever [keyword] install -i, --ignore | Ignore confirmations |
+| dever [keyword] install -nba, --no-before-after | Disables running of before and after functionality if defined in project dever.json |
+| dever [keyword] env | shows help context for dever env options |
+| dever [keyword] env | shows help context for dever env [keyword] options |
+| dever [keyword] env --start | attempts to start all dependencies for specific project environment |
+| dever [keyword] env --start --clean | attempts to start all dependencies for specific project environment cleanly e.g. recreating docker containers |
+| dever [keyword] env --start --ignore | attempts to start all dependencies for specific project environment with any need for confirmations |
+| dever [keyword] env --location | shows location of project dever.json |
+| dever [keyword] env -c, --config | shows content of project dever.json |
+| dever [keyword] fix | Show help context for fix command |
+| dever [keyword] fix [key] | Execute project fix listed in dever.json |
+| dever [keyword] fix -l, --list | List all available project fixes listed in dever.json |
+| dever [keyword] fix -s, --show | Show in the console what the fix will execute |
 
 ## Running the tests
 Currently no tests implemented..
