@@ -30,10 +30,10 @@ module.exports = new class {
                 handler: (argv) => {
                     switch (true) {
                         case argv.location:
-                            this.#showProjectLocation(config);
+                            this.#showConfigLocation(config);
                             break;
                         default:
-                            this.#showProjectConfig(config);
+                            this.#showConfig(config);
                     }
                 }
             });
@@ -108,7 +108,7 @@ module.exports = new class {
             .command({
                 command: 'fix [key]',
                 desc: 'Fix common possibly repeatable issues',
-                builder: (yargs) => fix.getOptions(config, yargs),
+                builder: (yargs) => fix.getOptions(yargs),
                 handler: (argv) => {
                     fix.handler(config, yargs, argv).catch(console.error);
                 }
@@ -119,7 +119,7 @@ module.exports = new class {
      * Show location of project configuration file
      * @param config {Config}
      */
-    #showProjectLocation(config) {
+    #showConfigLocation(config) {
         if (config == null) {
             console.error(chalk.redBright('Could not find project'));
             return;
@@ -132,7 +132,7 @@ module.exports = new class {
      * Show content of project configuration file
      * @param config {Config}
      */
-    #showProjectConfig(config) {
+    #showConfig(config) {
         if (config == null) {
             console.error(chalk.redBright('Could not find project'));
             return;

@@ -28,11 +28,10 @@ module.exports = new class {
 
     /**
      * Generate default or component options
-     * @param config {Config}
      * @param yargs {object}
      * @returns {*|Object}
      */
-    getOptions(config, yargs) {
+    getOptions(yargs) {
         return yargs
             .positional('[key]', {
                 describe: 'Name of fix available for execution for project',
