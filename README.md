@@ -60,7 +60,8 @@ Or you could also check the list of commands below in the [Available Commands](#
 | ---  | ---     |
 | dever | shows help context for dever options |
 | dever init | initializes dever by finding all dever.json files on your machine |
-| dever list | List all found projects |
+| dever list | Lists all found projects |
+| dever list --not-supported | Lists all found not supported projects |
 | dever config | Show content of project dever.json |
 | dever config --location, -l | Show location of project dever.json |
 | dever [keyword] install | Installs all available packages for specified project keyword if available or shows help |
