@@ -1,5 +1,6 @@
 const config_handler = require("../configuration/handleConfigFile");
 const components_handler = require("../configuration/handleComponents");
+const versionChecker = require('../common/helper/version-checker');
 
 const init = require("../init");
 const chalk = require("chalk");
@@ -22,8 +23,20 @@ module.exports = new class {
             .command({
                 command: 'list',
                 desc: `List all projects found by running 'dever init'`,
-                handler: () => {
-                    this.#listAllComponents();
+                builder: (yargs) => {
+                    yargs
+                        .option('not-supported', {
+                            describe: 'List all projects with a dever.json which version is not supported'
+                        });
+                },
+                handler: (argv) => {
+                    switch (true) {
+                        case argv.notSupported:
+                            this.#listAllUnsupportedProjects();
+                            break;
+                        default:
+                            this.#listAllComponents();
+                    }
                 }
             })
             .command({
@@ -69,14 +82,30 @@ module.exports = new class {
     #listAllComponents() {
         const projects = components_handler.getAllComponents();
         if (projects == null || projects.length === 0) {
-            console.error(`Could not find any components. Please try running ${chalk.green('dever init')}`);
+            console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
         }
 
-        console.log(`List of all components found after last ${chalk.green('dever init')} scan`);
+        console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
 
-        for (const component of projects) {
-            console.log(`${chalk.blue(component.name)} - ${chalk.green(component.keywords)}`);
+        for (const project of projects) {
+            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
+        }
+    }
+
+    #listAllUnsupportedProjects() {
+        const projects = components_handler.getAllComponents();
+        if (projects == null || projects.length === 0) {
+            console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
+            return;
+        }
+
+        const unsupported = versionChecker.getOnlyUnsupported(projects);
+
+        console.log(`List of all unsupported projects found after last ${chalk.green('dever init')} scan`);
+
+        for (const project of unsupported) {
+            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
         }
     }
 
