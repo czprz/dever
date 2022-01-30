@@ -100,7 +100,7 @@ module.exports = new class {
             return;
         }
 
-        const unsupported = projects.filter(x => x.version !== versionChecker.getSupportedVersion());
+        const unsupported = versionChecker.getOnlyUnsupported(projects);
 
         console.log(`List of all unsupported projects found after last ${chalk.green('dever init')} scan`);
 

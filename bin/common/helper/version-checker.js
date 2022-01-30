@@ -14,9 +14,10 @@ module.exports = new class {
     }
 
     /**
-     * @return {number}
+     * @param configs {Config[]}
+     * @return {Config[]}
      */
-    getSupportedVersion() {
-        return this.#supportedVersion;
+    getOnlyUnsupported(configs) {
+        return configs.filter(x => x.version !== this.#supportedVersion);
     }
 }
