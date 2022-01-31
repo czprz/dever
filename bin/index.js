@@ -3,7 +3,7 @@
 const defaultYargsGenerator = require('./common/default-yargs-generator');
 const projectYargsGenerator = require('./common/project-yargs-generator');
 const versionChecker = require('./common/helper/version-checker');
-const projectConfig = require('./configuration/handleComponents');
+const projectConfig = require('./configuration/projects-config');
 
 let argv = process.argv.slice(2);
 
@@ -31,7 +31,7 @@ function projectYargs(keyword, config) {
 
 if (argv.length !== 0 && !['init', 'list', 'config'].some(x => x === argv[0])) {
     const keyword = argv[0];
-    const config = projectConfig.getComponent(keyword);
+    const config = projectConfig.get(keyword);
 
     if (!versionChecker.supported(config)) {
         console.error(`dever does not support this projects dever.json version`);

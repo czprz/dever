@@ -1,5 +1,5 @@
 const config_handler = require("../configuration/handleConfigFile");
-const components_handler = require("../configuration/handleComponents");
+const projectsConfig = require("../configuration/projects-config");
 const versionChecker = require('../common/helper/version-checker');
 
 const init = require("../init");
@@ -80,7 +80,7 @@ module.exports = new class {
      * Shows a list of found components in the console
      */
     #listAllComponents() {
-        const projects = components_handler.getAllComponents();
+        const projects = projectsConfig.getAll();
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
@@ -94,7 +94,7 @@ module.exports = new class {
     }
 
     #listAllUnsupportedProjects() {
-        const projects = components_handler.getAllComponents();
+        const projects = projectsConfig.getAll();
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
