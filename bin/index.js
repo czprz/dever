@@ -29,17 +29,17 @@ function projectYargs(keyword, config) {
     projectYargsGenerator.defaultAction(yargs);
 }
 
-if (argv.length !== 0 && !['init', 'list', 'config'].some(x => x === argv[0])) {
+if (argv.length !== 0 && !['init', 'list', 'config', '--help', '--version'].some(x => x === argv[0])) {
     const keyword = argv[0];
     const config = projectConfig.getComponent(keyword);
 
-    if (!versionChecker.supported(config)) {
-        console.error(`dever does not support this projects dever.json version`);
-        console.error(`Please install version of '@czprz/dever' which supports the dever.json version`);
-        return;
-    }
-
     if (config !== null) {
+        if (!versionChecker.supported(config)) {
+            console.error(`dever does not support this projects dever.json version`);
+            console.error(`Please install version of '@czprz/dever' which supports the dever.json version`);
+            return;
+        }
+
         projectYargs(keyword, config);
         return;
     }
