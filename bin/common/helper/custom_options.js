@@ -60,7 +60,7 @@ module.exports = new class {
      * @return {string}
      */
     addOptionsToCommand(command, options, args) {
-        if (options.length === 0) {
+        if (options == null || options.length === 0) {
             return command;
         }
 
