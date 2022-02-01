@@ -62,8 +62,8 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever init | initializes dever by finding all dever.json files on your machine |
 | dever list | Lists all found projects |
 | dever list --not-supported | Lists all found not supported projects |
-| dever config | Show content of project dever.json |
-| dever config --location, -l | Show location of project dever.json |
+| dever config | Show content of dever_config.json |
+| dever config --location, -l | Show location of dever_config.json |
 | dever [keyword] install | Installs all available packages for specified project keyword if available or shows help |
 | dever [keyword] install -l, --list | List all options under install section in the projects dever.json |
 | dever [keyword] install -lgs, --list-groups | List of all installation groups under install section in the projects dever.json |
