@@ -14,7 +14,6 @@ const config_handler = require('./handleConfigFile');
 function get() {
     const config = config_handler.get();
     if (config.components == null || config.components.length === 0) {
-        console.error("No components found. Please run 'dever init'");
         return null;
     }
 
