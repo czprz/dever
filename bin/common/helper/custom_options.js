@@ -81,7 +81,7 @@ module.exports = new class {
      * @return {string}
      */
     addOptionsToFile(file, options, args) {
-        if (options.length === 0) {
+        if (options == null || options.length === 0) {
             return file;
         }
 
