@@ -32,10 +32,6 @@ module.exports = new class {
      * @return { { status: boolean, message: string|null } }
      */
     validateOptions(args, options) {
-        if (options == null) {
-            throw new Error('Options cannot null or undefined');
-        }
-
         for (const optionKey in options) {
             const option = options[optionKey];
             const value = args[option.key];
