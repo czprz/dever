@@ -57,7 +57,20 @@ module.exports = new class {
                         default:
                             this.#showConfig();
                     }
-
+                }
+            })
+            .command({
+                command: 'validate',
+                desc: `Validate dever.json config file before running 'dever init'`,
+                builder: (yargs) => {
+                    yargs
+                        .option('f', {
+                            alias: 'file',
+                            describe: 'File location for dever.json that needs to be validated'
+                        });
+                },
+                handler: (argv) => {
+                    // Todo: missing implementation
                 }
             })
             .command({
