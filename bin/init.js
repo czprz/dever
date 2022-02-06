@@ -36,7 +36,7 @@ module.exports = new class {
      */
     #checkForSupportedVersion(configs) {
         if (!versionChecker.supported(configs)) {
-            console.warn(chalk.yellow(`One or more of the found projects is not supported due to dever.json version not being supported by the installed version of dever`));
+            console.warn(chalk.yellow(`One or more of the found projects is not supported due to the dever.json version`));
             console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
         }
     }
