@@ -25,12 +25,6 @@
     }
   ],
   "dependencies": {
-    "test": {
-      "type": "docker-container",
-      "name": "mssql",
-      "image": "mcr.microsoft.com/mssql/server:2019-latest",
-      "arguments": "-e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d"
-    },
     "run-migration": {
       "type": "powershell-script",
       "file": "/development/script.ps1",
