@@ -44,9 +44,8 @@ module.exports = new class {
      */
     get() {
         const config = this.#readJson(this.#filePath);
-
         if (config == null) {
-            throw 'Could not find configuration';
+            return null;
         }
 
         return config;
@@ -88,7 +87,6 @@ module.exports = new class {
         } catch (e) {
             switch (e.code) {
                 case "ENOENT":
-                    console.error(`Could not find '${filePath}' please run 'dever init' again.`);
                     return null;
                 default:
                     throw e;

@@ -153,7 +153,6 @@ module.exports = new class {
      */
     #showConfig() {
         const config = config_handler.get();
-
         if (config == null) {
             console.error(chalk.redBright('Could not find dever configuration'));
             return;

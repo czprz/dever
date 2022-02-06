@@ -6,7 +6,7 @@ module.exports = new class {
      * @return {boolean}
      */
     any() {
-        return config_handler.get().components.length > 0;
+        return config_handler.get()?.components.length > 0;
     }
 
     /**
@@ -72,7 +72,7 @@ module.exports = new class {
      * @return void
      */
     clear() {
-        const config = config_handler.get();
+        const config = config_handler.get() ?? {components: []};
 
         config.components = [];
 
@@ -84,7 +84,7 @@ module.exports = new class {
      * @param file string
      */
     add(file) {
-        const config = config_handler.get();
+        const config = config_handler.get() ?? {components: []};
 
         config.components.push(file);
 
@@ -114,7 +114,7 @@ module.exports = new class {
      */
     #getProjects() {
         const config = config_handler.get();
-        if (config.components == null || config.components.length === 0) {
+        if (config == null || config.components == null || config.components.length === 0) {
             return null;
         }
 
