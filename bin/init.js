@@ -67,7 +67,7 @@ module.exports = new class {
 
             console.error(chalk.red(`Could not add the project '${config.name}' due to having keywords which are conflicting with pre-defined keys`));
 
-            projectsConfig.remove(config.location);
+            projectsConfig.remove(path.join(config.location, 'dever.json'));
         }
     }
 }
