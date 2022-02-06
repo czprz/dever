@@ -1,7 +1,9 @@
 const powershell = require('./common/helper/powershell');
-const componentHandler = require('./configuration/handleComponents');
+const projectsConfig = require('./configuration/projects-config');
 const versionChecker = require('./common/helper/version-checker');
+const configValidator = require('./common/helper/config-validator');
 
+const chalk = require("chalk");
 const path = require("path");
 const fs = require("fs");
 
@@ -11,7 +13,7 @@ module.exports = new class {
 
         console.log('Initialization has started.. Please wait..');
 
-        componentHandler.clearComponents();
+        projectsConfig.clear();
 
         const raw = await powershell.executeFileSync(file);
         const paths = raw.trim().split('\n');
@@ -20,13 +22,23 @@ module.exports = new class {
             this.#getConfigFiles(path);
         }
 
-        const allConfigs = componentHandler.getAllComponents();
-        if (!versionChecker.supported(allConfigs)) {
-            console.warn(`One or more of the found projects is not supported due to dever.json version not being supported by the installed version of dever`);
-            console.warn(`Check 'dever list --not-supported' to get a list of the unsupported projects`);
-        }
+        const configs = projectsConfig.getAll();
+
+        this.#checkForSupportedVersion(configs);
+        this.#checkForKeywordViolations(configs);
 
         console.log('Initialization has been completed!');
+    }
+
+    /**
+     * Check if there is any dever.json which has an unsupported version
+     * @param configs {Config[]}
+     */
+    #checkForSupportedVersion(configs) {
+        if (!versionChecker.supported(configs)) {
+            console.warn(chalk.yellow(`One or more of the found projects is not supported due to the dever.json version`));
+            console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
+        }
     }
 
     #getConfigFiles(filePath) {
@@ -40,6 +52,22 @@ module.exports = new class {
             return;
         }
 
-        componentHandler.addComponent(file);
+        projectsConfig.add(file);
+    }
+
+    /**
+     * Check if any projects has keywords which violate pre-defined keys ('init', 'list', 'config', 'validate')
+     * @param configs {Config[]}
+     */
+    #checkForKeywordViolations(configs) {
+        for (const config of configs) {
+            if (configValidator.validate(config)) {
+                continue;
+            }
+
+            console.error(chalk.red(`Could not add the project '${config.name}' due to having keywords which are conflicting with pre-defined keys`));
+
+            projectsConfig.remove(path.join(config.location, 'dever.json'));
+        }
     }
 }
