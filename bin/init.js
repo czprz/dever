@@ -1,14 +1,13 @@
 const powershell = require('./common/helper/powershell');
 const projectsConfig = require('./configuration/projects-config');
 const versionChecker = require('./common/helper/version-checker');
+const configValidator = require('./common/helper/config-validator');
 
 const chalk = require("chalk");
 const path = require("path");
 const fs = require("fs");
 
 module.exports = new class {
-    #preDefinedKeys = ['init', 'list', 'config', 'validate'];
-
     async init() {
         const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
@@ -62,7 +61,7 @@ module.exports = new class {
      */
     #checkForKeywordViolations(configs) {
         for (const config of configs) {
-            if (config.keywords.every(x => !this.#preDefinedKeys.includes(x))) {
+            if (configValidator.validate(config)) {
                 continue;
             }
 

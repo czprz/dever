@@ -1,7 +1,9 @@
 const config_handler = require("../configuration/handleConfigFile");
 const projectsConfig = require("../configuration/projects-config");
 const versionChecker = require('../common/helper/version-checker');
+const configValidator = require('../common/helper/config-validator');
 
+const path = require("path");
 const init = require("../init");
 const chalk = require("chalk");
 
@@ -66,11 +68,22 @@ module.exports = new class {
                     yargs
                         .option('f', {
                             alias: 'file',
-                            describe: 'File location for dever.json that needs to be validated'
+                            describe: 'Filepath for dever.json that needs to be validated'
                         });
                 },
                 handler: (argv) => {
-                    // Todo: missing implementation
+                    switch (true) {
+                        case argv.file != null:
+                        {
+                            this.#validate(argv.file);
+                            break;
+                        }
+                        default:
+                        {
+                            const file = path.join(process.cwd(), 'dever.json');
+                            this.#validate(file);
+                        }
+                    }
                 }
             })
             .command({
@@ -147,5 +160,15 @@ module.exports = new class {
         }
 
         console.log(config);
+    }
+
+    #validate(file) {
+        const result = configValidator.validateFile(file);
+        if (!result.status) {
+            console.log(chalk.redBright(result.message));
+            return;
+        }
+
+        console.log('No problems with dever.json found');
     }
 }

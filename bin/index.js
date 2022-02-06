@@ -4,6 +4,7 @@ const defaultYargsGenerator = require('./common/default-yargs-generator');
 const projectYargsGenerator = require('./common/project-yargs-generator');
 const versionChecker = require('./common/helper/version-checker');
 const projectConfig = require('./configuration/projects-config');
+const constants = require('./common/constants');
 
 let argv = process.argv.slice(2);
 
@@ -29,7 +30,7 @@ function projectYargs(keyword, config) {
     projectYargsGenerator.defaultAction(yargs);
 }
 
-if (argv.length !== 0 && !['init', 'list', 'config', '--help', '--version'].some(x => x === argv[0])) {
+if (argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === argv[0])) {
     const keyword = argv[0];
     const config = projectConfig.get(keyword);
 
