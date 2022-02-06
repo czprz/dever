@@ -3,15 +3,37 @@ const projectsConfig = require('./configuration/projects-config');
 const versionChecker = require('./common/helper/version-checker');
 const configValidator = require('./common/helper/config-validator');
 
+const readline = require("readline");
 const chalk = require("chalk");
 const path = require("path");
 const fs = require("fs");
 
 module.exports = new class {
     async init() {
-        const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
+        if (!projectsConfig.any()) {
+            await this.#findProjects();
+            return;
+        }
 
+        const rl = readline.createInterface(process.stdin, process.stdout);
+        await rl.question('Are you sure you want to start the search for dever supported projects? [yes]/no:', async (answer) => {
+            const lcAnswer = answer.toLowerCase();
+            if (lcAnswer === 'y' || lcAnswer === 'yes') {
+                await this.#findProjects();
+            }
+
+            rl.close();
+        });
+    }
+
+    /**
+     *
+     * @returns {Promise<void>}
+     */
+    async #findProjects() {
         console.log('Initialization has started.. Please wait..');
+
+        const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
         projectsConfig.clear();
 

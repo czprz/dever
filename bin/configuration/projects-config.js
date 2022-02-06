@@ -2,6 +2,14 @@ const config_handler = require('./handleConfigFile');
 
 module.exports = new class {
     /**
+     * Any projects added
+     * @return {boolean}
+     */
+    any() {
+        return config_handler.get().components.length > 0;
+    }
+
+    /**
      * Gets only one component specifically looking through component keywords found in dever.json
      * @param keyword
      * @returns Config
