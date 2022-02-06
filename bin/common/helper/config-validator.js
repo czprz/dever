@@ -8,7 +8,7 @@ module.exports = new class {
      * @return {boolean}
      */
     validate(config) {
-        return config.keywords.every(x => !constants.predefinedKeys.includes(x));
+        return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
     }
 
     /**
