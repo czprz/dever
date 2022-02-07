@@ -2,13 +2,13 @@ const path = require("path");
 const fs = require("fs");
 
 module.exports = new class {
-    #fileName = 'dever_config.json';
+    #fileName = '.dever';
 
     #root;
     #filePath;
 
     constructor() {
-        this.#root = path.join(path.dirname(fs.realpathSync(__filename)), '../');
+        this.#root = require('os').homedir();
         this.#filePath = path.join(this.#root, this.#fileName);
     }
 
