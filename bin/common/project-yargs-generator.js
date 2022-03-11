@@ -78,7 +78,7 @@ module.exports = new class {
      * @param yargs
      */
     #createEnvironment(keyword, config, yargs) {
-        if (config.dependencies == null) {
+        if (config.environment == null) {
             return;
         }
 

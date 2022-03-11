@@ -10,17 +10,16 @@ module.exports = new class {
     /**
      * Handle starting and stopping of docker-compose
      * @param component {Config} Component configuration
-     * @param dependency {Dependency} Dependency options
+     * @param execution {Execution} Dependency options
      * @param args {EnvArgs} shell arguments
-     * @param name {string} Name of docker-compose sequence
      */
-    handle(component, dependency, args, name) {
+    handle(component, execution, args) {
         switch (true) {
             case args.start:
-                this.#start(component, dependency.file, args, name);
+                this.#start(component, execution, args);
                 break;
             case args.stop:
-                this.#stop(component, dependency.file, name);
+                this.#stop(component, execution);
                 break;
         }
     }
@@ -41,34 +40,33 @@ module.exports = new class {
     /**
      * Start docker-compose
      * @param component {Config} Component configuration
-     * @param file {string} FilePath to docker-compose
+     * @param execution {Execution} FilePath to docker-compose
      * @param args {EnvArgs}
-     * @param name {string} Name of docker-compose sequence
      */
-    #start(component, file, args, name) {
+    #start(component, execution, args) {
         const state = this.#run_state();
         switch (state) {
             case states.NotRunning: {
-                if (this.#recreate(component, file, name, args.clean)) {
+                if (this.#recreate(component, execution.file, execution.name, args.clean)) {
                     return;
                 }
 
-                const filePath = path.join(component.location, file);
+                const filePath = path.join(component.location, execution.file);
                 shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
                 break;
             }
             case states.Running: {
-                if (this.#recreate(component, file, name, args.clean)) {
+                if (this.#recreate(component, execution.file, execution.name, args.clean)) {
                     return;
                 }
 
-                console.log(`docker-compose: '${name}' already running!`);
+                console.log(`docker-compose: '${execution.name}' already running!`);
                 break;
             }
             case states.NotFound: {
-                const filePath = path.join(component.location, file);
+                const filePath = path.join(component.location, execution.file);
                 shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
-                console.log(`docker-compose: '${name}' created successfully`);
+                console.log(`docker-compose: '${execution.name}' created successfully`);
                 break;
             }
         }
@@ -97,14 +95,13 @@ module.exports = new class {
     /**
      * Stop docker-compose
      * @param component {Config} Component configuration
-     * @param file {string} FilePath to docker-compose
-     * @param name {string} Name of docker-compose sequence
+     * @param execution {Execution} FilePath to docker-compose
      */
-    #stop(component, file, name) {
-        const filePath = path.join(component.location, file);
+    #stop(component, execution) {
+        const filePath = path.join(component.location, execution.file);
         shell.executeSync(`docker-compose --file ${filePath} --project-name dever down`);
 
-        console.log(`docker-compose: '${name}' stopped successfully`);
+        console.log(`docker-compose: '${execution.name}' stopped successfully`);
     }
 
     /**

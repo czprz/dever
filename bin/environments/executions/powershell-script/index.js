@@ -9,19 +9,18 @@ const path = require("path");
 /**
  *
  * @param component {Config}
- * @param dependency {Dependency}
+ * @param execution {Execution}
  * @param args {EnvArgs}
- * @param name {string}
  * @return {Promise<void>}
  */
-async function handle(component, dependency, args, name) {
+async function handle(component, execution, args) {
     switch(true) {
         case args.start: {
-            const file = path.join(component.location, dependency.file);
-            const fileWithParameters = customOptions.addOptionsToFile(file, dependency.options, args);
-            await powershell.executeFileSync(fileWithParameters, dependency.runAsElevated);
+            const file = path.join(component.location, execution.file);
+            const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, args);
+            await powershell.executeFileSync(fileWithParameters, execution.runAsElevated);
 
-            console.log(`powershell-script: '${name}' completed successfully`);
+            console.log(`powershell-script: '${execution.name}' completed successfully`);
 
             break;
         }

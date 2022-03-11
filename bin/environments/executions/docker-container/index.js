@@ -3,7 +3,7 @@ const docker = require('../../../common/helper/docker');
 module.exports = new class {
     /**
      * Handle starting and stopping of docker containers
-     * @param dependency {Dependency}
+     * @param dependency {Execution}
      * @param args {EnvArgs}
      */
     handle(dependency, args) {
@@ -33,7 +33,7 @@ module.exports = new class {
     /**
      * Start docker container
      * @param container {Container}
-     * @param args {EnvArgsv}
+     * @param args {EnvArgs}
      */
     #start(container, args) {
         const state = docker.container.getRunState(container.name);

@@ -27,9 +27,9 @@ class Config {
     fix;
 
     /**
-     * @return {Dependency[]}
+     * @return {Execution[]}
      */
-    dependencies;
+    environment;
 
     /**
      * @return {Install[]}
@@ -42,7 +42,7 @@ class Config {
     location;
 }
 
-class Dependency {
+class Execution {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
      * @return {string}
@@ -53,6 +53,11 @@ class Dependency {
      * @return {string}
      */
     name;
+
+    /**
+     * @return {boolean}
+     */
+    runtime;
 
     /**
      * @return {string}

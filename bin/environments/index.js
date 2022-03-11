@@ -5,11 +5,11 @@ const sudo = require('../common/helper/elevated');
 const delayer = require('../common/helper/delayer');
 const customOption = require('../common/helper/custom_options');
 
-const docker_compose = require('./dependencies/docker-compose');
-const docker_container = require('./dependencies/docker-container');
-const powershell_script = require('./dependencies/powershell-script');
-const powershell_command = require('./dependencies/powershell-command');
-const mssql = require('./dependencies/mssql');
+const docker_compose = require('./executions/docker-compose');
+const docker_container = require('./executions/docker-container');
+const powershell_script = require('./executions/powershell-script');
+const powershell_command = require('./executions/powershell-command');
+const mssql = require('./executions/mssql');
 
 module.exports = new class {
     /**
@@ -56,7 +56,7 @@ module.exports = new class {
                 describe: 'ignore confirmation messages'
             });
 
-        const customOptions = this.#getCustomOptions(config.dependencies);
+        const customOptions = this.#getCustomOptions(config.environment);
         return customOption.addOptionsToYargs(options, customOptions);
     }
 
@@ -67,51 +67,50 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #startOrStop(config, args) {
-        const options = this.#getCustomOptions(config.dependencies);
+        const options = this.#getCustomOptions(config.environment);
         const result = customOption.validateOptions(args, options);
         if (!result.status) {
             console.error(result.message);
             return;
         }
 
-        if (!this.#checkAvailabilityOfDependencies(config.dependencies)) {
+        if (!this.#checkAvailabilityOfDependencies(config.environment)) {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(args.ignore, config.dependencies)) {
+        if (!await this.#confirmRunningWithoutElevated(args.ignore, config.environment)) {
             return;
         }
 
-        for (const name in config.dependencies) {
-            if (!config.dependencies.hasOwnProperty(name)) {
-                throw Error(`Property '${name}' not found`);
+        for (const execution of config.environment) {
+            if (execution.runtime) {
+                // Todo: Check if name is equal to key given with stop command if no key stop all else continue
+                continue;
             }
 
-            const dependency = config.dependencies[name];
+            await this.#hasWait(execution, 'before');
 
-            await this.#hasWait(dependency, 'before');
-
-            switch (dependency.type) {
+            switch (execution.type) {
                 case "docker-compose":
-                    docker_compose.handle(config, dependency, args, name);
+                    docker_compose.handle(config, execution, args);
                     break;
                 case "docker-container":
-                    docker_container.handle(dependency, args);
+                    docker_container.handle(execution, args);
                     break;
                 case "powershell-script":
-                    await powershell_script.handle(config, dependency, args, name);
+                    await powershell_script.handle(config, execution, args);
                     break;
                 case "powershell-command":
-                    await powershell_command.handle(dependency, args, name);
+                    await powershell_command.handle(execution, args);
                     break;
                 case "mssql":
-                    await mssql.handle(dependency, args, name);
+                    await mssql.handle(execution, args);
                     break;
                 default:
-                    console.error(`"${name}::${dependency.type}" not found`);
+                    console.error(`"${execution.name}::${execution.type}" not found`);
             }
 
-            await this.#hasWait(dependency, 'after');
+            await this.#hasWait(execution, 'after');
         }
     }
 
@@ -126,18 +125,18 @@ module.exports = new class {
 
     /**
      * Get all custom options from dependencies
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @return {CustomOption[]}
      */
-    #getCustomOptions(dependencies) {
+    #getCustomOptions(executions) {
         const options = [];
-        for (const key in dependencies) {
-            if (dependencies[key].options == null) {
+        for (const execution of executions) {
+            if (execution.options == null) {
                 continue;
             }
 
-            for (const option in dependencies[key].options) {
-                options.push(dependencies[key].options[option]);
+            for (const option in execution.options) {
+                options.push(execution.options[option]);
             }
         }
 
@@ -146,27 +145,27 @@ module.exports = new class {
 
     /**
      * Creates promise which delays an await for defined period of time
-     * @param dependency {Dependency}
+     * @param execution {Execution}
      * @param timing {'after'|'before'}
      * @returns {Promise<unknown>}
      */
-    #hasWait(dependency, timing) {
-        if (dependency.wait == null) {
+    #hasWait(execution, timing) {
+        if (execution.wait == null) {
             return null;
         }
 
-        if (dependency.wait.when === timing) {
-            return new Promise(resolve => setTimeout(resolve, dependency.wait.time));
+        if (execution.wait.when === timing) {
+            return new Promise(resolve => setTimeout(resolve, execution.wait.time));
         }
     }
 
     /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
      * @param ignore {boolean}
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, dependencies) {
+    async #confirmRunningWithoutElevated(ignore, executions) {
         if (ignore) {
             return true;
         }
@@ -175,7 +174,7 @@ module.exports = new class {
             return true;
         }
 
-        if (!this.#anyDependencyWhichNeedsElevatedPermissions(dependencies)) {
+        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executions)) {
             return true;
         }
 
@@ -201,13 +200,12 @@ module.exports = new class {
 
     /**
      * Check if any dependencies wants to run with elevated permissions
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @return {boolean}
      */
-    #anyDependencyWhichNeedsElevatedPermissions(dependencies) {
-        for (const name in dependencies) {
-            const dependency = dependencies[name];
-            if (dependency != null && dependency.runAsElevated) {
+    #anyDependencyWhichNeedsElevatedPermissions(executions) {
+        for (const execution of executions) {
+            if (execution.runAsElevated != null && execution.runAsElevated) {
                 return true;
             }
         }
@@ -217,18 +215,12 @@ module.exports = new class {
 
     /**
      * Check if dependency of dependency is available
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @returns {boolean}
      */
-    #checkAvailabilityOfDependencies(dependencies) {
-        for (let v in dependencies) {
-            if (!dependencies.hasOwnProperty(v)) {
-                throw Error(`Property '${v}' not found`);
-            }
-
-            const dependency = dependencies[v];
-
-            switch (dependency.type) {
+    #checkAvailabilityOfDependencies(executions) {
+        for (const execution of executions) {
+            switch (execution.type) {
                 case "docker-compose":
                     return docker_compose.check();
                 case "docker-container":

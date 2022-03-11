@@ -3,95 +3,91 @@ const mssql = require('../../../common/helper/mssql');
 module.exports = new class {
     /**
      * Handler for mssql dependencies
-     * @param dependency {Dependency}
+     * @param execution {Execution}
      * @param args {EnvArgs}
-     * @param name {string}
      */
-    async handle(dependency, args, name) {
+    async handle(execution, args) {
         if (args.stop) {
             return;
         }
 
-        switch (dependency.option) {
+        switch (execution.option) {
             case "create-database":
-                await this.#createDatabase(dependency, name);
+                await this.#createDatabase(execution);
                 break;
             case "create-table":
-                await this.#createTable(dependency, name);
+                await this.#createTable(execution);
                 break;
             case "insert-into":
-                await this.#insertInto(dependency, name);
+                await this.#insertInto(execution);
                 break;
             default:
-                console.error(`mssql: option '${dependency.option}' not supported`);
+                console.error(`mssql: option '${execution.option}' not supported`);
         }
     }
 
     /**
      * Create database
-     * @param dependency {Dependency}
-     * @param name {string}
+     * @param execution {Execution}
      * @returns {Promise<void>}
      */
-    async #createDatabase(dependency, name) {
-        if (await mssql.databaseExists(dependency.command)) {
-            console.log(`mssql: '${name}' :: database has already been created`);
+    async #createDatabase(execution) {
+        if (await mssql.databaseExists(execution.command)) {
+            console.log(`mssql: '${execution.name}' :: database has already been created`);
             return;
         }
 
         try {
-            await mssql.createDatabase(dependency.command);
-            console.log(`mssql: '${name}' :: database has been created`);
+            await mssql.createDatabase(execution.command);
+            console.log(`mssql: '${execution.name}' :: database has been created`);
         } catch (e) {
-            console.error(`mssql: '${name}' :: database has not been created`);
+            console.error(`mssql: '${execution.name}' :: database has not been created`);
             throw e;
         }
     }
 
     /**
      * Create table
-     * @param dependency {Dependency}
-     * @param name {string}
+     * @param execution {Execution}
      */
-    async #createTable(dependency, name) {
-        const names = this.#getDatabaseAndTableNames(dependency.command);
+    async #createTable(execution) {
+        const names = this.#getDatabaseAndTableNames(execution.command);
         if (names == null) {
-            console.log(`mssql: '${name}' could not find database or table names`);
+            console.log(`mssql: '${execution.name}' could not find database or table names`);
             return;
         }
 
         if (!await mssql.databaseExists(names.databaseName)) {
-            console.log(`mssql: '${name}' :: could not create table due to the database '${names.databaseName}' not existing`);
+            console.log(`mssql: '${execution.name}' :: could not create table due to the database '${names.databaseName}' not existing`);
             return;
         }
 
         if (await mssql.tableExists(names.databaseName, names.tableName)) {
-            console.log(`mssql: '${name}' :: table has already been created'`);
+            console.log(`mssql: '${execution.name}' :: table has already been created'`);
             return;
         }
 
         try {
-            await mssql.createTable(dependency.command);
-            console.log(`mssql: '${name}' :: table has been created`);
+            await mssql.createTable(execution.command);
+            console.log(`mssql: '${execution.name}' :: table has been created`);
         } catch (e) {
-            console.error(`mssql: '${name}' :: table has not been created`);
+            console.error(`mssql: '${execution.name}' :: table has not been created`);
             throw e;
         }
     }
 
     /**
      * Checks and runs 'insert into' once or multiple times depending on whether it's a string or array
-     * @param dependency {Dependency}
-     * @param name {string}
+     * @param execution {Execution}
      * @returns {Promise<void>}
      */
-    async #insertInto(dependency, name) {
-        if (Array.isArray(dependency.command)) {
-            for (const command of dependency.command) {
-                await this.#insertIntoRunner(command, name);
+    async #insertInto(execution) {
+        if (Array.isArray(execution.command)) {
+            for (const command of execution.command) {
+                await this.#insertIntoRunner(command, execution.name);
             }
         } else {
-            await this.#insertIntoRunner(dependency.command, name);
+            await this.#insertIntoRunner(execution.command, execution.name);
         }
     }
 

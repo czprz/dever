@@ -7,18 +7,17 @@ const customOptions = require('../../../common/helper/custom_options');
 
 /**
  *
- * @param dependency {Dependency}
+ * @param execution {Execution}
  * @param args {EnvArgs}
- * @param name {string}
  */
-async function handle(dependency, args, name) {
+async function handle(execution, args) {
     switch(true) {
         case args.start: {
             try {
-                const command = customOptions.addOptionsToCommand(dependency.command, dependency.options, args);
-                await powershell.executeSync(command, dependency.runAsElevated);
+                const command = customOptions.addOptionsToCommand(execution.command, execution.options, args);
+                await powershell.executeSync(command, execution.runAsElevated);
 
-                console.log(`powershell-command: '${name}' completed successfully`);
+                console.log(`powershell-command: '${execution.name}' completed successfully`);
             } catch (e) {
                 console.error(e);
             }
