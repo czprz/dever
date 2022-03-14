@@ -4,10 +4,10 @@ module.exports = new class {
     /**
      * Handler for mssql dependencies
      * @param execution {Execution}
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      */
-    async handle(execution, args) {
-        if (args.stop) {
+    async handle(execution, runtime) {
+        if (runtime.stop) {
             return;
         }
 

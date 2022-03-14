@@ -11,14 +11,14 @@ module.exports = new class {
      * Handle starting and stopping of docker-compose
      * @param component {Config} Component configuration
      * @param execution {Execution} Dependency options
-     * @param args {EnvArgs} shell arguments
+     * @param runtime {Runtime} shell arguments
      */
-    handle(component, execution, args) {
+    handle(component, execution, runtime) {
         switch (true) {
-            case args.start:
-                this.#start(component, execution, args);
+            case runtime.start:
+                this.#start(component, execution, runtime);
                 break;
-            case args.stop:
+            case runtime.stop:
                 this.#stop(component, execution);
                 break;
         }
@@ -41,13 +41,13 @@ module.exports = new class {
      * Start docker-compose
      * @param component {Config} Component configuration
      * @param execution {Execution} FilePath to docker-compose
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      */
-    #start(component, execution, args) {
+    #start(component, execution, runtime) {
         const state = this.#run_state();
         switch (state) {
             case states.NotRunning: {
-                if (this.#recreate(component, execution.file, execution.name, args.clean)) {
+                if (this.#recreate(component, execution.file, execution.name, runtime.clean)) {
                     return;
                 }
 
@@ -56,7 +56,7 @@ module.exports = new class {
                 break;
             }
             case states.Running: {
-                if (this.#recreate(component, execution.file, execution.name, args.clean)) {
+                if (this.#recreate(component, execution.file, execution.name, runtime.clean)) {
                     return;
                 }
 

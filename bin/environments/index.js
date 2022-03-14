@@ -20,10 +20,16 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async handler(config, yargs, args) {
+        const runtime = this.#getRuntime(args);
+        if (runtime.start && runtime.stop) {
+            console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
+            return;
+        }
+
         switch (true) {
-            case args.start:
-            case args.stop:
-                await this.#startOrStop(config, args);
+            case runtime.start:
+            case runtime.stop:
+                await this.#startOrStop(config, runtime);
                 break;
             default:
                 this.#showHelp(yargs);
@@ -63,12 +69,12 @@ module.exports = new class {
     /**
      * Handles handlers for each environment dependency
      * @param config {Config}
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async #startOrStop(config, args) {
+    async #startOrStop(config, runtime) {
         const options = this.#getCustomOptions(config.environment);
-        const result = customOption.validateOptions(args, options);
+        const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
@@ -78,13 +84,12 @@ module.exports = new class {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(args.ignore, config.environment)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.ignore, config.environment)) {
             return;
         }
 
         for (const execution of config.environment) {
-            if (execution.runtime) {
-                // Todo: Check if name is equal to key given with stop command if no key stop all else continue
+            if (execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) {
                 continue;
             }
 
@@ -92,19 +97,19 @@ module.exports = new class {
 
             switch (execution.type) {
                 case "docker-compose":
-                    docker_compose.handle(config, execution, args);
+                    docker_compose.handle(config, execution, runtime);
                     break;
                 case "docker-container":
-                    docker_container.handle(execution, args);
+                    docker_container.handle(execution, runtime);
                     break;
                 case "powershell-script":
-                    await powershell_script.handle(config, execution, args);
+                    await powershell_script.handle(config, execution, runtime);
                     break;
                 case "powershell-command":
-                    await powershell_command.handle(execution, args);
+                    await powershell_command.handle(execution, runtime);
                     break;
                 case "mssql":
-                    await mssql.handle(execution, args);
+                    await mssql.handle(execution, runtime);
                     break;
                 default:
                     console.error(`"${execution.name}::${execution.type}" not found`);
@@ -235,18 +240,101 @@ module.exports = new class {
 
         return true;
     }
+
+    /**
+     *
+     * @param args {EnvArgs}
+     * @returns {Runtime}
+     */
+    #getRuntime(args) {
+        const definedStop = args.hasOwnProperty('stop');
+        const definedStart = args.hasOwnProperty('start');
+
+        if (definedStop && definedStart) {
+            return {
+                start: true,
+                stop: true
+            };
+        }
+
+        if (definedStart) {
+            return {
+                start: true,
+                stop: false,
+                variables: this.#getVariables(args.start),
+                clean: args.hasOwnProperty('clean'),
+                args: args
+            };
+        }
+
+        return {
+            start: false,
+            stop: true,
+            variables: this.#getVariables(args.stop),
+            clean: args.hasOwnProperty('clean'),
+            args: args
+        };
+    }
+
+    /**
+     * Properly format keys regardless of input
+     * @param value {string|string[]}
+     * @return {string[]}
+     */
+    #getVariables(value) {
+        if (typeof value === 'boolean') {
+            return [];
+        }
+
+        if (typeof value === 'string') {
+            return value.split(',');
+        }
+
+        return value;
+    }
 };
+
+class Runtime {
+    /**
+     * Start option is true when set
+     * @return {boolean}
+     */
+    start;
+
+    /**
+     * Stop option is true when set
+     * @return {boolean}
+     */
+    stop;
+
+    /**
+     * Contains names of runtime executions user wants to start or stop
+     * @return {string[]}
+     */
+    variables;
+
+    /**
+     * Is checked if user wants a clean start
+     * @return {boolean}
+     */
+    clean;
+
+    /**
+     * @return {EnvArgs}
+     */
+    args;
+}
 
 class EnvArgs {
     /**
      * Option for starting environment
-     * @var {bool}
+     * @var {bool|string|string[]}
      */
     start;
 
     /**
      * Option for stopping environment
-     * @var {bool}
+     * @var {boolean|string|string[]}
      */
     stop;
 

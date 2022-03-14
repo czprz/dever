@@ -8,13 +8,13 @@ const customOptions = require('../../../common/helper/custom_options');
 /**
  *
  * @param execution {Execution}
- * @param args {EnvArgs}
+ * @param runtime {Runtime}
  */
-async function handle(execution, args) {
+async function handle(execution, runtime) {
     switch(true) {
-        case args.start: {
+        case runtime.start: {
             try {
-                const command = customOptions.addOptionsToCommand(execution.command, execution.options, args);
+                const command = customOptions.addOptionsToCommand(execution.command, execution.options, runtime.args);
                 await powershell.executeSync(command, execution.runAsElevated);
 
                 console.log(`powershell-command: '${execution.name}' completed successfully`);
@@ -24,7 +24,7 @@ async function handle(execution, args) {
 
             break;
         }
-        case args.stop:
+        case runtime.stop:
             // Todo: Any reason for having this? / How can this be implemented?
         break;
     }

@@ -4,14 +4,14 @@ module.exports = new class {
     /**
      * Handle starting and stopping of docker containers
      * @param dependency {Execution}
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      */
-    handle(dependency, args) {
+    handle(dependency, runtime) {
         switch(true) {
-            case args.start:
-                this.#start(dependency.container, args);
+            case runtime.start:
+                this.#start(dependency.container, runtime);
                 break;
-            case args.stop:
+            case runtime.stop:
                 this.#stop(dependency.container);
                 break;
         }
@@ -33,13 +33,13 @@ module.exports = new class {
     /**
      * Start docker container
      * @param container {Container}
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      */
-    #start(container, args) {
+    #start(container, runtime) {
         const state = docker.container.getRunState(container.name);
         switch (state) {
             case docker.states.NotRunning: {
-                if (this.#recreate(container, args.clean)) {
+                if (this.#recreate(container, runtime.clean)) {
                     return;
                 }
 
