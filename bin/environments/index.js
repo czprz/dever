@@ -56,7 +56,7 @@ module.exports = new class {
             })
             .option('not', {
                 alias: 'n',
-                describe: 'Include name of execution to avoid starting or stopping it'
+                describe: 'Include name of executions to avoid starting or stopping it'
             })
             .option('clean', {
                 describe: `Usage '--start --clean' which will do a clean startup`
