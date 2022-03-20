@@ -21,7 +21,6 @@ module.exports = new class {
      */
     async handler(config, yargs, args) {
         const runtime = this.#getRuntime(args);
-        console.log(runtime);
         if (runtime.start && runtime.stop) {
             console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
             return;
@@ -55,12 +54,16 @@ module.exports = new class {
             .option('stop', {
                 describe: 'Stop component dependencies'
             })
+            .option('not', {
+                alias: 'n',
+                describe: 'Include name of execution to avoid starting or stopping it'
+            })
             .option('clean', {
                 describe: `Usage '--start --clean' which will do a clean startup`
             })
-            .option('i', {
-                alias: 'ignore',
-                describe: 'ignore confirmation messages'
+            .option('s', {
+                alias: 'skip',
+                describe: 'Skip confirmation messages'
             });
 
         const customOptions = this.#getCustomOptions(config.environment);
@@ -85,12 +88,13 @@ module.exports = new class {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.ignore, config.environment)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, config.environment)) {
             return;
         }
 
         for (const execution of config.environment) {
-            if (execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) {
+            if ((execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) ||
+                runtime.not.length > 0 && runtime.not.some(x => x === execution.name)) {
                 continue;
             }
 
@@ -251,10 +255,10 @@ module.exports = new class {
         const definedStop = args.hasOwnProperty('stop');
         const definedStart = args.hasOwnProperty('start');
 
-        if (definedStop && definedStart) {
+        if (definedStop === definedStart) {
             return {
-                start: true,
-                stop: true
+                start: definedStart,
+                stop: definedStop
             };
         }
 
@@ -264,6 +268,7 @@ module.exports = new class {
                 stop: false,
                 variables: this.#getVariables(args.start),
                 clean: args.hasOwnProperty('clean'),
+                not: this.#getVariables(args.not),
                 args: args
             };
         }
@@ -273,6 +278,7 @@ module.exports = new class {
             stop: true,
             variables: this.#getVariables(args.stop),
             clean: args.hasOwnProperty('clean'),
+            not: this.#getVariables(args.not),
             args: args
         };
     }
@@ -321,6 +327,12 @@ class Runtime {
     clean;
 
     /**
+     * List of execution names which should not be included in starting and stopping
+     * @return {string[]}
+     */
+    not;
+
+    /**
      * @return {EnvArgs}
      */
     args;
@@ -346,14 +358,20 @@ class EnvArgs {
     clean;
 
     /**
+     * List of execution names which should not be included in starting and stopping
+     * @return {boolean|string|string[]}
+     */
+    not;
+
+    /**
      * Component
      * @var {string}
      */
     keyword;
 
     /**
-     * Ignore warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
+     * Skip warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
      * @return {boolean}
      */
-    ignore;
+    skip;
 }
