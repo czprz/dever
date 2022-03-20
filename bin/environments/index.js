@@ -21,6 +21,7 @@ module.exports = new class {
      */
     async handler(config, yargs, args) {
         const runtime = this.#getRuntime(args);
+        console.log(runtime);
         if (runtime.start && runtime.stop) {
             console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
             return;
@@ -290,7 +291,7 @@ module.exports = new class {
             return value.split(',');
         }
 
-        return value;
+        return value != null ? value : [];
     }
 };
 
