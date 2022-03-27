@@ -55,7 +55,7 @@ jobs:
 
 # Publishing
   publish:
-    needs: test
+    needs: [test, analyze]
     if: github.event_name == 'release' && github.event.action == 'created'
     runs-on: ubuntu-latest
     steps:
