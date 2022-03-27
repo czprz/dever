@@ -2,6 +2,8 @@
 
 Tool to help speed up local development and keep it consistent across a team
 
+[![Pipeline](https://github.com/czprz/dever/actions/workflows/pipeline.yml/badge.svg?branch=main)](https://github.com/czprz/dever/actions/workflows/pipeline.yml)
+
 ## Getting Started
 
 ```
