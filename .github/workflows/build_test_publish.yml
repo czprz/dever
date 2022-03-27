@@ -4,9 +4,8 @@
 name: Build, Test & Publish
     
 on:
-  create:
-    tags:
-      - v*
+  release:
+    types: [created]
 
 jobs:
   build:
