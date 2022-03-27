@@ -98,7 +98,6 @@ Currently no tests implemented..
 
 * [NodeJS](https://nodejs.org/en/) - Required for development
 * [npmjs](https://www.npmjs.com/) - Dependency management included as part of the NodeJS installation
-* [WebStorm](https://www.jetbrains.com/webstorm/) - Main editor
 
 ## Contributing
 
