@@ -252,31 +252,22 @@ module.exports = new class {
      * @returns {Runtime}
      */
     #getRuntime(args) {
-        const definedStop = args.hasOwnProperty('stop');
-        const definedStart = args.hasOwnProperty('start');
+        const stop = args.hasOwnProperty('stop');
+        const start = args.hasOwnProperty('start');
 
-        if (definedStop === definedStart) {
+        if (stop === start) {
             return {
-                start: definedStart,
-                stop: definedStop
+                start: start,
+                stop: stop
             };
         }
 
-        if (definedStart) {
-            return {
-                start: true,
-                stop: false,
-                variables: this.#getVariables(args.start),
-                clean: args.hasOwnProperty('clean'),
-                not: this.#getVariables(args.not),
-                args: args
-            };
-        }
+        const choice = start ? 'start' : 'stop';
 
         return {
-            start: false,
-            stop: true,
-            variables: this.#getVariables(args.stop),
+            start: start,
+            stop: stop,
+            variables: this.#getVariables(args[choice]),
             clean: args.hasOwnProperty('clean'),
             not: this.#getVariables(args.not),
             args: args
