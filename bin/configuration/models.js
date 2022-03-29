@@ -70,16 +70,16 @@ class Execution {
     command;
 
     /**
+     * Sql object only used when type is 'mssql'
+     * @return {DbQuery | null}
+     */
+    sql;
+
+    /**
      * Container object only used when type is 'docker-container'
      * @return {Container | null}
      */
     container;
-
-    /**
-     *  Currently only used to select between mssql options
-     *  @return {string | null}
-     */
-    option;
 
     /**
      * Custom options that will be passed along to dependency
@@ -126,6 +126,56 @@ class Step {
      * @return {string}
      */
     command;
+}
+
+class DbQuery {
+    /**
+     * Username for SQL connection
+     * @var {string}
+     */
+    username;
+
+    /**
+     * Password for SQL connection
+     * @var {string}
+     */
+    password;
+
+    /**
+     * Used for selecting between ('create-database', 'create-table', 'insert')
+     * @var {string}
+     */
+    option;
+
+    /**
+     * Database name necessary for DB Creation, Table Creation and Query execution
+     * @var {string}
+     */
+    database;
+
+    /**
+     * Table name necessary for Table Creation and Query Execution
+     * @var {string}
+     */
+    table;
+
+    /**
+     * Data currently only necessary for ('insert')
+     * @var {DbData[]}
+     */
+    data;
+}
+
+class DbData {
+    /**
+     * Column name
+     */
+    key;
+
+    /**
+     * Column value
+     */
+    value;
 }
 
 class Container {
