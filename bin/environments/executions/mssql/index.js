@@ -19,7 +19,7 @@ module.exports = new class {
                 await this.#createTable(execution);
                 break;
             case "insert":
-                await this.#insertInto(execution);
+                await this.#insert(execution);
                 break;
             default:
                 console.error(`mssql: option '${execution.sql.option}' not supported`);
@@ -85,7 +85,7 @@ module.exports = new class {
      * @param execution {Execution}
      * @returns {Promise<void>}
      */
-    async #insertInto(execution) {
+    async #insert(execution) {
         if (!execution.sql.database || execution.sql.table) {
             console.log(`mssql: '${execution.name}' could not find database or table name`);
             return;
@@ -102,7 +102,7 @@ module.exports = new class {
         }
 
         try {
-            await mssql.insertInto(execution.sql);
+            await mssql.insert(execution.sql);
             console.log(`mssql: '${name}' :: insert into has completed successfully`);
         } catch (e) {
             console.error(`mssql: '${name}' :: insert into could not complete successfully`);

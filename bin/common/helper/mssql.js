@@ -58,11 +58,11 @@ module.exports = new class {
     }
 
     /**
-     * INSERT INTO mssql command
+     * Inserts data into existing table
      * @param query {DbQuery}
      * @returns {Promise<void>}
      */
-    async insertInto(query) {
+    async insert(query) {
         await this.#connect(query);
         const insert = this.#mapDbDataToInsertQuery(query.data);
         await sql.query(`INSERT INTO ${insert}`);
