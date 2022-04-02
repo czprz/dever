@@ -29,7 +29,7 @@ module.exports = new class {
         switch (true) {
             case runtime.start:
             case runtime.stop:
-                await this.#startOrStop(config, runtime);
+                await this.#run(config, runtime);
                 break;
             default:
                 this.#showHelp(yargs);
@@ -76,7 +76,7 @@ module.exports = new class {
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async #startOrStop(config, runtime) {
+    async #run(config, runtime) {
         const options = this.#getCustomOptions(config.environment);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
@@ -93,6 +93,10 @@ module.exports = new class {
         }
 
         for (const execution of config.environment) {
+            if (execution.type == null) {
+                console.error(chalk.redBright(`${execution.name}: Missing type!`));
+                return;
+            }
             if ((execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) ||
                 runtime.not.length > 0 && runtime.not.some(x => x === execution.name)) {
                 continue;

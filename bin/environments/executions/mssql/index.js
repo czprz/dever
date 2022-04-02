@@ -32,6 +32,7 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #createDatabase(execution) {
+        // Todo: Add validation of execution.sql to ensure everything needed is available..
         if (!execution.sql.database) {
             console.log(`mssql: '${execution.name}' could not find database name`);
             return;
@@ -56,7 +57,9 @@ module.exports = new class {
      * @param execution {Execution}
      */
     async #createTable(execution) {
-        if (!execution.sql.database || execution.sql.table) {
+        // Todo: Add validation of execution.sql to ensure everything needed is available..
+        const tableName = this.#getTableName(execution.sql);
+        if (!execution.sql.database || !tableName) {
             console.log(`mssql: '${execution.name}' could not find database or table name`);
             return;
         }
@@ -86,7 +89,9 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #insert(execution) {
-        if (!execution.sql.database || execution.sql.table) {
+        // Todo: Add validation of execution.sql to ensure everything needed is available..
+        const tableName = this.#getTableName(execution.sql);
+        if (!execution.sql.database || !tableName) {
             console.log(`mssql: '${execution.name}' could not find database or table name`);
             return;
         }
@@ -108,6 +113,21 @@ module.exports = new class {
             console.error(`mssql: '${name}' :: insert into could not complete successfully`);
             throw e;
         }
+    }
+
+    /**
+     * Gets table name
+     * @param query {DbQuery}
+     * @return {string}
+     */
+    #getTableName(query) {
+        if (query.table == null) {
+            // Todo: Pass runtime here for getting execution name
+            console.error('Missing table name');
+            return '';
+        }
+
+        return typeof query.table === 'string' ? query.table : query.table.name;
     }
 }
 

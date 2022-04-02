@@ -131,46 +131,67 @@ class Step {
 class DbQuery {
     /**
      * Username for SQL connection
-     * @var {string}
+     * @return {string}
      */
     username;
 
     /**
      * Password for SQL connection
-     * @var {string}
+     * @return {string}
      */
     password;
 
     /**
      * Used for selecting between ('create-database', 'create-table', 'insert')
-     * @var {string}
+     * @return {string}
      */
     option;
 
     /**
      * Database name necessary for DB Creation, Table Creation and Query execution
-     * @var {string}
+     * @return {string}
      */
     database;
 
     /**
-     * Table name necessary for Table Creation and Query Execution
-     * @var {string}
+     * Table necessary for Table Creation and Query Execution
+     * @return {string | DbTable}
      */
     table;
 
     /**
      * Data currently only necessary for ('insert')
-     * @var {DbData[]}
+     * @return {DbColumn[]}
      */
     data;
 }
 
-class DbData {
+class DbTable {
+    /**
+     * Name of table on creation
+     * @return {string}
+     */
+    name;
+
+    /**
+     * Columns created on table creation
+     * @return {DbColumn[]}
+     */
+    columns;
+}
+
+class DbColumn {
     /**
      * Column name
+     * @var {string}
      */
     key;
+
+    /**
+     * Column value type (Only required for creating table)
+     * @var {string}
+     */
+    valueType;
 
     /**
      * Column value
