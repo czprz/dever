@@ -76,9 +76,9 @@ module.exports = new class {
 
         try {
             await mssql.insert(execution.sql);
-            console.log(`mssql: '${execution.name}' :: insert into has completed successfully`);
+            console.log(`mssql: '${execution.name}' :: inserting of data has completed successfully`);
         } catch (e) {
-            console.error(`mssql: '${execution.name}' :: insert into could not complete successfully`);
+            console.error(`mssql: '${execution.name}' :: inserting of data could not be completed`);
             throw e;
         }
     }
