@@ -1,4 +1,5 @@
 const mssql = require('../../../common/helper/mssql');
+const validator = require('../../../common/helper/mssql/validator');
 
 module.exports = new class {
     /**
@@ -11,18 +12,18 @@ module.exports = new class {
             return;
         }
 
-        switch (execution.option) {
+        switch (execution.sql.option) {
             case "create-database":
                 await this.#createDatabase(execution);
                 break;
             case "create-table":
                 await this.#createTable(execution);
                 break;
-            case "insert-into":
-                await this.#insertInto(execution);
+            case "insert":
+                await this.#insert(execution);
                 break;
             default:
-                console.error(`mssql: option '${execution.option}' not supported`);
+                console.error(`mssql: option '${execution.sql.option}' not supported`);
         }
     }
 
@@ -32,13 +33,12 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #createDatabase(execution) {
-        if (await mssql.databaseExists(execution.command)) {
-            console.log(`mssql: '${execution.name}' :: database has already been created`);
+        if (!await validator.createDatabase(execution)) {
             return;
         }
 
         try {
-            await mssql.createDatabase(execution.command);
+            await mssql.createDatabase(execution.sql);
             console.log(`mssql: '${execution.name}' :: database has been created`);
         } catch (e) {
             console.error(`mssql: '${execution.name}' :: database has not been created`);
@@ -51,24 +51,12 @@ module.exports = new class {
      * @param execution {Execution}
      */
     async #createTable(execution) {
-        const names = this.#getDatabaseAndTableNames(execution.command);
-        if (names == null) {
-            console.log(`mssql: '${execution.name}' could not find database or table names`);
-            return;
-        }
-
-        if (!await mssql.databaseExists(names.databaseName)) {
-            console.log(`mssql: '${execution.name}' :: could not create table due to the database '${names.databaseName}' not existing`);
-            return;
-        }
-
-        if (await mssql.tableExists(names.databaseName, names.tableName)) {
-            console.log(`mssql: '${execution.name}' :: table has already been created'`);
+        if (!await validator.createTable(execution)) {
             return;
         }
 
         try {
-            await mssql.createTable(execution.command);
+            await mssql.createTable(execution.sql);
             console.log(`mssql: '${execution.name}' :: table has been created`);
         } catch (e) {
             console.error(`mssql: '${execution.name}' :: table has not been created`);
@@ -81,64 +69,18 @@ module.exports = new class {
      * @param execution {Execution}
      * @returns {Promise<void>}
      */
-    async #insertInto(execution) {
-        if (Array.isArray(execution.command)) {
-            for (const command of execution.command) {
-                await this.#insertIntoRunner(command, execution.name);
-            }
-        } else {
-            await this.#insertIntoRunner(execution.command, execution.name);
-        }
-    }
-
-    /**
-     * Runs insert into command if all criteria are valid
-     * @param command {string}
-     * @param name {string}
-     * @returns {Promise<void>}
-     */
-    async #insertIntoRunner(command, name) {
-        const names = this.#getDatabaseAndTableNames(command);
-        if (names == null) {
-            console.log(`mssql: '${name}' could not find database or table names`);
-            return;
-        }
-
-        if (!await mssql.databaseExists(names.databaseName)) {
-            console.log(`mssql: '${name}' :: could not insert into '${names.databaseName}' as the database was not found`);
-            return;
-        }
-
-        if (!await mssql.tableExists(names.databaseName, names.tableName)) {
-            console.log(`mssql: '${name}' :: could not insert into '${names.tableName} as the table was not found`);
+    async #insert(execution) {
+        if (!await validator.columns(execution)) {
             return;
         }
 
         try {
-            await mssql.insertInto(command);
-            console.log(`mssql: '${name}' :: insert into has completed successfully`);
+            await mssql.insert(execution.sql);
+            console.log(`mssql: '${execution.name}' :: inserting of data has completed successfully`);
         } catch (e) {
-            console.error(`mssql: '${name}' :: insert into could not complete successfully`);
+            console.error(`mssql: '${execution.name}' :: inserting of data could not be completed`);
             throw e;
         }
-    }
-
-    /**
-     * Gets database and table name from command
-     * @param command {string}
-     * @return { {databaseName: string, tableName: string} | null }
-     */
-    #getDatabaseAndTableNames(command) {
-        if (command == null) {
-            throw new Error('Missing command');
-        }
-
-        const matched = command.match(/([a-zA-Z0-9_-]+)\.dbo\.([a-zA-Z0-9_-]+)/i);
-        if (matched == null) {
-            return null;
-        }
-
-        return {databaseName: matched[1], tableName: matched[2]};
     }
 }
 
