@@ -41,7 +41,7 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async createTable(query) {
-        await this.#connect(query, true);
+        await this.#connect(query);
 
         if (!await this.#databaseExists(query)) {
             await this.#createDatabase(query);
@@ -79,14 +79,18 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async insert(query) {
-        await this.#connect(query, true);
+        await this.#connect(query);
+
+        if (!await this.#databaseExists(query)) {
+            await this.#createDatabase(query);
+        }
 
         if (!await this.#tableExists(query)) {
             await this.#createTable(query);
         }
 
         const insert = this.#getInsertQuery(query.columns);
-        await sql.query(`INSERT INTO dbo.${query.table} ${insert}`);
+        await sql.query(`INSERT INTO ${query.database}.dbo.${query.table} ${insert}`);
 
         await sql.close();
     }
@@ -94,15 +98,13 @@ module.exports = new class {
     /**
      * Establish SQL connection
      * @param query {DbQuery}
-     * @param withDatabase {boolean}
      * @return {Promise<void>}
      */
-    async #connect(query, withDatabase = false) {
+    async #connect(query) {
         await sql.connect({
             server: "localhost",
             user: query.username,
             password: query.password,
-            database: withDatabase ? query.database : undefined,
             options: {
                 trustServerCertificate: true
             }
@@ -193,6 +195,6 @@ module.exports = new class {
             statement += `${column.key} ${column.valueType}, `;
         }
 
-        return `dbo.${query.table} (${statement.slice(0, -2)})`;
+        return `${query.database}.dbo.${query.table} (${statement.slice(0, -2)})`;
     }
 }
