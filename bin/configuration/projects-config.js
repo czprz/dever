@@ -10,8 +10,8 @@ module.exports = new class {
     }
 
     /**
-     * Gets only one component specifically looking through component keywords found in dever.json
-     * @param keyword
+     * Gets only one project by specifically looking through keywords found in dever.json
+     * @param keyword {string}
      * @returns Config
      */
     get(keyword) {
@@ -20,7 +20,7 @@ module.exports = new class {
             return null;
         }
 
-        let components = [];
+        let projects = [];
 
         config.components.forEach(x => {
             if (x == null) {
@@ -28,20 +28,16 @@ module.exports = new class {
             }
 
             if (x.keywords.includes(keyword)) {
-                components.push(x);
+                projects.push(x);
             }
         })
 
-        if (components.length > 1) {
+        if (projects.length > 1) {
             console.error('Components are not allowed to share keywords. Please fix this.');
             return null;
         }
 
-        if (components.length === 0) {
-            return null;
-        }
-
-        return components[0];
+        return projects.length === 0 ? null : projects[0];
     }
 
     /**
@@ -109,7 +105,7 @@ module.exports = new class {
     }
 
     /**
-     * Gets all components and their dever.json configuration
+     * Gets all projects configuration
      * @returns LocalConfig
      */
     #getProjects() {
