@@ -96,7 +96,7 @@ Currently no tests implemented..
 
 ## Built With
 
-* [NodeJS](https://nodejs.org/en/) - Required for development
+* [Node.js](https://nodejs.org/en/) - Required for development
 * [npmjs](https://www.npmjs.com/) - Dependency management included as part of the NodeJS installation
 
 ## Contributing
