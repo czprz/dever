@@ -164,10 +164,10 @@ module.exports = new class {
     #validate(file) {
         const result = configValidator.validateFile(file);
         if (!result.status) {
-            console.log(chalk.redBright(result.message));
+            console.error(chalk.redBright(result.message));
             return;
         }
 
-        console.log('No problems with dever.json found');
+        console.log('No problems with dever.json');
     }
 }
