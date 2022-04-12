@@ -98,7 +98,7 @@ module.exports = new class {
                 return;
             }
             if ((execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) ||
-                runtime.not.length > 0 && runtime.not.some(x => x === execution.name)) {
+                runtime.not.length > 0 && runtime.not.some(x => x.toLowerCase() === execution.name?.toLowerCase())) {
                 continue;
             }
 
