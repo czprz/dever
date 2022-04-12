@@ -1,4 +1,5 @@
 const mssql = require('../../../common/helper/mssql');
+const validator = require('../../../common/helper/mssql/validator');
 
 module.exports = new class {
     /**
@@ -32,14 +33,7 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #createDatabase(execution) {
-        // Todo: Add validation of execution.sql to ensure everything needed is available..
-        if (!execution.sql.database) {
-            console.log(`mssql: '${execution.name}' could not find database name`);
-            return;
-        }
-
-        if (await mssql.databaseExists(execution.sql)) {
-            console.log(`mssql: '${execution.name}' :: database has already been created`);
+        if (!await validator.createDatabase(execution)) {
             return;
         }
 
@@ -57,20 +51,7 @@ module.exports = new class {
      * @param execution {Execution}
      */
     async #createTable(execution) {
-        // Todo: Add validation of execution.sql to ensure everything needed is available..
-        const tableName = this.#getTableName(execution.sql);
-        if (!execution.sql.database || !tableName) {
-            console.log(`mssql: '${execution.name}' could not find database or table name`);
-            return;
-        }
-
-        if (!await mssql.databaseExists(execution.sql)) {
-            console.log(`mssql: '${execution.name}' :: could not create table due to the database '${execution.sql.database}' not existing`);
-            return;
-        }
-
-        if (await mssql.tableExists(execution.sql)) {
-            console.log(`mssql: '${execution.name}' :: table has already been created'`);
+        if (!await validator.createTable(execution)) {
             return;
         }
 
@@ -89,45 +70,17 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #insert(execution) {
-        // Todo: Add validation of execution.sql to ensure everything needed is available..
-        const tableName = this.#getTableName(execution.sql);
-        if (!execution.sql.database || !tableName) {
-            console.log(`mssql: '${execution.name}' could not find database or table name`);
-            return;
-        }
-
-        if (!await mssql.databaseExists(execution.sql)) {
-            console.log(`mssql: '${name}' :: could not insert into '${execution.sql.database}' as the database was not found`);
-            return;
-        }
-
-        if (!await mssql.tableExists(execution.sql)) {
-            console.log(`mssql: '${name}' :: could not insert into '${execution.sql.table} as the table was not found`);
+        if (!await validator.columns(execution)) {
             return;
         }
 
         try {
             await mssql.insert(execution.sql);
-            console.log(`mssql: '${name}' :: insert into has completed successfully`);
+            console.log(`mssql: '${execution.name}' :: insert into has completed successfully`);
         } catch (e) {
-            console.error(`mssql: '${name}' :: insert into could not complete successfully`);
+            console.error(`mssql: '${execution.name}' :: insert into could not complete successfully`);
             throw e;
         }
-    }
-
-    /**
-     * Gets table name
-     * @param query {DbQuery}
-     * @return {string}
-     */
-    #getTableName(query) {
-        if (query.table == null) {
-            // Todo: Pass runtime here for getting execution name
-            console.error('Missing table name');
-            return '';
-        }
-
-        return typeof query.table === 'string' ? query.table : query.table.name;
     }
 }
 

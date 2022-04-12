@@ -155,26 +155,12 @@ class DbQuery {
 
     /**
      * Table necessary for Table Creation and Query Execution
-     * @return {string | DbTable}
+     * @return {string}
      */
     table;
 
     /**
      * Data currently only necessary for ('insert')
-     * @return {DbColumn[]}
-     */
-    data;
-}
-
-class DbTable {
-    /**
-     * Name of table on creation
-     * @return {string}
-     */
-    name;
-
-    /**
-     * Columns created on table creation
      * @return {DbColumn[]}
      */
     columns;
@@ -195,6 +181,7 @@ class DbColumn {
 
     /**
      * Column value
+     * @var {any=} null
      */
     value;
 }
