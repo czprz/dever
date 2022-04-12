@@ -10,8 +10,8 @@ module.exports = new class {
     }
 
     /**
-     * Gets only one component specifically looking through component keywords found in dever.json
-     * @param keyword
+     * Gets only one project by specifically looking through keywords found in dever.json
+     * @param keyword {string}
      * @returns Config
      */
     get(keyword) {
@@ -109,7 +109,7 @@ module.exports = new class {
     }
 
     /**
-     * Gets all components and their dever.json configuration
+     * Gets all projects configuration
      * @returns LocalConfig
      */
     #getProjects() {
