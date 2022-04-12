@@ -35,9 +35,10 @@ module.exports = new class {
         } catch (e) {
             switch(e.code) {
                 case "ENOENT":
-                    return {status: false, message: `Could not find '${file}', please check if file path is correct.`};
+                case "EISDIR":
+                    return {status: false, message: `Could not find '${file}'. Please check if file path is correct.`};
                 default:
-                    return {status: false, message: "Something unexpected went wrong.."};
+                    return {status: false, message: "Something went wrong. Most likely due to JSON being wrongly formatted!"};
             }
         }
     }
