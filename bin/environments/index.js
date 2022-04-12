@@ -5,11 +5,11 @@ const sudo = require('../common/helper/elevated');
 const delayer = require('../common/helper/delayer');
 const customOption = require('../common/helper/custom_options');
 
-const docker_compose = require('./dependencies/docker-compose');
-const docker_container = require('./dependencies/docker-container');
-const powershell_script = require('./dependencies/powershell-script');
-const powershell_command = require('./dependencies/powershell-command');
-const mssql = require('./dependencies/mssql');
+const docker_compose = require('./executions/docker-compose');
+const docker_container = require('./executions/docker-container');
+const powershell_script = require('./executions/powershell-script');
+const powershell_command = require('./executions/powershell-command');
+const mssql = require('./executions/mssql');
 
 module.exports = new class {
     /**
@@ -20,10 +20,16 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async handler(config, yargs, args) {
+        const runtime = this.#getRuntime(args);
+        if (runtime.start && runtime.stop) {
+            console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
+            return;
+        }
+
         switch (true) {
-            case args.start:
-            case args.stop:
-                await this.#startOrStop(config, args);
+            case runtime.start:
+            case runtime.stop:
+                await this.#run(config, runtime);
                 break;
             default:
                 this.#showHelp(yargs);
@@ -48,70 +54,77 @@ module.exports = new class {
             .option('stop', {
                 describe: 'Stop component dependencies'
             })
+            .option('not', {
+                alias: 'n',
+                describe: 'Include name of executions to avoid starting or stopping it'
+            })
             .option('clean', {
                 describe: `Usage '--start --clean' which will do a clean startup`
             })
-            .option('i', {
-                alias: 'ignore',
-                describe: 'ignore confirmation messages'
+            .option('s', {
+                alias: 'skip',
+                describe: 'Skip confirmation messages'
             });
 
-        const customOptions = this.#getCustomOptions(config.dependencies);
+        const customOptions = this.#getCustomOptions(config.environment);
         return customOption.addOptionsToYargs(options, customOptions);
     }
 
     /**
      * Handles handlers for each environment dependency
      * @param config {Config}
-     * @param args {EnvArgs}
+     * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async #startOrStop(config, args) {
-        const options = this.#getCustomOptions(config.dependencies);
-        const result = customOption.validateOptions(args, options);
+    async #run(config, runtime) {
+        const options = this.#getCustomOptions(config.environment);
+        const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
         }
 
-        if (!this.#checkAvailabilityOfDependencies(config.dependencies)) {
+        if (!this.#checkAvailabilityOfDependencies(config.environment)) {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(args.ignore, config.dependencies)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, config.environment)) {
             return;
         }
 
-        for (const name in config.dependencies) {
-            if (!config.dependencies.hasOwnProperty(name)) {
-                throw Error(`Property '${name}' not found`);
+        for (const execution of config.environment) {
+            if (execution.type == null) {
+                console.error(chalk.redBright(`${execution.name}: Missing type!`));
+                return;
+            }
+            if ((execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) ||
+                runtime.not.length > 0 && runtime.not.some(x => x.toLowerCase() === execution.name?.toLowerCase())) {
+                continue;
             }
 
-            const dependency = config.dependencies[name];
+            await this.#hasWait(execution, 'before');
 
-            await this.#hasWait(dependency, 'before');
-
-            switch (dependency.type) {
+            switch (execution.type) {
                 case "docker-compose":
-                    docker_compose.handle(config, dependency, args, name);
+                    docker_compose.handle(config, execution, runtime);
                     break;
                 case "docker-container":
-                    docker_container.handle(dependency, args);
+                    docker_container.handle(execution, runtime);
                     break;
                 case "powershell-script":
-                    await powershell_script.handle(config, dependency, args, name);
+                    await powershell_script.handle(config, execution, runtime);
                     break;
                 case "powershell-command":
-                    await powershell_command.handle(dependency, args, name);
+                    await powershell_command.handle(execution, runtime);
                     break;
                 case "mssql":
-                    await mssql.handle(dependency, args, name);
+                    await mssql.handle(execution, runtime);
                     break;
                 default:
-                    console.error(`"${name}::${dependency.type}" not found`);
+                    console.error(`"${execution.name}::${execution.type}" not found`);
             }
 
-            await this.#hasWait(dependency, 'after');
+            await this.#hasWait(execution, 'after');
         }
     }
 
@@ -126,18 +139,18 @@ module.exports = new class {
 
     /**
      * Get all custom options from dependencies
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @return {CustomOption[]}
      */
-    #getCustomOptions(dependencies) {
+    #getCustomOptions(executions) {
         const options = [];
-        for (const key in dependencies) {
-            if (dependencies[key].options == null) {
+        for (const execution of executions) {
+            if (execution.options == null) {
                 continue;
             }
 
-            for (const option in dependencies[key].options) {
-                options.push(dependencies[key].options[option]);
+            for (const option in execution.options) {
+                options.push(execution.options[option]);
             }
         }
 
@@ -146,27 +159,27 @@ module.exports = new class {
 
     /**
      * Creates promise which delays an await for defined period of time
-     * @param dependency {Dependency}
+     * @param execution {Execution}
      * @param timing {'after'|'before'}
      * @returns {Promise<unknown>}
      */
-    #hasWait(dependency, timing) {
-        if (dependency.wait == null) {
+    #hasWait(execution, timing) {
+        if (execution.wait == null) {
             return null;
         }
 
-        if (dependency.wait.when === timing) {
-            return new Promise(resolve => setTimeout(resolve, dependency.wait.time));
+        if (execution.wait.when === timing) {
+            return new Promise(resolve => setTimeout(resolve, execution.wait.time));
         }
     }
 
     /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
      * @param ignore {boolean}
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, dependencies) {
+    async #confirmRunningWithoutElevated(ignore, executions) {
         if (ignore) {
             return true;
         }
@@ -175,7 +188,7 @@ module.exports = new class {
             return true;
         }
 
-        if (!this.#anyDependencyWhichNeedsElevatedPermissions(dependencies)) {
+        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executions)) {
             return true;
         }
 
@@ -201,13 +214,12 @@ module.exports = new class {
 
     /**
      * Check if any dependencies wants to run with elevated permissions
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @return {boolean}
      */
-    #anyDependencyWhichNeedsElevatedPermissions(dependencies) {
-        for (const name in dependencies) {
-            const dependency = dependencies[name];
-            if (dependency != null && dependency.runAsElevated) {
+    #anyDependencyWhichNeedsElevatedPermissions(executions) {
+        for (const execution of executions) {
+            if (execution.runAsElevated != null && execution.runAsElevated) {
                 return true;
             }
         }
@@ -217,18 +229,12 @@ module.exports = new class {
 
     /**
      * Check if dependency of dependency is available
-     * @param dependencies {Dependency[]}
+     * @param executions {Execution[]}
      * @returns {boolean}
      */
-    #checkAvailabilityOfDependencies(dependencies) {
-        for (let v in dependencies) {
-            if (!dependencies.hasOwnProperty(v)) {
-                throw Error(`Property '${v}' not found`);
-            }
-
-            const dependency = dependencies[v];
-
-            switch (dependency.type) {
+    #checkAvailabilityOfDependencies(executions) {
+        for (const execution of executions) {
+            switch (execution.type) {
                 case "docker-compose":
                     return docker_compose.check();
                 case "docker-container":
@@ -243,18 +249,100 @@ module.exports = new class {
 
         return true;
     }
+
+    /**
+     *
+     * @param args {EnvArgs}
+     * @returns {Runtime}
+     */
+    #getRuntime(args) {
+        const stop = args.hasOwnProperty('stop');
+        const start = args.hasOwnProperty('start');
+
+        if (stop === start) {
+            return {
+                start: start,
+                stop: stop
+            };
+        }
+
+        const choice = start ? 'start' : 'stop';
+
+        return {
+            start: start,
+            stop: stop,
+            variables: this.#getVariables(args[choice]),
+            clean: args.hasOwnProperty('clean'),
+            not: this.#getVariables(args.not),
+            args: args
+        };
+    }
+
+    /**
+     * Properly format keys regardless of input
+     * @param value {string|string[]}
+     * @return {string[]}
+     */
+    #getVariables(value) {
+        if (typeof value === 'boolean') {
+            return [];
+        }
+
+        if (typeof value === 'string') {
+            return value.split(',');
+        }
+
+        return value != null ? value : [];
+    }
 };
+
+class Runtime {
+    /**
+     * Start option is true when set
+     * @return {boolean}
+     */
+    start;
+
+    /**
+     * Stop option is true when set
+     * @return {boolean}
+     */
+    stop;
+
+    /**
+     * Contains names of runtime executions user wants to start or stop
+     * @return {string[]}
+     */
+    variables;
+
+    /**
+     * Is checked if user wants a clean start
+     * @return {boolean}
+     */
+    clean;
+
+    /**
+     * List of execution names which should not be included in starting and stopping
+     * @return {string[]}
+     */
+    not;
+
+    /**
+     * @return {EnvArgs}
+     */
+    args;
+}
 
 class EnvArgs {
     /**
      * Option for starting environment
-     * @var {bool}
+     * @var {bool|string|string[]}
      */
     start;
 
     /**
      * Option for stopping environment
-     * @var {bool}
+     * @var {boolean|string|string[]}
      */
     stop;
 
@@ -265,14 +353,20 @@ class EnvArgs {
     clean;
 
     /**
+     * List of execution names which should not be included in starting and stopping
+     * @return {boolean|string|string[]}
+     */
+    not;
+
+    /**
      * Component
      * @var {string}
      */
     keyword;
 
     /**
-     * Ignore warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
+     * Skip warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
      * @return {boolean}
      */
-    ignore;
+    skip;
 }

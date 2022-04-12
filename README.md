@@ -2,6 +2,9 @@
 
 Tool to help speed up local development and keep it consistent across a team
 
+[![Pipeline](https://github.com/czprz/dever/actions/workflows/pipeline.yml/badge.svg?branch=main)](https://github.com/czprz/dever/actions/workflows/pipeline.yml)
+[![codeql](https://github.com/czprz/dever/actions/workflows/codeql.yml/badge.svg)](https://github.com/czprz/dever/actions/workflows/codeql.yml)
+
 ## Getting Started
 
 ```
@@ -76,9 +79,13 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever [keyword] install -nba, --no-before-after | Disables running of before and after functionality if defined in project dever.json |
 | dever [keyword] env | shows help context for dever env options |
 | dever [keyword] env | shows help context for dever env [keyword] options |
-| dever [keyword] env --start | attempts to start all dependencies for specific project environment |
-| dever [keyword] env --start --clean | attempts to start all dependencies for specific project environment cleanly e.g. recreating docker containers |
-| dever [keyword] env --start --ignore | attempts to start all dependencies for specific project environment with any need for confirmations |
+| dever [keyword] env --start | attempts to start environment |
+| dever [keyword] env --start [name] | attempts to start environment except only the runtime given |
+| dever [keyword] env --start --not [name] | attempts to start environment except those mentioned in the --not option |
+| dever [keyword] env --stop | attempts to stop environment |
+| dever [keyword] env --stop --not [name] | attempts to stop environment except those mentioned in the --not option |
+| dever [keyword] env --start --clean | attempts to start environment cleanly e.g. recreating docker containers |
+| dever [keyword] env --start --skip | attempts to start environment without any need for confirmations |
 | dever [keyword] env --location | shows location of project dever.json |
 | dever [keyword] env -c, --config | shows content of project dever.json |
 | dever [keyword] fix | Show help context for fix command |
@@ -91,13 +98,12 @@ Currently no tests implemented..
 
 ## Built With
 
-* [NodeJS](https://nodejs.org/en/) - Required for development
+* [Node.js](https://nodejs.org/en/) - Required for development
 * [npmjs](https://www.npmjs.com/) - Dependency management included as part of the NodeJS installation
-* [WebStorm](https://www.jetbrains.com/webstorm/) - Main editor
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting merge requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting a pull request.
 
 ## Versioning
 

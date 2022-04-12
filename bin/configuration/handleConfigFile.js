@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const chalk = require('chalk');
 
 module.exports = new class {
     #fileName = '.dever';
@@ -89,7 +90,8 @@ module.exports = new class {
                 case "ENOENT":
                     return null;
                 default:
-                    throw e;
+                    console.error(chalk.redBright(`Could not parse '${filePath}' due to json formatting.`));
+                    // Todo: Add exception to log file
             }
         }
     }
