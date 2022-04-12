@@ -3,13 +3,13 @@ const fs = require("fs");
 const chalk = require('chalk');
 
 module.exports = new class {
-    #fileName = 'dever_config.json';
+    #fileName = '.dever';
 
     #root;
     #filePath;
 
     constructor() {
-        this.#root = path.join(path.dirname(fs.realpathSync(__filename)), '../');
+        this.#root = require('os').homedir();
         this.#filePath = path.join(this.#root, this.#fileName);
     }
 
@@ -45,9 +45,8 @@ module.exports = new class {
      */
     get() {
         const config = this.#readJson(this.#filePath);
-
         if (config == null) {
-            throw 'Could not find configuration';
+            return null;
         }
 
         return config;
@@ -89,7 +88,6 @@ module.exports = new class {
         } catch (e) {
             switch (e.code) {
                 case "ENOENT":
-                    console.error(`Could not find '${filePath}' please run 'dever init' again.`);
                     return null;
                 default:
                     console.error(chalk.redBright(`Could not parse '${filePath}' due to json formatting.`));
