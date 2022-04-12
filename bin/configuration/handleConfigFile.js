@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const chalk = require('chalk');
 
 module.exports = new class {
     #fileName = 'dever_config.json';
@@ -91,7 +92,8 @@ module.exports = new class {
                     console.error(`Could not find '${filePath}' please run 'dever init' again.`);
                     return null;
                 default:
-                    throw e;
+                    console.error(chalk.redBright(`Could not parse '${filePath}' due to json formatting.`));
+                    // Todo: Add exception to log file
             }
         }
     }
