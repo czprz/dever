@@ -13,7 +13,8 @@ module.exports = new class {
         try {
             const result = execSync(`docker container inspect -f '{{.State.Running}}' ${name}`, {
                 windowsHide: true,
-                encoding: 'UTF-8'
+                encoding: 'UTF-8',
+                stdio: ['ignore']
             });
 
             if (result.includes('true')) {

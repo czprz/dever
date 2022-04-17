@@ -44,6 +44,7 @@
     },
     {
       "name": "docker-supported-docker-start",
+	  "type": "docker-container",
       "container": {
         "name": "mssql",
         "ports": [
@@ -58,8 +59,8 @@
     },
     {
       "name": "run-container",
-      "type": "powershell",
-      "start": "docker run -n mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
+      "type": "powershell-command",
+      "command": "docker run --name mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
     },
     {
       "name": "run_command",
