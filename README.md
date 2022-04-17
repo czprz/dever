@@ -44,6 +44,7 @@ As an example, you might want to run the environment for a project. Then the com
 ```
 dever ec env --start
 ```
+**Note:** If any errors occur during an execution. You'll be informed that error messages can be found in a log file at end of the command.
 
 Additional commands are available for environment setup / help therefore it's a good idea to check possible commands like this
 
