@@ -25,7 +25,7 @@ module.exports = new class {
      * @param elevated {boolean} @Optional @Default=false
      * @returns {Promise<string> | string}
      */
-    async executeSync(command, elevated= false) {
+    async executeSync(command, elevated = false) {
         if (await this.#shouldRunElevated(elevated)) {
             const timer = delayer.create();
 
@@ -45,7 +45,7 @@ module.exports = new class {
      * @param elevated {boolean} @Optional @Default=false
      * @return {Promise<void> | string}
      */
-    async executeFileSync(file, elevated= false) {
+    async executeFileSync(file, elevated = false) {
         if (await this.#shouldRunElevated(elevated)) {
             const timer = delayer.create();
 
@@ -58,7 +58,8 @@ module.exports = new class {
 
         return execSync(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, {
             'shell': 'powershell.exe',
-            encoding: 'utf8'
+            encoding: 'utf8',
+            stdio: ['ignore', 'ignore']
         });
     }
 

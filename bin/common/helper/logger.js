@@ -26,7 +26,6 @@ module.exports = new class Logger {
         Logger.#logger = winston.createLogger({
             level: 'info',
             format: winston.format.simple(),
-            defaultMeta: {service: 'environment'},
             transports: [
                 new winston.transports.File({ filename: Logger.#filename })
             ]
@@ -70,7 +69,11 @@ module.exports = new class Logger {
 
         console.error(message);
 
-        Logger.#logger.log('error', message, error);
+        Logger.#logger.log('error', message);
+
+        if (error != null)
+            Logger.#logger.log('error', error?.message);
+
         Logger.#hasLogs = true;
     }
 
