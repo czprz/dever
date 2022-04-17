@@ -36,7 +36,11 @@ module.exports = new class {
             return await timer.delay(36000000, 'Powershell could not execute as during waiting for elevated permission prompt expired');
         }
 
-        return execSync(command, {'shell': 'powershell.exe', encoding: 'utf8'});
+        return execSync(command, {
+            shell: 'powershell.exe',
+            encoding: 'utf8',
+            stdio: ['ignore', 'ignore']
+        });
     }
 
     /**
@@ -57,7 +61,7 @@ module.exports = new class {
         }
 
         return execSync(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, {
-            'shell': 'powershell.exe',
+            shell: 'powershell.exe',
             encoding: 'utf8',
             stdio: ['ignore', 'ignore']
         });
