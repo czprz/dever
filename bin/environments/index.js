@@ -50,14 +50,24 @@ module.exports = new class {
                 type: 'string'
             })
             .option('start', {
-                describe: 'Start component dependencies',
+                describe: 'Start project dependencies',
             })
             .option('stop', {
-                describe: 'Stop component dependencies'
+                describe: 'Stop project dependencies'
+            })
+            .option('start-group', {
+                describe: 'Start group of project dependencies'
+            })
+            .option('stop-group', {
+                describe: 'Stop group of project dependencies'
             })
             .option('not', {
                 alias: 'n',
                 describe: 'Include name of executions to avoid starting or stopping it'
+            })
+            .option('not-group', {
+                alias: 'ng',
+                describe: 'Include group name of executions to avoid starting or stopping them'
             })
             .option('clean', {
                 describe: `Usage '--start --clean' which will do a clean startup`
@@ -101,8 +111,13 @@ module.exports = new class {
         }
 
         for (const execution of config.environment) {
-            if (runtime.variables.length > 0 && !runtime.variables.some(x => x.toLowerCase() === execution.name) ||
-                runtime.not.length > 0 && runtime.not.some(x => x.toLowerCase() === execution.name.toLowerCase())) {
+            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === execution.name) ||
+                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === execution.group)) {
+                continue;
+            }
+
+            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === execution.name) ||
+                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === execution.group)) {
                 continue;
             }
 
@@ -276,22 +291,30 @@ module.exports = new class {
     #getRuntime(args) {
         const stop = args.hasOwnProperty('stop');
         const start = args.hasOwnProperty('start');
+        const stopGroup = args.hasOwnProperty('stop-group');
+        const startGroup = args.hasOwnProperty('start-group');
 
-        if (stop === start) {
+        if (stop === start && stopGroup === startGroup) {
             return {
-                start: start,
-                stop: stop
+                start: start || startGroup,
+                stop: stop || stopGroup
             };
         }
 
-        const choice = start ? 'start' : 'stop';
+        const choice = start || startGroup ? 'start' : 'stop';
 
         return {
-            start: start,
-            stop: stop,
-            variables: this.#getVariables(args[choice]),
+            start: start || startGroup,
+            stop: stop || stopGroup,
+            include: {
+                executions: this.#getVariables(args[choice]),
+                groups: this.#getVariables(args[`${choice}-group`])
+            },
+            exclude: {
+                executions: this.#getVariables(args.not),
+                groups: this.#getVariables(args.notGroup)
+            },
             clean: args.hasOwnProperty('clean'),
-            not: this.#getVariables(args.not),
             args: args
         };
     }
@@ -317,36 +340,36 @@ module.exports = new class {
 class Runtime {
     /**
      * Start option is true when set
-     * @return {boolean}
+     * @type {boolean}
      */
     start;
 
     /**
      * Stop option is true when set
-     * @return {boolean}
+     * @type {boolean}
      */
     stop;
 
     /**
-     * Contains names of runtime executions user wants to start or stop
-     * @return {string[]}
+     * List of groups and executions to be included in starting or stopping
+     * @type { { executions: string[], groups: string[] } | null }
      */
-    variables;
+    include;
+
+    /**
+     * List of groups and executions to be excluded when starting and stopping
+     * @type { { executions: string[], groups: string[] } | null }
+     */
+    exclude;
 
     /**
      * Is checked if user wants a clean start
-     * @return {boolean}
+     * @type {boolean | null}
      */
     clean;
 
     /**
-     * List of execution names which should not be included in starting and stopping
-     * @return {string[]}
-     */
-    not;
-
-    /**
-     * @return {EnvArgs}
+     * @type {EnvArgs | null}
      */
     args;
 }
@@ -354,37 +377,55 @@ class Runtime {
 class EnvArgs {
     /**
      * Option for starting environment
-     * @var {bool|string|string[]}
+     * @type {boolean|string|string[]}
      */
     start;
 
     /**
      * Option for stopping environment
-     * @var {boolean|string|string[]}
+     * @type {boolean|string|string[]}
      */
     stop;
 
     /**
+     * Starts one or more groups of executions
+     * @type {boolean|string|string[]}
+     */
+    startGroup;
+
+    /**
+     * Stops one or more groups of executions
+     * @type {boolean|string|string[]}
+     */
+    stopGroup;
+
+    /**
      * Option (optional) included with start for starting environment cleanly
-     * @var {boolean}
+     * @type {boolean}
      */
     clean;
 
     /**
-     * List of execution names which should not be included in starting and stopping
-     * @return {boolean|string|string[]}
+     * List of execution names which should not be included in starting or stopping
+     * @type {boolean|string|string[]}
      */
     not;
 
     /**
+     * List of group names which should not be included in starting or stopping
+     * @type {boolean|string|string[]}
+     */
+    notGroup;
+
+    /**
      * Component
-     * @var {string}
+     * @type {string}
      */
     keyword;
 
     /**
      * Skip warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
-     * @return {boolean}
+     * @type {boolean}
      */
     skip;
 }
