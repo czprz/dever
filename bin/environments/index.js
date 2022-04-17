@@ -87,6 +87,11 @@ module.exports = new class {
             return;
         }
 
+        if (!this.#validate(config.environment)) {
+            console.error(chalk.redBright(`One or more of the executions are either missing type or name!`));
+            return;
+        }
+
         if (!this.#checkAvailabilityOfDependencies(config.environment)) {
             return;
         }
@@ -96,12 +101,8 @@ module.exports = new class {
         }
 
         for (const execution of config.environment) {
-            if (execution.type == null) {
-                console.error(chalk.redBright(`${execution.name}: Missing type!`));
-                return;
-            }
-            if ((execution.runtime && runtime.variables.length > 0 && !runtime.variables.some(x => x === execution.name)) ||
-                runtime.not.length > 0 && runtime.not.some(x => x.toLowerCase() === execution.name?.toLowerCase())) {
+            if (runtime.variables.length > 0 && !runtime.variables.some(x => x.toLowerCase() === execution.name) ||
+                runtime.not.length > 0 && runtime.not.some(x => x.toLowerCase() === execution.name.toLowerCase())) {
                 continue;
             }
 
@@ -257,6 +258,14 @@ module.exports = new class {
         }
 
         return true;
+    }
+
+    /**
+     * Validate executions
+     * @param executions {Execution[]}
+     */
+    #validate(executions) {
+        return !executions.some(x => x.name == null || x.type == null);
     }
 
     /**
