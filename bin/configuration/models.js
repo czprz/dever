@@ -45,57 +45,57 @@ class Config {
 class Execution {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
-     * @return {string}
+     * @type {string}
      */
     type;
 
     /**
-     * @return {string}
+     * @type {string}
      */
     name;
 
     /**
-     * @return {boolean}
+     * @type {string | null}
      */
-    runtime;
+    group;
 
     /**
-     * @return {string}
+     * @type {string | null}
      */
     file;
 
     /**
-     * @return {string}
+     * @type {string | null}
      */
     command;
 
     /**
      * Sql object only used when type is 'mssql'
-     * @return {DbQuery | null}
+     * @type {DbQuery | null}
      */
     sql;
 
     /**
      * Container object only used when type is 'docker-container'
-     * @return {Container | null}
+     * @type {Container | null}
      */
     container;
 
     /**
      * Custom options that will be passed along to dependency
-     * @return {CustomOption[] | null}
+     * @type {CustomOption[] | null}
      */
     options;
     // Todo: Consider new name for this property
 
     /**
-     * @return {Wait}
+     * @type {Wait | null}
      */
     wait;
 
     /**
      * Informs whether a dependency needs to be run as elevated user
-     * @return {boolean}
+     * @type {boolean | null}
      */
     runAsElevated;
 }
