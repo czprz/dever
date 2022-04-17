@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const sudo = require('../common/helper/elevated');
 const delayer = require('../common/helper/delayer');
 const customOption = require('../common/helper/custom_options');
+const logger = require('../common/helper/logger');
 
 const docker_compose = require('./executions/docker-compose');
 const docker_container = require('./executions/docker-container');
@@ -77,6 +78,8 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #run(config, runtime) {
+        logger.create();
+
         const options = this.#getCustomOptions(config.environment);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
@@ -125,6 +128,12 @@ module.exports = new class {
             }
 
             await this.#hasWait(execution, 'after');
+        }
+
+        logger.destroy();
+
+        if (logger.hasLogs()) {
+            console.log(chalk.yellow(`One or more executions ended with errors. Please check the log for more detail. ${logger.getLogFile()}`));
         }
     }
 

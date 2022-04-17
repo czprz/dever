@@ -4,6 +4,7 @@ module.exports = {
 
 const powershell = require('../../../common/helper/powershell');
 const customOptions = require('../../../common/helper/custom_options');
+const logger = require('../../../common/helper/logger');
 
 /**
  *
@@ -19,7 +20,7 @@ async function handle(execution, runtime) {
 
                 console.log(`powershell-command: '${execution.name}' completed successfully`);
             } catch (e) {
-                console.error(e);
+                logger.error(`powershell-command: '${execution.name}' completed with errors`, e);
             }
 
             break;

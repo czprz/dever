@@ -1,5 +1,6 @@
 const mssql = require('../../../common/helper/mssql');
 const validator = require('../../../common/helper/mssql/validator');
+const logger = require('../../../common/helper/logger');
 
 module.exports = new class {
     /**
@@ -33,16 +34,15 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #createDatabase(execution) {
-        if (!await validator.createDatabase(execution)) {
-            return;
-        }
-
         try {
+            if (!await validator.createDatabase(execution)) {
+                return;
+            }
+
             await mssql.createDatabase(execution.sql);
             console.log(`mssql: '${execution.name}' :: database has been created`);
         } catch (e) {
-            console.error(`mssql: '${execution.name}' :: database has not been created`);
-            throw e;
+            logger.error(`mssql: '${execution.name}' :: database has not been created`, e);
         }
     }
 
@@ -51,16 +51,15 @@ module.exports = new class {
      * @param execution {Execution}
      */
     async #createTable(execution) {
-        if (!await validator.createTable(execution)) {
-            return;
-        }
-
         try {
+            if (!await validator.createTable(execution)) {
+                return;
+            }
+
             await mssql.createTable(execution.sql);
             console.log(`mssql: '${execution.name}' :: table has been created`);
         } catch (e) {
-            console.error(`mssql: '${execution.name}' :: table has not been created`);
-            throw e;
+            logger.error(`mssql: '${execution.name}' :: table has not been created`, e);
         }
     }
 
@@ -70,16 +69,15 @@ module.exports = new class {
      * @returns {Promise<void>}
      */
     async #insert(execution) {
-        if (!await validator.columns(execution)) {
-            return;
-        }
-
         try {
+            if (!await validator.columns(execution)) {
+                return;
+            }
+
             await mssql.insert(execution.sql);
             console.log(`mssql: '${execution.name}' :: inserting of data has completed successfully`);
         } catch (e) {
-            console.error(`mssql: '${execution.name}' :: inserting of data could not be completed`);
-            throw e;
+            logger.error(`mssql: '${execution.name}' :: inserting of data could not be completed`, e);
         }
     }
 }
