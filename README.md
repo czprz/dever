@@ -81,12 +81,16 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever [keyword] env | shows help context for dever env options |
 | dever [keyword] env | shows help context for dever env [keyword] options |
 | dever [keyword] env --start | attempts to start environment |
-| dever [keyword] env --start [name] | attempts to start environment except only the runtime given |
-| dever [keyword] env --start --not [name] | attempts to start environment except those mentioned in the --not option |
+| dever [keyword] env --start [name] | attempts to start only specified environment dependencies |
+| dever [keyword] env --start --not [name] | attempts to start environment dependencies except those mentioned in the --not option |
+| dever [keyword] env --start --not-group [name] | attempts to start environment dependencies expect those grouped in the --not-group option |
 | dever [keyword] env --stop | attempts to stop environment |
-| dever [keyword] env --stop --not [name] | attempts to stop environment except those mentioned in the --not option |
+| dever [keyword] env --stop --not [name] | attempts to stop environment dependencies except those mentioned in the --not option |
+| dever [keyword] env --stop --not-group [name] | attempts to stop environment dependencies expect those grouped in the --not-group option |
 | dever [keyword] env --start --clean | attempts to start environment cleanly e.g. recreating docker containers |
 | dever [keyword] env --start --skip | attempts to start environment without any need for confirmations |
+| dever [keyword] env --start-group [name] | attempts start grouped environment dependencies |
+| dever [keyword] env --stop-group [name] | attempts to stop grouped environment dependencies |
 | dever [keyword] env --location | shows location of project dever.json |
 | dever [keyword] env -c, --config | shows content of project dever.json |
 | dever [keyword] fix | Show help context for fix command |
