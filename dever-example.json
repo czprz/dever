@@ -37,14 +37,16 @@
     {
       "name": "create-database",
       "type": "mssql",
-      "database": {
+      "sql": {
         "option": "create-database",
-        "db_name": "TestDb"
+        "database": "TestDb",
+        "username": "sa",
+        "password": "156test"
       }
     },
     {
       "name": "docker-supported-docker-start",
-	  "type": "docker-container",
+      "type": "docker-container",
       "container": {
         "name": "mssql",
         "ports": [
