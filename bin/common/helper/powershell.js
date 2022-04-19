@@ -63,7 +63,7 @@ module.exports = new class {
         return execSync(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, {
             shell: 'powershell.exe',
             encoding: 'utf8',
-            stdio: ['ignore', 'ignore']
+            stdio: ['ignore']
         });
     }
 
