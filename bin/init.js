@@ -38,6 +38,11 @@ module.exports = new class {
         projectsConfig.clear();
 
         const raw = await powershell.executeFileSync(file);
+        if (raw == null || raw?.length === 0) {
+            console.error(chalk.yellow('Could not find any dever supported projects'));
+            return;
+        }
+
         const paths = raw.trim().split('\n');
 
         for (const path of paths) {
