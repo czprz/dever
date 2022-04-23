@@ -1,6 +1,8 @@
 const chalk = require('chalk');
+const path = require("path");
 
 const powershell = require('../common/helper/powershell');
+const logger = require('../common/helper/logger');
 
 module.exports = new class {
     /**
@@ -19,7 +21,7 @@ module.exports = new class {
                 this.#showFix(config, args);
                 break;
             case args.key != null:
-                this.#fix(config, args);
+                await this.#fix(config, args);
                 break;
             default:
                 yargs.showHelp();
@@ -96,24 +98,47 @@ module.exports = new class {
      * @param config {Config}
      * @param args {FixArgs}
      */
-    #fix(config, args) {
+    async #fix(config, args) {
         const fix = config?.fix.find(x => x.key === args.key);
         if (fix == null) {
             console.error('Fix could not be found');
             return;
         }
 
+        logger.create();
+
         switch (fix.type) {
             case 'powershell-command':
-                powershell.executeSync(fix.command);
-                console.log(`fix: '${fix.key}' powershell-command has been executed.`);
+                await this.#tryFix(fix.key, 'powershell-command', async () => await powershell.executeSync(fix.command));
                 break;
             case 'powershell-script':
-                powershell.executeFileSync(fix.file);
-                console.log(`fix: '${fix.key}' powershell-script has been executed.`);
+                const file = path.join(config.location, fix.file);
+                await this.#tryFix(fix.key, 'powershell-script', async () => await powershell.executeFileSync(file));
                 break;
             default:
                 throw new Error('Fix type not supported');
+        }
+
+        logger.destroy();
+
+        if (logger.hasLogs()) {
+            console.log(chalk.yellow(`Fix command ended with errors. Please check the log for more detail. ${logger.getLogFile()}`));
+        }
+    }
+
+    /**
+     * Handles try/catch for fix commands
+     * @param action {Function}
+     * @param type {string}
+     * @param key {string}
+     * @return void
+     */
+    async #tryFix(key, type, action) {
+        try {
+            await action();
+            console.log(`${type}: '${key}' completed successfully`);
+        } catch (e) {
+            logger.error(`${type}: '${key}' completed with errors`, e);
         }
     }
 }
