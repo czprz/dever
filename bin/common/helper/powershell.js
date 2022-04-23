@@ -39,7 +39,7 @@ module.exports = new class {
         return execSync(command, {
             shell: 'powershell.exe',
             encoding: 'utf8',
-            stdio: ['ignore', 'ignore']
+            stdio: ['ignore']
         });
     }
 
