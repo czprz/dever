@@ -20,7 +20,7 @@
     "dever": "bin/index.js"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.27.2",
     "chalk": "^4.1.2",
     "execa": "^5.1.1",
     "mssql": "^7.2.1",
