@@ -11,6 +11,8 @@ Tool to help speed up local development and keep it consistent across a team
 git clone https://github.com/czprz/dever.git
 ```
 
+## Installation
+
 ### Prerequisites
 ```
 NodeJS 14.18.1 or higher
@@ -21,24 +23,28 @@ NodeJS 14.18.1 or higher
 npm install dever -g
 ```
 
-### Using dever
+## Using
 
-After dever has been installed then these commands is available.
+### Preparing dever.json
 
-Firstly you'll run. To find all dever.json files.
+dever.json should be placed in the root of your project's folder.<br>
+Example of the content in a dever.json can be found here. [dever-example.json](dever-example.json)
+
+### Running dever
+
+After dever has been installed. Run below command for finding all dever.json
 
 ```
 dever init
 ```
 
-Afterwards you can list all available components by running the command
+After you can list all found projects using below command
 
 ```
 dever list
 ```
 
-If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword] in `dever [keyword] env`
-
+If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword] in `dever [keyword] env`<br>
 As an example, you might want to run the environment for a project. Then the command would possibly be like this
 
 ```
@@ -112,7 +118,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [releases on this repository](https://github.com/czprz/dever/releases). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [releases on this repository](https://github.com/czprz/dever/releases).
 
 ## Authors
 
@@ -122,4 +128,4 @@ See also the list of [contributors](https://github.com/czprz/dever/network/) who
 
 ## License
 
-This project is licensed under the The Unlicense - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
