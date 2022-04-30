@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const chalk = require('chalk');
 
+"use strict";
 module.exports = new class {
     #fileName = '.dever';
 

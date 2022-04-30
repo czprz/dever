@@ -4,6 +4,7 @@ const chalk = require("chalk");
 const shell = require("../common/helper/shell");
 const sudo = require('../common/helper/elevated');
 
+"use strict";
 module.exports = new class {
     /**
      * Handler for fixes

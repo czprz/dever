@@ -7,6 +7,7 @@ const path = require("path");
 const init = require("../init");
 const chalk = require("chalk");
 
+"use strict";
 module.exports = new class {
     /**
      * Get yargs structure for default

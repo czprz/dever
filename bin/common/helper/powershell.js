@@ -3,6 +3,7 @@ const {exec, execSync} = require('child_process');
 const sudo = require('./elevated');
 const delayer = require('./delayer');
 
+"use strict";
 module.exports = new class {
     /**
      * Executes powershell command asynchronous

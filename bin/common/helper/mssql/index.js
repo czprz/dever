@@ -1,5 +1,6 @@
 const sql = require('mssql');
 
+"use strict";
 module.exports = new class {
     /**
      * Creates an MSSQL database

@@ -1,6 +1,7 @@
 const winston = require('winston');
 const path = require("path");
 
+"use strict";
 module.exports = new class Logger {
     /**
      * @type {winston.Logger}

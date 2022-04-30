@@ -12,6 +12,7 @@ const powershell_script = require('./executions/powershell-script');
 const powershell_command = require('./executions/powershell-command');
 const mssql = require('./executions/mssql');
 
+"use strict";
 module.exports = new class {
     /**
      * Handler for dependencies

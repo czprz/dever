@@ -1,6 +1,7 @@
 const sudo = require('sudo-prompt');
 const execa = require("execa");
 
+"use strict";
 module.exports = new class {
     /**
      * Run shell command as elevated

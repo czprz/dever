@@ -1,5 +1,6 @@
 const config_handler = require('./handleConfigFile');
 
+"use strict";
 module.exports = new class {
     /**
      * Get all installs for specific project
@@ -18,18 +19,5 @@ module.exports = new class {
         }
 
         return project.install;
-    }
-
-    /**
-     * Get all installs for all projects
-     * @returns {Config[]}
-     */
-    getProjectsWithInstalls() {
-        const projects = config_handler.getAllComponentsConfig();
-        if (projects == null) {
-            return null;
-        }
-
-        return projects.filter(x => x.install != null);
     }
 }

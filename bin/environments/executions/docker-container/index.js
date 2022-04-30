@@ -1,5 +1,6 @@
 const docker = require('../../../common/helper/docker');
 
+"use strict";
 module.exports = new class {
     /**
      * Handle starting and stopping of docker containers

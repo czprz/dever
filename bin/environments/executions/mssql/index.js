@@ -2,6 +2,7 @@ const mssql = require('../../../common/helper/mssql');
 const validator = require('../../../common/helper/mssql/validator');
 const logger = require('../../../common/helper/logger');
 
+"use strict";
 module.exports = new class {
     /**
      * Handler for mssql dependencies

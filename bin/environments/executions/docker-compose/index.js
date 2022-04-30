@@ -6,6 +6,7 @@ const {execSync} = require("child_process");
 
 const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
+"use strict";
 module.exports = new class {
     /**
      * Handle starting and stopping of docker-compose

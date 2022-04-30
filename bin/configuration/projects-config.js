@@ -1,5 +1,6 @@
 const config_handler = require('./handleConfigFile');
 
+"use strict";
 module.exports = new class {
     /**
      * Any projects added
