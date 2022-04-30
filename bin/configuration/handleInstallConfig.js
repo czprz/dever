@@ -8,7 +8,7 @@ module.exports = new class {
      * @returns {Install[]}
      */
     get(keyword) {
-        const projects = config_handler.getAllComponentsConfig();
+        const projects = config_handler.getProjects();
         if (projects == null) {
             return null;
         }

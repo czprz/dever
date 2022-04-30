@@ -116,7 +116,7 @@ module.exports = new class {
         }
 
         return {
-            components: config.components.map(x => config_handler.getComponentConfig(x))
+            components: config.components.map(x => config_handler.getProject(x))
         }
     }
 }
