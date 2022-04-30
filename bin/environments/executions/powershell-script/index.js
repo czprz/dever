@@ -4,6 +4,7 @@ const logger = require('../../../common/helper/logger');
 
 const path = require("path");
 
+"use strict";
 module.exports = new class {
     /**
      *
