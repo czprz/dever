@@ -112,13 +112,16 @@ module.exports = new class {
         }
 
         for (const execution of config.environment) {
-            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === execution.name) ||
-                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === execution.group)) {
+            const lowerCaseName = execution?.name?.toLowerCase();
+            const lowerCaseGroup = execution?.group?.toLowerCase();
+
+            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
                 continue;
             }
 
-            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === execution.name) ||
-                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === execution.group)) {
+            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
                 continue;
             }
 
