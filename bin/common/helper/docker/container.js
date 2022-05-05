@@ -3,6 +3,7 @@ const {execSync} = require("child_process");
 
 const docker_states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
+"use strict";
 module.exports = new class {
     /**
      * Check if container is running

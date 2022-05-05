@@ -1,5 +1,6 @@
 const config_handler = require('./handleConfigFile');
 
+"use strict";
 module.exports = new class {
     /**
      * Any projects added
@@ -115,7 +116,7 @@ module.exports = new class {
         }
 
         return {
-            components: config.components.map(x => config_handler.getComponentConfig(x))
+            components: config.components.map(x => config_handler.getProject(x))
         }
     }
 }

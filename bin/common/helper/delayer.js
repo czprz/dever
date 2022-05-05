@@ -1,3 +1,4 @@
+"use strict";
 module.exports = new class {
     /**
      * Instantiates a new delayer

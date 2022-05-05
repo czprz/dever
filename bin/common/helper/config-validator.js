@@ -1,6 +1,7 @@
 const constants = require('../constants');
 const fs = require("fs");
 
+"use strict";
 module.exports = new class {
     /**
      * Validate configuration

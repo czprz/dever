@@ -4,6 +4,7 @@ const path = require("path");
 const powershell = require('../common/helper/powershell');
 const logger = require('../common/helper/logger');
 
+"use strict";
 module.exports = new class {
     /**
      * Handler for fixes

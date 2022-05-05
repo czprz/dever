@@ -3,6 +3,7 @@ const env = require("../environments");
 const fix = require("../fix");
 const chalk = require("chalk");
 
+"use strict";
 module.exports = new class {
     /**
      * Get yargs structure for project

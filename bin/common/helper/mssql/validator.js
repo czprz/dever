@@ -1,5 +1,6 @@
 const mssql = require("../../../common/helper/mssql");
 
+"use strict";
 module.exports = new class {
     /**
      * Check if conditions for creating database
