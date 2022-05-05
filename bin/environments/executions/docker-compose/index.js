@@ -53,7 +53,7 @@ module.exports = new class {
                 }
 
                 const filePath = path.join(component.location, execution.file);
-                shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
+                shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
                 break;
             }
             case states.Running: {
@@ -66,7 +66,7 @@ module.exports = new class {
             }
             case states.NotFound: {
                 const filePath = path.join(component.location, execution.file);
-                shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
+                shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
                 console.log(`docker-compose: '${execution.name}' created successfully`);
                 break;
             }
@@ -86,7 +86,7 @@ module.exports = new class {
         }
 
         const filePath = path.join(component.location, file);
-        shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d --force-recreate`);
+        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d --force-recreate`);
 
         console.log(`docker-compose: '${name}' recreated successfully`);
 
@@ -100,7 +100,7 @@ module.exports = new class {
      */
     #stop(component, execution) {
         const filePath = path.join(component.location, execution.file);
-        shell.executeSync(`docker-compose --file ${filePath} --project-name dever down`);
+        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
 
         console.log(`docker-compose: '${execution.name}' stopped successfully`);
     }

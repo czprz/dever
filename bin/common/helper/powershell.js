@@ -54,14 +54,14 @@ module.exports = new class {
         if (await this.#shouldRunElevated(elevated)) {
             const timer = delayer.create();
 
-            sudo.command(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, 'Powershell', (error) => {
+            sudo.command(`powershell.exe -ExecutionPolicy Bypass -File "${file}"`, 'Powershell', (error) => {
                 timer.done(error == null);
             });
 
             return timer.delay(36000000, 'Powershell could not execute as during waiting for elevated permission prompt expired');
         }
 
-        return execSync(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, {
+        return execSync(`powershell.exe -ExecutionPolicy Bypass -File "${file}"`, {
             shell: 'powershell.exe',
             encoding: 'utf8',
             stdio: ['ignore']
