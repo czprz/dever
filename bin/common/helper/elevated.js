@@ -1,5 +1,5 @@
 import sudo from 'sudo-prompt';
-import execa from 'execa';
+import {execa} from 'execa';
 
 "use strict";
 export default new class {
