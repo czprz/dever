@@ -1,11 +1,11 @@
-const chalk = require('chalk');
-const path = require("path");
+import powershell from '../common/helper/powershell.js';
+import logger from '../common/helper/logger.js';
 
-const powershell = require('../common/helper/powershell');
-const logger = require('../common/helper/logger');
+import chalk from 'chalk';
+import path from 'path';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Handler for fixes
      * @param config {Config}

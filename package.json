@@ -9,6 +9,7 @@
     "faster",
     "development"
   ],
+  "type": "module",
   "main": "bin/index.js",
   "scripts": {
     "build": "echo \"Build is not necessary\"",
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.1",
     "execa": "^5.1.1",
     "mssql": "^8.1.0",
     "sudo-prompt": "^9.2.1",
