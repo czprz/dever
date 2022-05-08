@@ -1,7 +1,8 @@
-const sudo = require('sudo-prompt');
-const execa = require("execa");
+import sudo from 'sudo-prompt';
+import execa from 'execa';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Run shell command as elevated
      * @param command {string}

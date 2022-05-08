@@ -1,6 +1,7 @@
-const docker = require('../../../common/helper/docker');
+import docker from '../../../common/helper/docker/index.js';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Handle starting and stopping of docker containers
      * @param dependency {Execution}

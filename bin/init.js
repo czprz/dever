@@ -1,14 +1,19 @@
-const powershell = require('./common/helper/powershell');
-const projectsConfig = require('./configuration/projects-config');
-const versionChecker = require('./common/helper/version-checker');
-const configValidator = require('./common/helper/config-validator');
+import powershell from './common/helper/powershell.js';
+import projectsConfig from './configuration/projects-config.js';
+import versionChecker from './common/helper/version-checker.js';
+import configValidator from './common/helper/config-validator.js';
 
-const readline = require("readline");
-const chalk = require("chalk");
-const path = require("path");
-const fs = require("fs");
+import readline from 'readline';
+import chalk from 'chalk';
+import path from 'path';
+import fs from 'fs';
 
-module.exports = new class {
+"use strict";
+export default new class {
+    /**
+     * Initializes dever configuration file if not existing and finds all available dever.json supported projects
+     * @return {Promise<void>}
+     */
     async init() {
         if (!projectsConfig.any()) {
             await this.#findProjects();
@@ -27,7 +32,7 @@ module.exports = new class {
     }
 
     /**
-     *
+     * Finds all available dever.json supported projects
      * @returns {Promise<void>}
      */
     async #findProjects() {
@@ -60,6 +65,7 @@ module.exports = new class {
     /**
      * Check if there is any dever.json which has an unsupported version
      * @param configs {Config[]}
+     * @return void
      */
     #checkForSupportedVersion(configs) {
         if (!versionChecker.supported(configs)) {
@@ -68,6 +74,11 @@ module.exports = new class {
         }
     }
 
+    /**
+     * Adds location of dever.json to dever internal configuration file
+     * @param filePath {string}
+     * @return void
+     */
     #getConfigFiles(filePath) {
         const file = filePath.trim();
 
@@ -85,6 +96,7 @@ module.exports = new class {
     /**
      * Check if any projects has keywords which violate pre-defined keys ('init', 'list', 'config', 'validate')
      * @param configs {Config[]}
+     * @return void
      */
     #checkForKeywordViolations(configs) {
         for (const config of configs) {

@@ -1,9 +1,11 @@
-const install = require("../install");
-const env = require("../environments");
-const fix = require("../fix");
-const chalk = require("chalk");
+import install from '../install/index.js';
+import env from '../environments/index.js';
+import fix from '../fix/index.js';
 
-module.exports = new class {
+import chalk from 'chalk';
+
+"use strict";
+export default new class {
     /**
      * Get yargs structure for project
      * @param keyword {string}

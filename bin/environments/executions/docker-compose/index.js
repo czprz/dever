@@ -1,12 +1,13 @@
-const docker = require('../../../common/helper/docker');
-const shell = require('../../../common/helper/shell');
+import docker from '../../../common/helper/docker/index.js';
+import shell from '../../../common/helper/shell.js';
 
-const path = require("path");
-const {execSync} = require("child_process");
+import {execSync} from 'child_process';
+import path from 'path';
 
 const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Handle starting and stopping of docker-compose
      * @param component {Config} Component configuration
@@ -52,7 +53,7 @@ module.exports = new class {
                 }
 
                 const filePath = path.join(component.location, execution.file);
-                shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
+                shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
                 break;
             }
             case states.Running: {
@@ -65,7 +66,7 @@ module.exports = new class {
             }
             case states.NotFound: {
                 const filePath = path.join(component.location, execution.file);
-                shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d`);
+                shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
                 console.log(`docker-compose: '${execution.name}' created successfully`);
                 break;
             }
@@ -85,7 +86,7 @@ module.exports = new class {
         }
 
         const filePath = path.join(component.location, file);
-        shell.executeSync(`docker-compose --file ${filePath} --project-name dever up -d --force-recreate`);
+        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d --force-recreate`);
 
         console.log(`docker-compose: '${name}' recreated successfully`);
 
@@ -99,7 +100,7 @@ module.exports = new class {
      */
     #stop(component, execution) {
         const filePath = path.join(component.location, execution.file);
-        shell.executeSync(`docker-compose --file ${filePath} --project-name dever down`);
+        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
 
         console.log(`docker-compose: '${execution.name}' stopped successfully`);
     }

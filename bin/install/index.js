@@ -1,10 +1,11 @@
-const readline = require("readline");
-const chalk = require("chalk");
+import shell from '../common/helper/shell.js';
+import sudo from '../common/helper/elevated.js';
 
-const shell = require("../common/helper/shell");
-const sudo = require('../common/helper/elevated');
+import readline from 'readline';
+import chalk from 'chalk';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Handler for fixes
      * @param config {Config}

@@ -1,6 +1,7 @@
-const mssql = require("../../../common/helper/mssql");
+import mssql from '../../../common/helper/mssql/index.js';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Check if conditions for creating database
      * @param execution {Execution}

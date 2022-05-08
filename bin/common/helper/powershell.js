@@ -1,9 +1,10 @@
-const {exec, execSync} = require('child_process');
+import sudo from './elevated.js';
+import delayer from './delayer.js';
 
-const sudo = require('./elevated');
-const delayer = require('./delayer');
+import {exec, execSync} from 'child_process';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Executes powershell command asynchronous
      * @param command {string}
@@ -53,14 +54,14 @@ module.exports = new class {
         if (await this.#shouldRunElevated(elevated)) {
             const timer = delayer.create();
 
-            sudo.command(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, 'Powershell', (error) => {
+            sudo.command(`powershell.exe -ExecutionPolicy Bypass -File "${file}"`, 'Powershell', (error) => {
                 timer.done(error == null);
             });
 
             return timer.delay(36000000, 'Powershell could not execute as during waiting for elevated permission prompt expired');
         }
 
-        return execSync(`powershell.exe -ExecutionPolicy Bypass -File ${file}`, {
+        return execSync(`powershell.exe -ExecutionPolicy Bypass -File "${file}"`, {
             shell: 'powershell.exe',
             encoding: 'utf8',
             stdio: ['ignore']

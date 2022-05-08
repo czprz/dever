@@ -1,18 +1,19 @@
-const readline = require("readline");
-const chalk = require('chalk');
+import docker_compose from './executions/docker-compose/index.js';
+import docker_container from './executions/docker-container/index.js';
+import powershell_script from './executions/powershell-script/index.js';
+import powershell_command from './executions/powershell-command/index.js';
+import mssql from './executions/mssql/index.js';
 
-const sudo = require('../common/helper/elevated');
-const delayer = require('../common/helper/delayer');
-const customOption = require('../common/helper/custom_options');
-const logger = require('../common/helper/logger');
+import sudo from '../common/helper/elevated.js';
+import delayer from '../common/helper/delayer.js';
+import customOption from '../common/helper/custom_options.js';
+import logger from '../common/helper/logger.js';
 
-const docker_compose = require('./executions/docker-compose');
-const docker_container = require('./executions/docker-container');
-const powershell_script = require('./executions/powershell-script');
-const powershell_command = require('./executions/powershell-command');
-const mssql = require('./executions/mssql');
+import readline from 'readline';
+import chalk from 'chalk';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Handler for dependencies
      * @param config {Config}
@@ -111,13 +112,16 @@ module.exports = new class {
         }
 
         for (const execution of config.environment) {
-            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === execution.name) ||
-                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === execution.group)) {
+            const lowerCaseName = execution?.name?.toLowerCase();
+            const lowerCaseGroup = execution?.group?.toLowerCase();
+
+            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
                 continue;
             }
 
-            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === execution.name) ||
-                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === execution.group)) {
+            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
                 continue;
             }
 

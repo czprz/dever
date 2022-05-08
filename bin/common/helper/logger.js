@@ -1,7 +1,9 @@
-const winston = require('winston');
-const path = require("path");
+import winston from 'winston';
+import path from 'path';
+import os from 'os';
 
-module.exports = new class Logger {
+"use strict";
+export default new class Logger {
     /**
      * @type {winston.Logger}
      */
@@ -79,7 +81,7 @@ module.exports = new class Logger {
 
     static #setFilename() {
         const timestamp = Logger.#getTime();
-        const tmpdir = require('os').tmpdir();
+        const tmpdir = os.tmpdir();
         Logger.#filename = path.join(tmpdir, `dever-${timestamp}.log`);
     }
 

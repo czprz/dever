@@ -1,6 +1,7 @@
-const sql = require('mssql');
+import sql from 'mssql';
 
-module.exports = new class {
+"use strict";
+export default new class {
     /**
      * Creates an MSSQL database
      * @param query {DbQuery}
