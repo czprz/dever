@@ -1,7 +1,7 @@
-const config_handler = require('./handleConfigFile');
+import config_handler from './handleConfigFile.js';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Any projects added
      * @return {boolean}
