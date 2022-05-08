@@ -1,8 +1,8 @@
-const constants = require('../constants');
-const fs = require("fs");
+import constants from '../constants.js';
+import fs from 'fs';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Validate configuration
      * @param config {Config}

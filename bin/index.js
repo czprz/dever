@@ -1,18 +1,23 @@
 #! /usr/bin/env node
 
-// import defaultYargsGenerator from './common/default-yargs-generator';
-// import projectYargsGenerator from './common/project-yargs-generator';
+import defaultYargsGenerator from './common/default-yargs-generator.js';
+import projectYargsGenerator from './common/project-yargs-generator.js';
 import versionChecker from './common/helper/version-checker.js';
 import projectConfig from './configuration/projects-config.js';
 import constants from './common/constants.js';
+
 import yargs from 'yargs';
 
-let argv = process.argv.slice(2);
-
 class EntryPoint {
+    #argv;
+
+    constructor() {
+        this.#argv = process.argv.slice(2);
+    }
+
     start() {
-        if (argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === argv[0])) {
-            const keyword = argv[0];
+        if (this.#argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
+            const keyword = this.#argv[0];
             const config = projectConfig.get(keyword);
 
             if (config !== null) {
@@ -26,33 +31,33 @@ class EntryPoint {
                 return;
             }
 
-            argv = [];
+            this.#argv = [];
             console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
         }
 
-        EntryPoint.#defaultYargs();
+        this.#defaultYargs();
     }
 
-    static #defaultYargs() {
-        const field = yargs(argv);
-        field
+    #defaultYargs() {
+        const yargsObj = yargs(this.#argv);
+        yargsObj
             .scriptName("dever")
             .wrap(100)
             .usage('\nUsage: $0 [keyword] <cmd>');
 
-        // defaultYargsGenerator.create(yargs);
-        // defaultYargsGenerator.defaultAction(yargs);
+        defaultYargsGenerator.create(yargsObj);
+        defaultYargsGenerator.defaultAction(yargsObj);
     }
 
     static #projectYargs(keyword, config) {
-        const field = yargs(process.argv.slice(3));
-        field
+        const yargsObj = yargs(process.argv.slice(3));
+        yargsObj
             .scriptName("dever " + keyword)
             .wrap(100)
             .usage('\nUsage: $0 <cmd> [args]');
 
-        // projectYargsGenerator.create(keyword, config, field);
-        // projectYargsGenerator.defaultAction(field);
+        projectYargsGenerator.create(keyword, config, yargsObj);
+        projectYargsGenerator.defaultAction(yargsObj);
     }
 }
 

@@ -1,7 +1,7 @@
-const {execSync} = require("child_process");
+import {execSync} from 'child_process';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Execute command synchronously
      * @param command

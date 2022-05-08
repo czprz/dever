@@ -1,13 +1,13 @@
-const docker = require('../../../common/helper/docker');
-const shell = require('../../../common/helper/shell');
+import docker from '../../../common/helper/docker/index.js';
+import shell from '../../../common/helper/shell.js';
 
-const path = require("path");
-const {execSync} = require("child_process");
+import {execSync} from 'child_process';
+import path from 'path';
 
 const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Handle starting and stopping of docker-compose
      * @param component {Config} Component configuration
