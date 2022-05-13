@@ -9,7 +9,6 @@
     "faster",
     "development"
   ],
-  "type": "module",
   "main": "bin/index.js",
   "scripts": {
     "build": "echo \"Build is not necessary\"",
