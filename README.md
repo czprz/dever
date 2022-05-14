@@ -20,7 +20,7 @@ NodeJS 14.18.1 or higher
 
 ### Installing
 ```
-npm install dever -g
+npm install @czprz/dever -g
 ```
 
 ## Using
