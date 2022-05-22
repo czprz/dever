@@ -89,29 +89,31 @@ export default new class {
      * @returns {Promise<void>}
      */
     async #run(config, runtime) {
+        const executions = this.#getExecutions(config, runtime);
+
         logger.create();
 
-        const options = this.#getCustomOptions(config.environment);
+        const options = this.#getCustomOptions(executions);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
         }
 
-        if (!this.#validate(config.environment)) {
+        if (!this.#validate(executions)) {
             console.error(chalk.redBright(`One or more of the executions are either missing type or name!`));
             return;
         }
 
-        if (!this.#checkAvailabilityOfDependencies(config.environment)) {
+        if (!this.#checkAvailabilityOfDependencies(executions)) {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, config.environment)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executions)) {
             return;
         }
 
-        for (const execution of config.environment) {
+        for (const execution of executions) {
             const lowerCaseName = execution?.name?.toLowerCase();
             const lowerCaseGroup = execution?.group?.toLowerCase();
 
@@ -338,6 +340,32 @@ export default new class {
         }
 
         return value != null ? value : [];
+    }
+
+    /**
+     * Maps environment to ensure usage of proper start or stop values
+     * @param config {Config}
+     * @param runtime {Runtime}
+     * @returns {Execution[]}
+     */
+    #getExecutions(config, runtime) {
+        const startOrStop = runtime.start ? 'start' : 'stop';
+
+        return config.environment.map(x => {
+            const execution = x[startOrStop];
+
+            return {
+                ...x,
+                hasRun: execution != null,
+                file: execution?.file,
+                command: execution?.command,
+                sql: execution?.sql,
+                container: execution?.container,
+                options: execution?.options,
+                wait: execution?.wait,
+                runAsElevated: execution?.runAsElevated,
+            }
+        })
     }
 };
 

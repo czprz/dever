@@ -10,17 +10,17 @@ const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 export default new class {
     /**
      * Handle starting and stopping of docker-compose
-     * @param component {Config} Component configuration
+     * @param project {Config} Project configuration
      * @param execution {Execution} Dependency options
      * @param runtime {Runtime} shell arguments
      */
-    handle(component, execution, runtime) {
+    handle(project, execution, runtime) {
         switch (true) {
             case runtime.start:
-                this.#start(component, execution, runtime);
+                this.#start(project, execution, runtime);
                 break;
             case runtime.stop:
-                this.#stop(component, execution);
+                this.#stop(project, execution);
                 break;
         }
     }

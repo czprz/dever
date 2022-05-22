@@ -91,6 +91,7 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever [keyword] env --start --not [name], -n [name] | attempts to start environment dependencies except those mentioned in the --not option |
 | dever [keyword] env --start --not-group [name], --ng [name] | attempts to start environment dependencies expect those grouped in the --not-group option |
 | dever [keyword] env --stop | attempts to stop environment |
+ | dever [keyword] env --stop [name] | attempts to stop only specified environment dependencies |
 | dever [keyword] env --stop --not [name], -n [name] | attempts to stop environment dependencies except those mentioned in the --not option |
 | dever [keyword] env --stop --not-group [name], --ng [name] | attempts to stop environment dependencies expect those grouped in the --not-group option |
 | dever [keyword] env --start --clean | attempts to start environment cleanly e.g. recreating docker containers |

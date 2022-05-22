@@ -10,13 +10,12 @@ export default new class {
      * @param runtime {Runtime}
      */
     async handle(execution, runtime) {
-        if (runtime.stop) {
-            return;
-        }
-
         switch (execution.sql.option) {
             case "create-database":
                 await this.#createDatabase(execution);
+                break;
+            case "drop-database":
+                await this.#dropDatabase(execution);
                 break;
             case "create-table":
                 await this.#createTable(execution);
@@ -79,6 +78,19 @@ export default new class {
             console.log(`mssql: '${execution.name}' :: inserting of data has completed successfully`);
         } catch (e) {
             logger.error(`mssql: '${execution.name}' :: inserting of data could not be completed`, e);
+        }
+    }
+
+    async #dropDatabase(execution) {
+        try {
+            if (!await validator.createDatabase(execution)) {
+                return;
+            }
+
+            await mssql.dropDatabase(execution.sql);
+            console.log(`mssql: '${execution.name}' :: database has been created`);
+        } catch (e) {
+            logger.error(`mssql: '${execution.name}' :: database has not been created`, e);
         }
     }
 }

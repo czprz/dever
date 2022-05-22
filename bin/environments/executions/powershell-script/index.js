@@ -14,23 +14,14 @@ export default new class {
      * @return {Promise<void>}
      */
     async handle(component, execution, runtime) {
-        switch(true) {
-            case runtime.start: {
-                try {
-                    const file = path.join(component.location, execution.file);
-                    const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, runtime.args);
-                    await powershell.executeFileSync(fileWithParameters, execution.runAsElevated);
+        try {
+            const file = path.join(component.location, execution.file);
+            const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, runtime.args);
+            await powershell.executeFileSync(fileWithParameters, execution.runAsElevated);
 
-                    console.log(`powershell-script: '${execution.name}' completed successfully`);
-                } catch (e) {
-                    logger.error(`powershell-script: '${execution.name}' completed with errors`, e);
-                }
-
-                break;
-            }
-            case runtime.stop:
-                // Todo: Any reason for having this? / How can this be implemented?
-                break;
+            console.log(`powershell-script: '${execution.name}' completed successfully`);
+        } catch (e) {
+            logger.error(`powershell-script: '${execution.name}' completed with errors`, e);
         }
     }
 }

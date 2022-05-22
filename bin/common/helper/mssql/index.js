@@ -18,6 +18,21 @@ export default new class {
     }
 
     /**
+     * Drops an MSSQL database
+     * @param query {DbQuery}
+     * @returns {Promise<void>}
+     */
+    async dropDatabase(query) {
+        await this.#connect(query);
+
+        try {
+            await sql.query(`DROP DATABASE ${query.database}`);
+        } finally {
+            await sql.close();
+        }
+    }
+
+    /**
      * Checks if database name already exists
      * @param query {DbQuery}
      * @returns {Promise<boolean>}
