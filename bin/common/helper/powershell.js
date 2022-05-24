@@ -1,10 +1,10 @@
-const {exec, execSync} = require('child_process');
+import sudo from './elevated.js';
+import delayer from './delayer.js';
 
-const sudo = require('./elevated');
-const delayer = require('./delayer');
+import {exec, execSync} from 'child_process';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Executes powershell command asynchronous
      * @param command {string}

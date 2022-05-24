@@ -1,10 +1,11 @@
-const shell = require('../shell');
-const {execSync} = require("child_process");
+import shell from '../shell.js';
+
+import {execSync} from 'child_process';
 
 const docker_states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Check if container is running
      * @param name {string}

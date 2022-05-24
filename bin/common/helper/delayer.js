@@ -1,5 +1,5 @@
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Instantiates a new delayer
      * @return {Delayer}

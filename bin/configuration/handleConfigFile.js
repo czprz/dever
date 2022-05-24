@@ -1,16 +1,17 @@
-const path = require("path");
-const fs = require("fs");
-const chalk = require('chalk');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import chalk from 'chalk';
 
 "use strict";
-module.exports = new class {
+export default new class {
     #fileName = '.dever';
 
     #root;
     #filePath;
 
     constructor() {
-        this.#root = require('os').homedir();
+        this.#root = os.homedir();
         this.#filePath = path.join(this.#root, this.#fileName);
     }
 

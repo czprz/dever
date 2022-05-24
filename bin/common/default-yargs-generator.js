@@ -1,14 +1,14 @@
-const config_handler = require("../configuration/handleConfigFile");
-const projectsConfig = require("../configuration/projects-config");
-const versionChecker = require('../common/helper/version-checker');
-const configValidator = require('../common/helper/config-validator');
+import config_handler from '../configuration/handleConfigFile.js';
+import projectsConfig from '../configuration/projects-config.js';
+import versionChecker from '../common/helper/version-checker.js';
+import configValidator from '../common/helper/config-validator.js';
+import init from '../init.js';
 
-const path = require("path");
-const init = require("../init");
-const chalk = require("chalk");
+import path from 'path';
+import chalk from 'chalk';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Get yargs structure for default
      * @param yargs {object}

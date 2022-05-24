@@ -1,15 +1,15 @@
-const powershell = require('./common/helper/powershell');
-const projectsConfig = require('./configuration/projects-config');
-const versionChecker = require('./common/helper/version-checker');
-const configValidator = require('./common/helper/config-validator');
+import powershell from './common/helper/powershell.js';
+import projectsConfig from './configuration/projects-config.js';
+import versionChecker from './common/helper/version-checker.js';
+import configValidator from './common/helper/config-validator.js';
 
-const readline = require("readline");
-const chalk = require("chalk");
-const path = require("path");
-const fs = require("fs");
+import readline from 'readline';
+import chalk from 'chalk';
+import path from 'path';
+import fs from 'fs';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Initializes dever configuration file if not existing and finds all available dever.json supported projects
      * @return {Promise<void>}

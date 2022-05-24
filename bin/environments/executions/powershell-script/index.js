@@ -1,11 +1,11 @@
-const powershell = require('../../../common/helper/powershell');
-const customOptions = require('../../../common/helper/custom_options');
-const logger = require('../../../common/helper/logger');
+import powershell from '../../../common/helper/powershell.js';
+import customOptions from '../../../common/helper/custom_options.js';
+import logger from '../../../common/helper/logger.js';
 
-const path = require("path");
+import path from 'path';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      *
      * @param component {Config}

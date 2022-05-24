@@ -1,9 +1,9 @@
-const mssql = require('../../../common/helper/mssql');
-const validator = require('../../../common/helper/mssql/validator');
-const logger = require('../../../common/helper/logger');
+import mssql from '../../../common/helper/mssql/index.js';
+import validator from '../../../common/helper/mssql/validator.js';
+import logger from '../../../common/helper/logger.js';
 
 "use strict";
-module.exports = new class {
+export default new class {
     /**
      * Handler for mssql dependencies
      * @param execution {Execution}

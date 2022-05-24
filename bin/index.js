@@ -1,52 +1,64 @@
 #! /usr/bin/env node
 
-const defaultYargsGenerator = require('./common/default-yargs-generator');
-const projectYargsGenerator = require('./common/project-yargs-generator');
-const versionChecker = require('./common/helper/version-checker');
-const projectConfig = require('./configuration/projects-config');
-const constants = require('./common/constants');
+import defaultYargsGenerator from './common/default-yargs-generator.js';
+import projectYargsGenerator from './common/project-yargs-generator.js';
+import versionChecker from './common/helper/version-checker.js';
+import projectConfig from './configuration/projects-config.js';
+import constants from './common/constants.js';
 
-let argv = process.argv.slice(2);
+import yargs from 'yargs';
 
-function defaultYargs() {
-    const yargs = require("yargs")(argv);
-    yargs
-        .scriptName("dever")
-        .wrap(100)
-        .usage('\nUsage: $0 [keyword] <cmd>');
+class EntryPoint {
+    #argv;
 
-    defaultYargsGenerator.create(yargs);
-    defaultYargsGenerator.defaultAction(yargs);
-}
-
-function projectYargs(keyword, config) {
-    const yargs = require("yargs")(process.argv.slice(3));
-    yargs
-        .scriptName("dever " + keyword)
-        .wrap(100)
-        .usage('\nUsage: $0 <cmd> [args]');
-
-    projectYargsGenerator.create(keyword, config, yargs);
-    projectYargsGenerator.defaultAction(yargs);
-}
-
-if (argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === argv[0])) {
-    const keyword = argv[0];
-    const config = projectConfig.get(keyword);
-
-    if (config !== null) {
-        if (!versionChecker.supported(config)) {
-            console.error(`dever does not support this projects dever.json version`);
-            console.error(`Please install version of '@czprz/dever' which supports the dever.json version`);
-            return;
-        }
-
-        projectYargs(keyword, config);
-        return;
+    constructor() {
+        this.#argv = process.argv.slice(2);
     }
 
-    argv = [];
-    console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
+    start() {
+        if (this.#argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
+            const keyword = this.#argv[0];
+            const config = projectConfig.get(keyword);
+
+            if (config !== null) {
+                if (!versionChecker.supported(config)) {
+                    console.error(`dever does not support this projects dever.json version`);
+                    console.error(`Please install version of '@czprz/dever' which supports the dever.json version`);
+                    return;
+                }
+
+                EntryPoint.#projectYargs(keyword, config);
+                return;
+            }
+
+            this.#argv = [];
+            console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
+        }
+
+        this.#defaultYargs();
+    }
+
+    #defaultYargs() {
+        const yargsObj = yargs(this.#argv);
+        yargsObj
+            .scriptName("dever")
+            .wrap(100)
+            .usage('\nUsage: $0 [keyword] <cmd>');
+
+        defaultYargsGenerator.create(yargsObj);
+        defaultYargsGenerator.defaultAction(yargsObj);
+    }
+
+    static #projectYargs(keyword, config) {
+        const yargsObj = yargs(process.argv.slice(3));
+        yargsObj
+            .scriptName("dever " + keyword)
+            .wrap(100)
+            .usage('\nUsage: $0 <cmd> [args]');
+
+        projectYargsGenerator.create(keyword, config, yargsObj);
+        projectYargsGenerator.defaultAction(yargsObj);
+    }
 }
 
-defaultYargs();
+new EntryPoint().start();
