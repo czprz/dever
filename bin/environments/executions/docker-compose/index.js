@@ -15,12 +15,14 @@ export default new class {
      * @param runtime {Runtime} shell arguments
      */
     handle(project, execution, runtime) {
+        const correctExecution = this.#getExecution(execution, runtime);
+
         switch (true) {
             case runtime.start:
-                this.#start(project, execution, runtime);
+                this.#start(project, correctExecution, runtime);
                 break;
             case runtime.stop:
-                this.#stop(project, execution);
+                this.#stop(project, correctExecution);
                 break;
         }
     }
@@ -124,5 +126,19 @@ export default new class {
         } catch {
             return states.NotFound;
         }
+    }
+
+    /**
+     * Gets the correct execution depending on runtime and available configuration
+     * @param execution {Execution}
+     * @param runtime {Runtime}
+     * @returns {Execution}
+     */
+    #getExecution(execution, runtime) {
+        if (runtime.stop && !execution.hasStop) {
+            return execution.start;
+        }
+
+        return execution;
     }
 }

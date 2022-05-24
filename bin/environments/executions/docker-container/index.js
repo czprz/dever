@@ -4,16 +4,17 @@ import docker from '../../../common/helper/docker/index.js';
 export default new class {
     /**
      * Handle starting and stopping of docker containers
-     * @param dependency {Execution}
+     * @param execution {Execution}
      * @param runtime {Runtime}
      */
-    handle(dependency, runtime) {
+    handle(execution, runtime) {
+        const correctExecution = this.#getExecution(execution, runtime);
         switch(true) {
             case runtime.start:
-                this.#start(dependency.container, runtime);
+                this.#start(correctExecution.container, runtime);
                 break;
             case runtime.stop:
-                this.#stop(dependency.container);
+                this.#stop(correctExecution.container);
                 break;
         }
     }
@@ -83,6 +84,20 @@ export default new class {
      */
     #stop(container) {
         docker.container.stop(container.name);
+    }
+
+    /**
+     * Gets the correct execution depending on runtime and available configuration
+     * @param execution {Execution}
+     * @param runtime {Runtime}
+     * @returns {Execution}
+     */
+    #getExecution(execution, runtime) {
+        if (runtime.stop && !execution.hasStop) {
+            return execution.start;
+        }
+
+        return execution;
     }
 }
 

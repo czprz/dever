@@ -352,18 +352,19 @@ export default new class {
         const startOrStop = runtime.start ? 'start' : 'stop';
 
         return config.environment.map(x => {
-            const execution = x[startOrStop];
+            const first = x[startOrStop];
 
             return {
                 ...x,
-                hasRun: execution != null,
-                file: execution?.file,
-                command: execution?.command,
-                sql: execution?.sql,
-                container: execution?.container,
-                options: execution?.options,
-                wait: execution?.wait,
-                runAsElevated: execution?.runAsElevated,
+                file: first?.file,
+                command: first?.command,
+                sql: first?.sql,
+                container: first?.container,
+                options: first?.options,
+                wait: first?.wait,
+                runAsElevated: first?.runAsElevated,
+                start: x.start,
+                stop: x.stop,
             }
         })
     }

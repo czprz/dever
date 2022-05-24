@@ -10,6 +10,11 @@ export default new class {
      * @param runtime {Runtime}
      */
     async handle(execution, runtime) {
+        if (runtime.stop && !execution.hasStop) {
+            console.log(`powershell-command: '${execution.name}' does not have a stop action.`);
+            return;
+        }
+
         try {
             const command = customOptions.addOptionsToCommand(execution.command, execution.options, runtime.args);
             await powershell.executeSync(command, execution.runAsElevated);

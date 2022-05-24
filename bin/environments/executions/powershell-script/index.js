@@ -14,6 +14,11 @@ export default new class {
      * @return {Promise<void>}
      */
     async handle(component, execution, runtime) {
+        if (runtime.stop && !execution.hasStop) {
+            console.log(`powershell-script: '${execution.name}' does not have a stop action.`);
+            return;
+        }
+
         try {
             const file = path.join(component.location, execution.file);
             const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, runtime.args);

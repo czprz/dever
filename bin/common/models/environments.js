@@ -1,4 +1,16 @@
-class Execution {
+class ExecutionExt {
+    /**
+     * @type {Execution | null}
+     */
+    start;
+
+    /**
+     * @type {Execution | null}
+     */
+    stop;
+}
+
+class Execution extends ExecutionExt {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
      * @type {string} @required
@@ -14,7 +26,7 @@ class Execution {
      * Indicate whether mapping of start or stop was successful
      * @type {boolean} @required
      */
-    hasRun;
+    hasStop;
 
     /**
      * @type {string | null} @optional

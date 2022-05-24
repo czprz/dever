@@ -10,6 +10,11 @@ export default new class {
      * @param runtime {Runtime}
      */
     async handle(execution, runtime) {
+        if (runtime.stop && !execution.hasStop) {
+            console.log(`mssql: '${execution.name}' does not have a stop action.`);
+            return;
+        }
+
         switch (execution.sql.option) {
             case "create-database":
                 await this.#createDatabase(execution);
