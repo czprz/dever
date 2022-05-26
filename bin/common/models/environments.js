@@ -95,10 +95,16 @@ export class Execution extends ExecutionStep {
     group;
 
     /**
-     * Indicate whether mapping of start or stop was successful
+     * Indicate whether it has a stop step
      * @type {boolean} @required
      */
     hasStop;
+
+    /**
+     * Indicate whether it has a start step
+     * @type {boolean} @required
+     */
+    hasStart;
 
     /**
      * @type {ExecutionStep | null}
@@ -125,6 +131,7 @@ export class Execution extends ExecutionStep {
         this.#selectedStep = runtime.start ? 'start' : 'stop';
 
         this.name = config.name;
+        this.hasStart = !!config.start;
         this.hasStop = !!config.stop;
         this.group = config.group;
 

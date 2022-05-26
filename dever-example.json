@@ -31,9 +31,17 @@
       "name": "run-migration",
       "start": {
         "type": "powershell-script",
-        "file": "/development/script.ps1",
+        "file": "/development/migrate-up.ps1",
         "wait": {
           "when": "before",
+          "time": 5000
+        }
+      },
+      "stop": {
+        "type": "powershell-script",
+        "file": "/development/migrate-down.ps1",
+        "wait": {
+          "when": "after",
           "time": 5000
         }
       }
@@ -77,6 +85,10 @@
       "start": {
         "type": "powershell-command",
         "command": "docker run --name mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
+      },
+      "stop": {
+        "type": "powershell-command",
+        "command": "docker container stop mssql&&docker container rm mssql"
       }
     },
     {
@@ -84,6 +96,23 @@
       "start": {
         "type": "powershell-command",
         "command": "docker container start $container_name",
+        "options": [
+          {
+            "required": true,
+            "key": "container_name",
+            "alias": "cn",
+            "describe": "docker container name",
+            "insert": "$value",
+            "rule": {
+              "match": "^[0-9A-z-_]+$",
+              "message": "Invalid naming format for docker container"
+            }
+          }
+        ]
+      },
+      "stop": {
+        "type": "powershell-command",
+        "command": "docker container stop $container_name",
         "options": [
           {
             "required": true,

@@ -16,7 +16,10 @@ export default new class {
      */
     async handle(component, execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
-            console.log(chalk.yellow(`powershell-script: '${execution.name}' does not have a stop action.`));
+            if (execution.hasStart) {
+                console.log(chalk.yellow(`powershell-script: '${execution.name}' does not have a stop action.`));
+            }
+
             return;
         }
 

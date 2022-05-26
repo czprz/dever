@@ -13,7 +13,10 @@ export default new class {
      */
     async handle(execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
-            console.log(chalk.yellow(`mssql: '${execution.name}' does not have a stop action.`));
+            if (execution.hasStart) {
+                console.log(chalk.yellow(`mssql: '${execution.name}' does not have a stop action.`));
+            }
+
             return;
         }
 
