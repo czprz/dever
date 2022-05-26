@@ -3,6 +3,7 @@ import customOptions from '../../../common/helper/custom_options.js';
 import logger from '../../../common/helper/logger.js';
 
 import path from 'path';
+import chalk from "chalk";
 
 "use strict";
 export default new class {
@@ -15,7 +16,7 @@ export default new class {
      */
     async handle(component, execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
-            console.log(`powershell-script: '${execution.name}' does not have a stop action.`);
+            console.log(chalk.yellow(`powershell-script: '${execution.name}' does not have a stop action.`));
             return;
         }
 

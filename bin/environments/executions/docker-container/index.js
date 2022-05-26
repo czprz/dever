@@ -83,6 +83,7 @@ export default new class {
      * @param container {Container}
      */
     #stop(container) {
+        console.log(`docker-container: '${container.name}' has been stopped!`);
         docker.container.stop(container.name);
     }
 

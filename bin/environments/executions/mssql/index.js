@@ -2,6 +2,8 @@ import mssql from '../../../common/helper/mssql/index.js';
 import validator from '../../../common/helper/mssql/validator.js';
 import logger from '../../../common/helper/logger.js';
 
+import chalk from 'chalk';
+
 "use strict";
 export default new class {
     /**
@@ -11,7 +13,7 @@ export default new class {
      */
     async handle(execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
-            console.log(`mssql: '${execution.name}' does not have a stop action.`);
+            console.log(chalk.yellow(`mssql: '${execution.name}' does not have a stop action.`));
             return;
         }
 

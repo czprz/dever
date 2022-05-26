@@ -1,3 +1,40 @@
+class Runtime {
+    /**
+     * Start option is true when set
+     * @type {boolean}
+     */
+    start;
+
+    /**
+     * Stop option is true when set
+     * @type {boolean}
+     */
+    stop;
+
+    /**
+     * List of groups and executions to be included in starting or stopping
+     * @type { { executions: string[], groups: string[] } | null }
+     */
+    include;
+
+    /**
+     * List of groups and executions to be excluded when starting and stopping
+     * @type { { executions: string[], groups: string[] } | null }
+     */
+    exclude;
+
+    /**
+     * Is checked if user wants a clean start
+     * @type {boolean | null}
+     */
+    clean;
+
+    /**
+     * @type {EnvArgs | null}
+     */
+    args;
+}
+
 class ExecutionStep {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
@@ -46,7 +83,7 @@ class ExecutionStep {
     runAsElevated;
 }
 
-class Execution {
+export class Execution extends ExecutionStep {
     /**
      * @type {string} @required
      */
@@ -72,6 +109,69 @@ class Execution {
      * @type {ExecutionStep | null}
      */
     stop;
+
+    /**
+     * @type {'start' | 'stop'} @required
+     */
+    #selectedStep;
+
+    /**
+     * @param config {ExecutionConfig}
+     * @param runtime {Runtime}
+     */
+    constructor(config, runtime) {
+        super();
+
+        this.#selectedStep = runtime.start ? 'start' : 'stop';
+
+        this.name = config.name;
+        this.hasStop = !!config.stop;
+        this.group = config.group;
+
+        if (config.start == null) {
+            Execution.#mapToExecutionStep(this, config);
+            return;
+        }
+
+        this.start = new ExecutionStep();
+        Execution.#mapToExecutionStep(this.start, config.start);
+
+        if (this.hasStop) {
+            this.stop = new ExecutionStep();
+            Execution.#mapToExecutionStep(this.stop, config.stop);
+        }
+
+        this.#updateStepValues(this[this.#selectedStep] ?? this.start);
+    }
+
+    /**
+     * Set all selected step values
+     * @param executionStep {ExecutionStep}
+     * @return void
+     */
+    #updateStepValues(executionStep) {
+        for (const property in executionStep) {
+            if (this.hasOwnProperty(property)) {
+                this[property] = executionStep[property];
+            }
+        }
+    }
+
+    /**
+     * @param step {ExecutionStep}
+     * @param config {ExecutionRunConfig}
+     * @return void
+     */
+    static #mapToExecutionStep(step, config) {
+        step.type = config.type;
+        step.sql = config.sql;
+        step.file = config.file;
+        step.command = config.command;
+        step.container = config.container;
+        step.options = config.options;
+        step.wait = config.wait;
+        step.runAsElevated = config.runAsElevated;
+    }
 }
 
 class Wait {

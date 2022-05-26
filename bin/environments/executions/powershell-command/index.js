@@ -2,6 +2,8 @@ import powershell from '../../../common/helper/powershell.js';
 import customOptions from '../../../common/helper/custom_options.js';
 import logger from '../../../common/helper/logger.js';
 
+import chalk from "chalk";
+
 "use strict";
 export default new class {
     /**
@@ -11,7 +13,7 @@ export default new class {
      */
     async handle(execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
-            console.log(`powershell-command: '${execution.name}' does not have a stop action.`);
+            console.log(chalk.yellow(`powershell-command: '${execution.name}' does not have a stop action.`));
             return;
         }
 

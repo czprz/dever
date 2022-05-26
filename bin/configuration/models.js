@@ -42,17 +42,16 @@ class Config {
     location;
 }
 
-class ExecutionConfig {
-    /**
-     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
-     * @type {string} @required
-     */
-    type;
-
+class ExecutionConfig extends ExecutionRunConfig {
     /**
      * @type {string} @required
      */
     name;
+
+    /**
+     * @type {string | null} @optional
+     */
+    group;
 
     /**
      * @type {ExecutionRunConfig} @required
@@ -63,14 +62,15 @@ class ExecutionConfig {
      * @type {ExecutionRunConfig} @optional
      */
     stop;
-
-    /**
-     * @type {string | null} @optional
-     */
-    group;
 }
 
 class ExecutionRunConfig {
+    /**
+     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
+     * @type {string} @required
+     */
+    type;
+
     /**
      * @type {string | null}
      */

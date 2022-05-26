@@ -9,6 +9,8 @@ import delayer from '../common/helper/delayer.js';
 import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
+import { Execution } from "../common/models/environments.js";
+
 import readline from 'readline';
 import chalk from 'chalk';
 
@@ -349,63 +351,11 @@ export default new class {
      * @returns {Execution[]}
      */
     #getExecutions(config, runtime) {
-        const startOrStop = runtime.start ? 'start' : 'stop';
-
         return config.environment.map(x => {
-            const first = x[startOrStop];
-
-            return {
-                ...x,
-                file: first?.file,
-                command: first?.command,
-                sql: first?.sql,
-                container: first?.container,
-                options: first?.options,
-                wait: first?.wait,
-                runAsElevated: first?.runAsElevated,
-                start: x.start,
-                stop: x.stop,
-            }
+            return new Execution(x, runtime);
         })
     }
 };
-
-class Runtime {
-    /**
-     * Start option is true when set
-     * @type {boolean}
-     */
-    start;
-
-    /**
-     * Stop option is true when set
-     * @type {boolean}
-     */
-    stop;
-
-    /**
-     * List of groups and executions to be included in starting or stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    include;
-
-    /**
-     * List of groups and executions to be excluded when starting and stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    exclude;
-
-    /**
-     * Is checked if user wants a clean start
-     * @type {boolean | null}
-     */
-    clean;
-
-    /**
-     * @type {EnvArgs | null}
-     */
-    args;
-}
 
 class EnvArgs {
     /**
