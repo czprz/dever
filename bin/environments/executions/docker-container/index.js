@@ -8,13 +8,12 @@ export default new class {
      * @param runtime {Runtime}
      */
     handle(execution, runtime) {
-        const correctExecution = this.#getExecution(execution, runtime);
         switch(true) {
             case runtime.start:
-                this.#start(correctExecution.container, runtime);
+                this.#start(execution.container, runtime);
                 break;
             case runtime.stop:
-                this.#stop(correctExecution.container);
+                this.#stop(execution.container);
                 break;
         }
     }
@@ -85,20 +84,6 @@ export default new class {
     #stop(container) {
         console.log(`docker-container: '${container.name}' has been stopped!`);
         docker.container.stop(container.name);
-    }
-
-    /**
-     * Gets the correct execution depending on runtime and available configuration
-     * @param execution {Execution}
-     * @param runtime {Runtime}
-     * @returns {Execution}
-     */
-    #getExecution(execution, runtime) {
-        if (runtime.stop && !execution.hasStop) {
-            return execution.start;
-        }
-
-        return execution;
     }
 }
 
