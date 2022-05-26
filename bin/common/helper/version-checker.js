@@ -1,6 +1,6 @@
 "use strict";
 export default new class {
-    #supportedVersion = 2;
+    #supportedVersion = 3;
 
     /**
      * @param configs {Config|Config[]}

@@ -9,6 +9,8 @@ import delayer from '../common/helper/delayer.js';
 import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
+import { Execution } from "../common/models/environments.js";
+
 import readline from 'readline';
 import chalk from 'chalk';
 
@@ -89,29 +91,31 @@ export default new class {
      * @returns {Promise<void>}
      */
     async #run(config, runtime) {
+        const executions = this.#getExecutions(config, runtime);
+
         logger.create();
 
-        const options = this.#getCustomOptions(config.environment);
+        const options = this.#getCustomOptions(executions);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
         }
 
-        if (!this.#validate(config.environment)) {
+        if (!this.#validate(executions)) {
             console.error(chalk.redBright(`One or more of the executions are either missing type or name!`));
             return;
         }
 
-        if (!this.#checkAvailabilityOfDependencies(config.environment)) {
+        if (!this.#checkAvailabilityOfDependencies(executions)) {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, config.environment)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executions)) {
             return;
         }
 
-        for (const execution of config.environment) {
+        for (const execution of executions) {
             const lowerCaseName = execution?.name?.toLowerCase();
             const lowerCaseGroup = execution?.group?.toLowerCase();
 
@@ -339,44 +343,19 @@ export default new class {
 
         return value != null ? value : [];
     }
+
+    /**
+     * Maps environment to ensure usage of proper start or stop values
+     * @param config {Config}
+     * @param runtime {Runtime}
+     * @returns {Execution[]}
+     */
+    #getExecutions(config, runtime) {
+        return config.environment.map(x => {
+            return new Execution(x, runtime);
+        })
+    }
 };
-
-class Runtime {
-    /**
-     * Start option is true when set
-     * @type {boolean}
-     */
-    start;
-
-    /**
-     * Stop option is true when set
-     * @type {boolean}
-     */
-    stop;
-
-    /**
-     * List of groups and executions to be included in starting or stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    include;
-
-    /**
-     * List of groups and executions to be excluded when starting and stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    exclude;
-
-    /**
-     * Is checked if user wants a clean start
-     * @type {boolean | null}
-     */
-    clean;
-
-    /**
-     * @type {EnvArgs | null}
-     */
-    args;
-}
 
 class EnvArgs {
     /**
