@@ -1,37 +1,9 @@
-class ExecutionExt {
-    /**
-     * @type {Execution | null}
-     */
-    start;
-
-    /**
-     * @type {Execution | null}
-     */
-    stop;
-}
-
-class Execution extends ExecutionExt {
+class ExecutionStep {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
      * @type {string} @required
      */
     type;
-
-    /**
-     * @type {string} @required
-     */
-    name;
-
-    /**
-     * Indicate whether mapping of start or stop was successful
-     * @type {boolean} @required
-     */
-    hasStop;
-
-    /**
-     * @type {string | null} @optional
-     */
-    group;
 
     /**
      * @type {string | null}
@@ -72,6 +44,34 @@ class Execution extends ExecutionExt {
      * @type {boolean | null}
      */
     runAsElevated;
+}
+
+class Execution {
+    /**
+     * @type {string} @required
+     */
+    name;
+
+    /**
+     * @type {string | null} @optional
+     */
+    group;
+
+    /**
+     * Indicate whether mapping of start or stop was successful
+     * @type {boolean} @required
+     */
+    hasStop;
+
+    /**
+     * @type {ExecutionStep | null}
+     */
+    start;
+
+    /**
+     * @type {ExecutionStep | null}
+     */
+    stop;
 }
 
 class Wait {

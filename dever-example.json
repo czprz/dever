@@ -29,19 +29,19 @@
   "environment": [
     {
       "name": "run-migration",
-      "type": "powershell-script",
       "start": {
+        "type": "powershell-script",
         "file": "/development/script.ps1",
         "wait": {
           "when": "before",
           "time": 5000
         }
-      },
+      }
     },
     {
       "name": "create-database",
-      "type": "mssql",
       "start": {
+        "type": "mssql",
         "sql": {
           "option": "create-database",
           "database": "TestDb",
@@ -50,6 +50,7 @@
         }
       },
       "stop": {
+        "type": "mssql",
         "sql": {
           "option": "delete-database",
           "database": "TestDb",
@@ -60,8 +61,8 @@
     },
     {
       "name": "docker-supported-docker-start",
-      "type": "docker-container",
       "start": {
+        "type": "docker-container",
         "container": {
           "name": "mssql",
           "ports": [
@@ -77,15 +78,15 @@
     },
     {
       "name": "run-container",
-      "type": "powershell-command",
       "start": {
+        "type": "powershell-command",
         "command": "docker run --name mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
       }
     },
     {
       "name": "run_command",
-      "type": "powershell-command",
       "start": {
+        "type": "powershell-command",
         "command": "docker container start $container_name",
         "options": [
           {
