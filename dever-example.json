@@ -52,7 +52,7 @@
       "stop": {
         "type": "mssql",
         "sql": {
-          "option": "delete-database",
+          "option": "drop-database",
           "database": "TestDb",
           "username": "sa",
           "password": "156test"
