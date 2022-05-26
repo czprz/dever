@@ -60,17 +60,17 @@
       }
     },
     {
-		"name": "docker-supported-docker-start",
-		"type": "docker-container",
-		"container": {
-			"name": "mssql",
-			"ports": ["1433:1433"],
-			"variables": [
-				"ACCEPT_EULA=Y",
-				"SA_PASSWORD=156test"
-			],
-			"image": "mcr.microsoft.com/mssql/server:2019-latest"
-		}
+      "name": "docker-supported-docker-start",
+      "type": "docker-container",
+      "container": {
+        "name": "mssql",
+        "ports": ["1433:1433"],
+        "variables": [
+          "ACCEPT_EULA=Y",
+          "SA_PASSWORD=156test"
+        ],
+        "image": "mcr.microsoft.com/mssql/server:2019-latest"
+      }
     },
     {
       "name": "run-container",
