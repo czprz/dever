@@ -1,11 +1,4 @@
-class LocalConfig {
-    /**
-     * @return {Config[]}
-     */
-    components;
-}
-
-class Config {
+export class Project {
     /**
      * @return {string}
      */
@@ -111,5 +104,3 @@ class ExecutionRunConfig {
      */
     runAsElevated;
 }
-
-

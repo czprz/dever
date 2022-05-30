@@ -1,4 +1,4 @@
-import config_handler from '../configuration/handleConfigFile.js';
+import config_handler from '../configuration/local-config.js';
 import projectsConfig from '../configuration/projects-config.js';
 import versionChecker from '../common/helper/version-checker.js';
 import configValidator from '../common/helper/config-validator.js';

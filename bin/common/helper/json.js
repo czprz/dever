@@ -4,7 +4,7 @@ import chalk from "chalk";
 export default new class {
     /**
      * @param file {string}
-     * @returns {null|unknown}
+     * @returns {unknown|null}
      */
     read(file) {
         try {

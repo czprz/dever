@@ -1,7 +1,5 @@
 import path from 'path';
-import fs from 'fs';
 import os from 'os';
-import chalk from 'chalk';
 
 import json from '../common/helper/json';
 
@@ -38,12 +36,7 @@ export default new class {
      * @returns {LocalConfig}
      */
     get() {
-        const config = json.read(this.#filePath);
-        if (config == null) {
-            return null;
-        }
-
-        return config;
+        return json.read(this.#filePath) ?? {projects: []};
     }
 
     /**

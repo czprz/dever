@@ -1,4 +1,6 @@
-import config_handler from './handleConfigFile.js';
+import config_handler from './local-config.js';
+import {Project} from '../common/models/internal.js';
+import json from '../common/helper/json.js';
 
 "use strict";
 export default new class {
@@ -7,116 +9,96 @@ export default new class {
      * @return {boolean}
      */
     any() {
-        return config_handler.get()?.components.length > 0;
+        return config_handler.get()?.projects.length > 0;
     }
 
     /**
-     * Gets only one project by specifically looking through keywords found in dever.json
+     * Gets only one project by specifically looking through keywords found in .dever
      * @param keyword {string}
-     * @returns Config
+     * @returns Project | null
      */
     get(keyword) {
-        let config = this.#getProjects();
-        if (config == null) {
+        let projects = this.#getProjects();
+        if (projects == null) {
             return null;
         }
 
-        let projects = [];
+        const filteredProjects = projects.filter(x => x != null && x.keywords.includes(keyword));
 
-        config.components.forEach(x => {
-            if (x == null) {
-                return;
-            }
-
-            if (x.keywords.includes(keyword)) {
-                projects.push(x);
-            }
-        })
-
-        if (projects.length > 1) {
+        if (filteredProjects.length > 1) {
             console.error('Components are not allowed to share keywords. Please fix this.');
             return null;
         }
 
-        return projects.length === 0 ? null : projects[0];
+        return filteredProjects.length === 0 ? null : filteredProjects[0];
     }
 
     /**
-     * Gets all projects from dever_config.json
-     * @returns {Config[] | null}
+     * Gets all projects from .dever
+     * @returns {Project[] | null}
      */
     getAll() {
-        const config = this.#getProjects();
-        if (config == null) {
+        const projects = this.#getProjects();
+        if (projects == null) {
             return null;
         }
 
-        const components = [];
-
-        config.components.forEach(x => {
-            if (x == null) {
-                return;
-            }
-
-            components.push(x);
-        });
-
-        return components;
+        return projects.filter(x => x != null);
     }
 
     /**
-     * Removes all projects from dever_config.json
-     * @return void
+     * Removes all projects from .dever
      */
     clear() {
-        const config = config_handler.get() ?? {components: []};
+        const config = config_handler.get();
 
-        config.components = [];
+        config.projects = [];
 
         config_handler.write(config);
     }
 
     /**
-     * Adds project to dever_config.json
-     * @param file string
+     * Adds project to .dever
+     * @param file {string}
      */
     add(file) {
-        const config = config_handler.get() ?? {components: []};
+        const config = config_handler.get();
 
-        config.components.push(file);
+        config.projects.push(file);
 
         config_handler.write(config);
     }
 
     /**
-     * Removes project from dever_config.json
+     * Removes project from .dever
      * @param file {string}
      */
     remove(file) {
         const config = config_handler.get();
+        if (config == null) {
+            return;
+        }
 
-        const index = config.components.indexOf(file);
+        const index = config.projects.indexOf(x => x.path === file);
         if (index === -1) {
             return;
         }
 
-        config.components.splice(index, 1);
+        config.projects.splice(index, 1);
 
         config_handler.write(config);
     }
 
     /**
      * Gets all projects configuration
-     * @returns LocalConfig
+     * @returns {Project[] | null}
      */
     #getProjects() {
         const config = config_handler.get();
-        if (config == null || config.components == null || config.components.length === 0) {
+        if (config == null || config.projects == null || config.projects.length === 0) {
             return null;
         }
 
-        return {
-            components: config.components.map(x => config_handler.getProject(x))
-        }
+        return config.projects.map(x => json.read(x.path));
     }
 }
