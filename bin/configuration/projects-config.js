@@ -9,7 +9,12 @@ export default new class {
      * @return {boolean}
      */
     any() {
-        return config_handler.get()?.projects.length > 0;
+        const config = config_handler.get();
+        if (config == null || config.projects == null) {
+            return false;
+        }
+
+        return config.projects.length > 0;
     }
 
     /**
@@ -63,8 +68,11 @@ export default new class {
      */
     add(file) {
         const config = config_handler.get();
-
-        config.projects.push(file);
+        
+        config.projects.push({
+            path: file,
+            lastHash: null
+        });
 
         config_handler.write(config);
     }

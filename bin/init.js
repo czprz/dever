@@ -3,6 +3,7 @@ import projectsConfig from './configuration/projects-config.js';
 import versionChecker from './common/helper/version-checker.js';
 import configValidator from './common/helper/config-validator.js';
 
+import { fileURLToPath } from 'url';
 import readline from 'readline';
 import chalk from 'chalk';
 import path from 'path';
@@ -38,6 +39,7 @@ export default new class {
     async #findProjects() {
         console.log('Initialization has started.. Please wait..');
 
+        const __filename = fileURLToPath(import.meta.url);
         const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
         projectsConfig.clear();
@@ -51,7 +53,7 @@ export default new class {
         const paths = raw.trim().split('\n');
 
         for (const path of paths) {
-            this.#getConfigFiles(path);
+            this.#verifyAndSavePathToDeverJson(path);
         }
 
         const configs = projectsConfig.getAll();
@@ -63,23 +65,11 @@ export default new class {
     }
 
     /**
-     * Check if there is any dever.json which has an unsupported version
-     * @param configs {Config[]}
-     * @return void
-     */
-    #checkForSupportedVersion(configs) {
-        if (!versionChecker.supported(configs)) {
-            console.warn(chalk.yellow(`One or more of the found projects is not supported due to the dever.json version`));
-            console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
-        }
-    }
-
-    /**
      * Adds location of dever.json to dever internal configuration file
      * @param filePath {string}
      * @return void
      */
-    #getConfigFiles(filePath) {
+    #verifyAndSavePathToDeverJson(filePath) {
         const file = filePath.trim();
 
         if (!file) {
@@ -94,19 +84,31 @@ export default new class {
     }
 
     /**
-     * Check if any projects has keywords which violate pre-defined keys ('init', 'list', 'config', 'validate')
-     * @param configs {Config[]}
+     * Check if there is any dever.json which has an unsupported version
+     * @param projects {Project[]}
      * @return void
      */
-    #checkForKeywordViolations(configs) {
-        for (const config of configs) {
-            if (configValidator.validate(config)) {
+    #checkForSupportedVersion(projects) {
+        if (!versionChecker.supported(projects)) {
+            console.warn(chalk.yellow(`One or more of the found projects is not supported due to the dever.json version`));
+            console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
+        }
+    }
+
+    /**
+     * Check if any projects has keywords which violate pre-defined keys ('init', 'list', 'config', 'validate')
+     * @param projects {Project[]}
+     * @return void
+     */
+    #checkForKeywordViolations(projects) {
+        for (const project of projects) {
+            if (configValidator.validate(project)) {
                 continue;
             }
 
-            console.error(chalk.red(`Could not add the project '${config.name}' due to having keywords which are conflicting with pre-defined keys`));
+            console.error(chalk.red(`Could not add the project '${project.name}' due to having keywords which are conflicting with pre-defined keys`));
 
-            projectsConfig.remove(path.join(config.location, 'dever.json'));
+            projectsConfig.remove(path.join(project.location, 'dever.json'));
         }
     }
 }

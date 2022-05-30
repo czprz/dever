@@ -3,7 +3,7 @@ export default new class {
     #supportedVersion = 3;
 
     /**
-     * @param configs {Config|Config[]}
+     * @param configs {Project|Project[]}
      * @return {boolean}
      */
     supported(configs) {
@@ -15,8 +15,8 @@ export default new class {
     }
 
     /**
-     * @param configs {Config[]}
-     * @return {Config[]}
+     * @param configs {Project[]}
+     * @return {Project[]}
      */
     getOnlyUnsupported(configs) {
         return configs.filter(x => x.version !== this.#supportedVersion);

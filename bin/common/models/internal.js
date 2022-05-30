@@ -35,28 +35,6 @@ export class Project {
     location;
 }
 
-class ExecutionConfig extends ExecutionRunConfig {
-    /**
-     * @type {string} @required
-     */
-    name;
-
-    /**
-     * @type {string | null} @optional
-     */
-    group;
-
-    /**
-     * @type {ExecutionRunConfig} @required
-     */
-    start;
-
-    /**
-     * @type {ExecutionRunConfig} @optional
-     */
-    stop;
-}
-
 class ExecutionRunConfig {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql')
@@ -103,4 +81,26 @@ class ExecutionRunConfig {
      * @type {boolean | null}
      */
     runAsElevated;
+}
+
+class ExecutionConfig extends ExecutionRunConfig {
+    /**
+     * @type {string} @required
+     */
+    name;
+
+    /**
+     * @type {string | null} @optional
+     */
+    group;
+
+    /**
+     * @type {ExecutionRunConfig} @required
+     */
+    start;
+
+    /**
+     * @type {ExecutionRunConfig} @optional
+     */
+    stop;
 }
