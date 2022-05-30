@@ -3,6 +3,8 @@ import fs from 'fs';
 import os from 'os';
 import chalk from 'chalk';
 
+import json from '../common/helper/json';
+
 "use strict";
 export default new class {
     #fileName = '.dever';
@@ -20,16 +22,7 @@ export default new class {
      * @param config {LocalConfig}
      */
     write(config) {
-        let data = JSON.stringify(config);
-
-        fs.writeFileSync(this.#filePath, data, (err) => {
-            if (err) {
-                throw err;
-            }
-
-            console.log(data);
-            console.log('Configuration updated');
-        });
+        json.write(this.#filePath, config);
     }
 
     /**
@@ -45,7 +38,7 @@ export default new class {
      * @returns {LocalConfig}
      */
     get() {
-        const config = this.#readJson(this.#filePath);
+        const config = json.read(this.#filePath);
         if (config == null) {
             return null;
         }
@@ -58,10 +51,10 @@ export default new class {
      * @returns {null|Config[]}
      */
     getProjects() {
-        const config = this.#readJson(this.#filePath);
+        const config = json.read(this.#filePath);
         return config == null ?
             null :
-            config.components.map(x => this.#readJson(x));
+            config.components.map(x => json.read(x));
     }
 
     /**
@@ -70,30 +63,10 @@ export default new class {
      * @returns {null|Config}
      */
     getProject(filePath) {
-        const project = this.#readJson(filePath);
+        const project = json.read(this.#filePath);
 
         return project == null ?
             null :
             {...project, location: path.dirname(filePath)};
-    }
-
-    /**
-     * Get and parse file
-     * @param filePath {string}
-     * @returns {null|LocalConfig|Config}
-     */
-    #readJson(filePath) {
-        try {
-            const rawData = fs.readFileSync(filePath, {encoding: 'utf8'});
-            return JSON.parse(rawData);
-        } catch (e) {
-            switch (e.code) {
-                case "ENOENT":
-                    return null;
-                default:
-                    console.error(chalk.redBright(`Could not parse '${filePath}' due to json formatting.`));
-                // Todo: Add exception to log file
-            }
-        }
     }
 }

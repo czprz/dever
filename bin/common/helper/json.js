@@ -6,7 +6,7 @@ export default new class {
      * @param file {string}
      * @returns {null|unknown}
      */
-    get(file) {
+    read(file) {
         try {
             const rawData = fs.readFileSync(file, {encoding: 'utf8'});
             return this.#decode(rawData);
