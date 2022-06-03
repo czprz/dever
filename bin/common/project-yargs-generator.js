@@ -1,3 +1,4 @@
+import hashCheckerDialog from "./helper/hash-checker-dialog.js";
 import install from '../install/index.js';
 import env from '../environments/index.js';
 import fix from '../fix/index.js';
@@ -9,14 +10,14 @@ export default new class {
     /**
      * Get yargs structure for project
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs {object}
      * @return void
      */
-    create(keyword, config, yargs) {
-        this.#createInstall(keyword, config, yargs);
-        this.#createEnvironment(keyword, config, yargs);
-        this.#createFix(keyword, config, yargs);
+    create(keyword, project, yargs) {
+        this.#createInstall(keyword, project, yargs);
+        this.#createEnvironment(keyword, project, yargs);
+        this.#createFix(keyword, project, yargs);
 
         yargs
             .command({
@@ -32,10 +33,10 @@ export default new class {
                 handler: (argv) => {
                     switch (true) {
                         case argv.location:
-                            this.#showConfigLocation(config);
+                            this.#showConfigLocation(project);
                             break;
                         default:
-                            this.#showConfig(config);
+                            this.#showConfig(project);
                     }
                 }
             });
@@ -54,11 +55,11 @@ export default new class {
     /**
      * Create commands for install section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createInstall(keyword, config, yargs) {
-        if (config.install == null) {
+    #createInstall(keyword, project, yargs) {
+        if (project.install == null) {
             return;
         }
 
@@ -68,7 +69,7 @@ export default new class {
                 desc: 'Install project depended packages and functionality',
                 builder: (yargs) => install.getOptions(yargs),
                 handler: (argv) => {
-                    install.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -76,11 +77,11 @@ export default new class {
     /**
      * Create commands for environment section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createEnvironment(keyword, config, yargs) {
-        if (config.environment == null) {
+    #createEnvironment(keyword, project, yargs) {
+        if (project.environment == null) {
             return;
         }
 
@@ -88,9 +89,9 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => env.getOptions(yargs, config),
+                builder: (yargs) => env.getOptions(yargs, project),
                 handler: (argv) => {
-                    env.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -98,11 +99,11 @@ export default new class {
     /**
      * Create commands for fix section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createFix(keyword, config, yargs) {
-        if (config.fix == null) {
+    #createFix(keyword, project, yargs) {
+        if (project.fix == null) {
             return;
         }
 
@@ -112,34 +113,34 @@ export default new class {
                 desc: 'Fix common possibly repeatable issues',
                 builder: (yargs) => fix.getOptions(yargs),
                 handler: (argv) => {
-                    fix.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(project, keyword, () => fix.handler(project, yargs, argv).catch(console.error));
                 }
             })
     }
 
     /**
      * Show location of project configuration file
-     * @param config {Config}
+     * @param project {Project}
      */
-    #showConfigLocation(config) {
-        if (config == null) {
+    #showConfigLocation(project) {
+        if (project == null) {
             console.error(chalk.redBright('Could not find project'));
             return;
         }
 
-        console.log(config.location);
+        console.log(project.location);
     }
 
     /**
      * Show content of project configuration file
-     * @param config {Config}
+     * @param project {Project}
      */
-    #showConfig(config) {
-        if (config == null) {
+    #showConfig(project) {
+        if (project == null) {
             console.error(chalk.redBright('Could not find project'));
             return;
         }
 
-        console.log(config);
+        console.log(project);
     }
 }

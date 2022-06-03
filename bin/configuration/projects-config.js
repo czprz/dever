@@ -52,6 +52,25 @@ export default new class {
     }
 
     /**
+     * Update project values
+     * @param project {Project}
+     * @param obj {Object}
+     */
+    update(project, obj) {
+        let config = config_handler.get();
+
+        config.projects = config.projects.filter(x => x.path !== project.location);
+
+        config.projects.push({
+            path: obj.location || project.location,
+            lastHash: obj.lastHash || project.lastHash,
+            skipHashCheck: obj.skipHashCheck || project.skipHashCheck
+        });
+
+        config_handler.write(config);
+    }
+
+    /**
      * Removes all projects from .dever
      */
     clear() {
@@ -68,10 +87,11 @@ export default new class {
      */
     add(file) {
         const config = config_handler.get();
-        
+
         config.projects.push({
             path: file,
-            lastHash: null
+            lastHash: null,
+            skipHashCheck: false
         });
 
         config_handler.write(config);
@@ -107,6 +127,21 @@ export default new class {
             return null;
         }
 
-        return config.projects.map(x => json.read(x.path));
+        return config.projects.map(this.#fetchProject, config);
+    }
+
+    /**
+     * gets project configuration
+     * @param project {LocalProject}
+     * @param config {LocalConfig}
+     * @returns {Project}
+     */
+    #fetchProject(project, config) {
+        return {
+            ...json.read(project.path),
+            location: project.path,
+            lastHash: project.lastHash,
+            skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false
+        }
     }
 }

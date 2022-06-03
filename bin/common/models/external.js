@@ -3,7 +3,15 @@ class LocalConfig {
      * @return {LocalProject[]}
      */
     projects;
+
+    /**
+     * Skip all dever.json hash checks
+     * @type {boolean}
+     */
+    skipAllHashChecks;
 }
+
+// Todo: Add support for updating config for project and globally
 
 class LocalProject {
     /**
@@ -17,4 +25,10 @@ class LocalProject {
      * @type {string}
      */
     lastHash;
+
+    /**
+     * Skip hash check of dever.json
+     * @type {boolean}
+     */
+    skipHashCheck;
 }

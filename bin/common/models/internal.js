@@ -1,38 +1,48 @@
 export class Project {
     /**
-     * @return {string}
+     * @type {string}
      */
     version;
 
     /**
-     * @return {string}
+     * @type {string}
      */
     name;
 
     /**
-     * @return {string[]}
+     * @type {string[]}
      */
     keywords;
 
     /**
-     * @return {Fix[]}
+     * @type {Fix[]}
      */
     fix;
 
     /**
-     * @return {ExecutionConfig[]}
+     * @type {ExecutionConfig[]}
      */
     environment;
 
     /**
-     * @return {Install[]}
+     * @type {Install[]}
      */
     install;
 
     /**
-     * @return {string}
+     * @type {string}
      */
     location;
+
+    /**
+     * @type {string}
+     */
+    lastHash;
+
+    /**
+     * @type {boolean}
+     */
+    skipHashCheck;
 }
 
 class ExecutionRunConfig {
