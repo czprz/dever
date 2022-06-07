@@ -1,5 +1,6 @@
 import docker from '../../../common/helper/docker/index.js';
 import shell from '../../../common/helper/shell.js';
+import {Project} from '../../../common/models/internal.js';
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -10,7 +11,7 @@ const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 export default new class {
     /**
      * Handle starting and stopping of docker-compose
-     * @param project {Config} Project configuration
+     * @param project {Project} Project configuration
      * @param execution {Execution} Dependency options
      * @param runtime {Runtime} shell arguments
      */
