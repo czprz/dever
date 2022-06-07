@@ -16,16 +16,39 @@ export default new class {
             return;
         }
 
+        console.log();
+
         console.warn(chalk.yellow(`dever.json has been modified since last run.`));
-        console.warn(chalk.yellow(`check content of dever.json using 'dever ${keyword} config'`));
+        // console.warn(chalk.yellow(`check content of dever.json using 'dever ${keyword} config'`));
         const rl = readline.createInterface(process.stdin, process.stdout);
-        rl.question('Have you verified dever.json does not contain anything unwanted? [yes]/no:', async (answer) => {
-            if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
+        this.#options();
+        this.#choose(project, callback, rl);
+    }
+
+    #choose(project, callback, rl, answer = null) {
+        if (answer != null) {
+            console.log();
+            console.warn(chalk.yellow('Wrong input. Please choose one of the options below.'));
+            this.#options();
+        }
+
+        rl.question('Which option do you choose?:', async (answer) => {
+            if (answer === '1') {
+                console.log(project);
+                rl.close();
+            } else if (answer === '2') {
                 hashChecker.update(project);
                 callback();
+                rl.close();
+            } else {
+                this.#choose(project, callback, rl, answer);
             }
-
-            rl.close();
         });
+    }
+
+    #options() {
+        console.log(`1. Check content of dever.json`);
+        console.log(`2. Ignore modification and execute command`);
+        console.log();
     }
 }
