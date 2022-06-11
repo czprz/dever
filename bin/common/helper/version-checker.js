@@ -1,6 +1,6 @@
 "use strict";
 export default new class {
-    #supportedVersion = 3;
+    #supportedVersion = 2;
 
     /**
      * @param configs {Project|Project[]}

@@ -22,8 +22,8 @@ export default new class {
      * @param project {Project}
      */
     update(project) {
-        projectConfigFacade.update(project.id, (project) => {
-            project.lastHash = this.#getHash(project.location);
+        projectConfigFacade.update(project.id, (local) => {
+            local.lastHash = this.#getHash(project.location);
         });
     }
 
