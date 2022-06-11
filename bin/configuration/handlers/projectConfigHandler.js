@@ -80,7 +80,24 @@ export default new class {
      * @param project {Project}
      */
     #setConfig(argv, project) {
+        const key = this.#getKeys(argv._[2]);
+        const value = argv._[3];
 
+        if (key == null || key.length === 0 || value == null) {
+            console.warn(`Missing key or value. Please try again with 'dever [keyword] config get [key] [value]'`);
+            return;
+        }
+
+        switch (key[0]) {
+            case 'skiphashcheck':
+                const config = localConfig.get();
+                const indexOf = config.projects.findIndex(x => x.path === project.location);
+                config.projects[indexOf].skipHashCheck = value === 'true' || value === '1';
+                localConfig.write(config);
+                break;
+            default:
+                console.warn('Key is not supported');
+        }
     }
 
     /**
@@ -89,7 +106,20 @@ export default new class {
      * @param project
      */
     #getConfig(argv, project) {
+        const key = this.#getKeys(argv._[2]);
+        if (key == null) {
+            console.warn(`Missing key. Please try again with 'dever [keyword] config get [key]'`);
+            return;
+        }
 
+        switch (key[0]) {
+            case 'skiphashcheck':
+                const config = localConfig.get().projects.find(x => x.path === project.location);
+                console.log(chalk.yellow(`skipHashCheck: `) + config.skipHashCheck)
+                break;
+            default:
+                console.warn('Key is not supported');
+        }
     }
 
     /**
@@ -99,6 +129,24 @@ export default new class {
      */
     #listConfig(argv, project) {
         const config = localConfig.get().projects.find(x => x.path === project.location);
-        console.log(chalk.yellow(`skipHashCheck:`) + project.skipHashCheck)
+        console.log(chalk.yellow(`skipHashCheck: `) + config.skipHashCheck)
+    }
+
+    /**
+     * Transforms string into a number of a keys
+     * @param arg {string}
+     * @returns string[]
+     */
+    #getKeys(arg) {
+        if (arg == null) {
+            return null;
+        }
+
+        const keys = arg.split('.').map(x => x.toLowerCase());
+        if (keys.length === 0) {
+            return null;
+        }
+
+        return keys;
     }
 }

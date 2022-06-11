@@ -120,15 +120,6 @@ export default new class {
     }
 
     /**
-     * Transforms string into a number of a keys
-     * @param arg {string}
-     * @returns string[]
-     */
-    #getKey(arg) {
-        return arg.split('.');
-    }
-
-    /**
      * Either sets or gets configuration
      * @param state {'get' | 'set'}
      * @param config {LocalConfig}
@@ -140,7 +131,7 @@ export default new class {
             case "projects":
                 this.#setOrGetConfigProjects(state, config, key, value);
                 break;
-            case "skipAllHashChecks":
+            case "skipallhashchecks":
                 this.#executor(state,
                     () => {
                         // Todo: Add validation
@@ -173,7 +164,7 @@ export default new class {
                         console.log(config.projects[key[1]].path);
                     });
                 break;
-            case "skipHashCheck":
+            case "skiphashcheck":
                 this.#executor(state,
                     () => {
                         // Todo: Add validation
@@ -194,14 +185,21 @@ export default new class {
      * @param get {Function}
      */
     #executor(state, set, get) {
-        switch (state) {
-            case "get":
-                get();
-                break;
-            case "set":
-                set();
-                break;
+        if (state === 'set') {
+            set();
+            return;
         }
+
+        get();
+    }
+
+    /**
+     * Transforms string into a number of a keys
+     * @param arg {string}
+     * @returns string[]
+     */
+    #getKey(arg) {
+        return arg.split('.').map(x => x.toLowerCase());
     }
 
     /**

@@ -137,6 +137,7 @@ export default new class {
      * @returns {Project}
      */
     #fetchProject(project, config) {
+        // Todo: Add ID to Project (Reference to Array position)
         return {
             ...json.read(project.path),
             location: project.path,
