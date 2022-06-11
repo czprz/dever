@@ -17,7 +17,6 @@ export default new class {
         }
 
         console.log();
-
         console.warn(chalk.yellow(`dever.json has been modified since last run.`));
 
         const rl = readline.createInterface(process.stdin, process.stdout);
@@ -25,6 +24,13 @@ export default new class {
         this.#choose(project, callback, rl);
     }
 
+    /**
+     * Creates questions until answered
+     * @param project {Project}
+     * @param callback {Function}
+     * @param rl {readline.Interface}
+     * @param answer {string | null}
+     */
     #choose(project, callback, rl, answer = null) {
         if (answer != null) {
             console.log();

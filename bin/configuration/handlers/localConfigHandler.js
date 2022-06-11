@@ -1,4 +1,5 @@
 import localConfig from "../local-config.js";
+import typeValidator from "../../common/validators/typeValidator.js";
 
 import chalk from "chalk";
 
@@ -87,7 +88,7 @@ export default new class {
      * @param argv
      */
     #setConfig(argv) {
-        const key = this.#getKey(argv._[2]);
+        const key = this.#getKeys(argv._[2]);
         const value = argv._[3];
 
         if (key == null || value == null) {
@@ -107,7 +108,7 @@ export default new class {
      * @param argv
      */
     #getConfig(argv) {
-        const key = this.#getKey(argv._[2]);
+        const key = this.#getKeys(argv._[2]);
 
         if (key == null) {
             console.warn(`Missing key. Please try again with 'dever config get [key]'`);
@@ -134,7 +135,11 @@ export default new class {
             case "skipallhashchecks":
                 this.#executor(state,
                     () => {
-                        // Todo: Add validation
+                        if (!typeValidator.isValidBoolean(value)) {
+                            console.warn(chalk.red(`Could not set '${value}' to 'skipAllHashChecks'. Must a boolean. (true, false, 0 or 1)`));
+                            return;
+                        }
+
                         config.skipAllHashChecks = value === 'true' || value === '1';
                     },
                     () => {
@@ -158,7 +163,11 @@ export default new class {
             case "path":
                 this.#executor(state,
                     () => {
-                        // Todo: Requires validation
+                        if (!typeValidator.isValidPathToDeverJson(value)) {
+                            console.warn(chalk.red(`Could not set '${value}' to 'project.${key[1]}.path'. Must be a valid path to a dever.json file`));
+                            return;
+                        }
+
                         config.projects[key[1]].path = value;
                     }, () => {
                         console.log(config.projects[key[1]].path);
@@ -167,8 +176,12 @@ export default new class {
             case "skiphashcheck":
                 this.#executor(state,
                     () => {
-                        // Todo: Add validation
-                        config.projects[key[1]].skipHashCheck = value === 'true';
+                        if (!typeValidator.isValidBoolean(value)) {
+                            console.warn(chalk.red(`Could not set '${value}' to 'project.${key[1]}.skipHashCheck'. Must a boolean. (true, false, 0 or 1)`));
+                            return;
+                        }
+
+                        config.projects[key[1]].skipHashCheck = value === 'true' || value === '1';
                     }, () => {
                         console.log(config.projects[key[1]].skipHashCheck);
                     });
@@ -198,7 +211,7 @@ export default new class {
      * @param arg {string}
      * @returns string[]
      */
-    #getKey(arg) {
+    #getKeys(arg) {
         return arg.split('.').map(x => x.toLowerCase());
     }
 

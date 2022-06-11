@@ -11,8 +11,6 @@ class LocalConfig {
     skipAllHashChecks;
 }
 
-// Todo: Add support for updating config for project and globally
-
 class LocalProject {
     /**
      * Location of the projects dever.json

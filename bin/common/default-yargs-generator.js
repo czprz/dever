@@ -33,7 +33,6 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    console.log(argv);
                     switch (true) {
                         case argv.notSupported:
                             this.#listAllUnsupportedProjects();

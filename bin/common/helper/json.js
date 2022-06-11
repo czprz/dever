@@ -3,6 +3,7 @@ import chalk from "chalk";
 
 export default new class {
     /**
+     * Reads json file and converts it to an object
      * @param file {string}
      * @returns {unknown|null}
      */
@@ -22,6 +23,7 @@ export default new class {
     }
 
     /**
+     * Writes object to file with json formatting
      * @param file {string}
      * @param data {object}
      */
@@ -30,6 +32,7 @@ export default new class {
     }
 
     /**
+     * Decodes json to object
      * @param {string} json
      * @returns {object}
      */
@@ -44,6 +47,7 @@ export default new class {
     }
 
     /**
+     * Encodes object to json
      * @param {object} json
      * @returns {string}
      */

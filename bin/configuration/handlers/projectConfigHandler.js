@@ -1,4 +1,5 @@
 import projectConfigFacade from "../facades/projectConfigFacade.js";
+import typeValidator from "../../common/validators/typeValidator.js";
 
 import chalk from "chalk";
 
@@ -34,14 +35,14 @@ export default new class {
             })
             .command({
                 command: 'show',
-                describe: 'Show content of project dever.json',
+                describe: 'Show project configuration',
                 handler: () => {
                     this.#showConfig(project);
                 }
             })
             .command({
                 command: 'location',
-                describe: 'Show location of dever configuration file',
+                describe: 'Show location of project configuration file',
                 handler: () => {
                     this.showLocation(project);
                 }
@@ -76,7 +77,7 @@ export default new class {
 
     /**
      * Sets project configuration
-     * @param argv
+     * @param argv {object}
      * @param project {Project}
      */
     #setConfig(argv, project) {
@@ -90,6 +91,11 @@ export default new class {
 
         switch (key[0]) {
             case 'skiphashcheck':
+                if (typeValidator.isValidBoolean(value)) {
+                    console.warn(chalk.red(`Could not set '${value}' to 'skipHashCheck'. Must a boolean. (true, false, 0 or 1)`));
+                    return;
+                }
+
                 projectConfigFacade.update(project.id, (project) => {
                     project.skipHashCheck = value === 'true' || value === '1';
                 });
@@ -101,8 +107,8 @@ export default new class {
 
     /**
      * Gets project configuration
-     * @param argv
-     * @param project
+     * @param argv {object}
+     * @param project {Project}
      */
     #getConfig(argv, project) {
         const key = this.#getKeys(argv._[2]);
@@ -123,8 +129,8 @@ export default new class {
 
     /**
      * Lists available project configuration and it's current value
-     * @param argv
-     * @param project
+     * @param argv {object}
+     * @param project {Project}
      */
     #listConfig(argv, project) {
         const local = projectConfigFacade.getLocalValues(project.id);

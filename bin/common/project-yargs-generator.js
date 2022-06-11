@@ -1,10 +1,8 @@
+import projectConfigHandler from "../configuration/handlers/projectConfigHandler.js";
 import hashCheckerDialog from "./helper/hash-checker-dialog.js";
 import install from '../install/index.js';
 import env from '../environments/index.js';
 import fix from '../fix/index.js';
-
-import chalk from 'chalk';
-import projectConfigHandler from "../configuration/handlers/projectConfigHandler.js";
 
 "use strict";
 export default new class {
@@ -106,38 +104,12 @@ export default new class {
     #setupOfConfigHandler(project, yargs) {
         yargs
             .command({
-                command: `config`,
+                command: 'config',
                 desc: 'Manage project configuration',
                 builder: (yargs) => projectConfigHandler.options(yargs, project),
                 handler: () => {
                     yargs.showHelp();
                 }
             });
-    }
-
-    /**
-     * Show location of project configuration file
-     * @param project {Project}
-     */
-    #showConfigLocation(project) {
-        if (project == null) {
-            console.error(chalk.redBright('Could not find project'));
-            return;
-        }
-
-        console.log(project.location);
-    }
-
-    /**
-     * Show content of project configuration file
-     * @param project {Project}
-     */
-    #showConfig(project) {
-        if (project == null) {
-            console.error(chalk.redBright('Could not find project'));
-            return;
-        }
-
-        console.log(project);
     }
 }
