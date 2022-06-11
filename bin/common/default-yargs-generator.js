@@ -1,4 +1,4 @@
-import projectsConfig from '../configuration/projects-config.js';
+import projectConfigFacade from "../configuration/facades/projectConfigFacade.js";
 import versionChecker from '../common/helper/version-checker.js';
 import configValidator from '../common/helper/config-validator.js';
 import localConfigHandler from "../configuration/handlers/localConfigHandler.js";
@@ -39,7 +39,7 @@ export default new class {
                             this.#listAllUnsupportedProjects();
                             break;
                         default:
-                            this.#listAllComponents();
+                            this.#listAllProjects();
                     }
                 }
             });
@@ -66,8 +66,8 @@ export default new class {
     /**
      * Shows a list of found components in the console
      */
-    #listAllComponents() {
-        const projects = projectsConfig.getAll();
+    #listAllProjects() {
+        const projects = projectConfigFacade.getAll();
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
@@ -81,7 +81,7 @@ export default new class {
     }
 
     #listAllUnsupportedProjects() {
-        const projects = projectsConfig.getAll();
+        const projects = projectConfigFacade.getAll();
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;

@@ -1,6 +1,7 @@
-import projectsConfig from "../../configuration/projects-config.js";
+
 import crypto from 'crypto';
 import fs from "fs";
+import projectConfigFacade from "../../configuration/facades/projectConfigFacade.js";
 
 export default new class {
     /**
@@ -21,8 +22,8 @@ export default new class {
      * @param project {Project}
      */
     update(project) {
-        projectsConfig.update(project, {
-            lastHash: this.#getHash(project.location)
+        projectConfigFacade.update(project.id, (project) => {
+            project.lastHash = this.#getHash(project.location);
         });
     }
 

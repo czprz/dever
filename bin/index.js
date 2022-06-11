@@ -3,7 +3,8 @@
 import defaultYargsGenerator from './common/default-yargs-generator.js';
 import projectYargsGenerator from './common/project-yargs-generator.js';
 import versionChecker from './common/helper/version-checker.js';
-import projectConfig from './configuration/projects-config.js';
+import projectConfigFacade from "./configuration/facades/projectConfigFacade.js";
+
 import constants from './common/constants.js';
 
 import yargs from 'yargs';
@@ -18,7 +19,7 @@ class EntryPoint {
     start() {
         if (this.#argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             const keyword = this.#argv[0];
-            const config = projectConfig.get(keyword);
+            const config = projectConfigFacade.get(keyword);
 
             if (config !== null) {
                 if (!versionChecker.supported(config)) {

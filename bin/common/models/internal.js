@@ -1,5 +1,10 @@
 export class Project {
     /**
+     * @type {number}
+     */
+    id;
+
+    /**
      * @type {string}
      */
     version;

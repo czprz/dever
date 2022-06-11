@@ -1,6 +1,5 @@
-import config_handler from './local-config.js';
-import {Project} from '../common/models/internal.js';
-import json from '../common/helper/json.js';
+import localConfig from "../local-config.js";
+import json from "../../common/helper/json.js";
 
 "use strict";
 export default new class {
@@ -9,7 +8,7 @@ export default new class {
      * @return {boolean}
      */
     any() {
-        const config = config_handler.get();
+        const config = localConfig.get();
         if (config == null || config.projects == null) {
             return false;
         }
@@ -51,34 +50,34 @@ export default new class {
         return projects.filter(x => x != null);
     }
 
+
     /**
-     * Update project values
-     * @param project {Project}
-     * @param obj {Object}
+     * @callback updateRequest
+     * @param {LocalProject} project
      */
-    update(project, obj) {
-        let config = config_handler.get();
 
-        config.projects = config.projects.filter(x => x.path !== project.location);
+    /**
+     *
+     * @param id
+     * @param fn {updateRequest}
+     */
+    update(id, fn) {
+        const config = localConfig.get();
 
-        config.projects.push({
-            path: obj.location || project.location,
-            lastHash: obj.lastHash || project.lastHash,
-            skipHashCheck: obj.skipHashCheck || project.skipHashCheck
-        });
+        fn(config.projects[id]);
 
-        config_handler.write(config);
+        localConfig.write(config);
     }
 
     /**
      * Removes all projects from .dever
      */
     clear() {
-        const config = config_handler.get();
+        const config = localConfig.get();
 
         config.projects = [];
 
-        config_handler.write(config);
+        localConfig.write(config);
     }
 
     /**
@@ -86,7 +85,7 @@ export default new class {
      * @param file {string}
      */
     add(file) {
-        const config = config_handler.get();
+        const config = localConfig.get();
 
         config.projects.push({
             path: file,
@@ -94,7 +93,7 @@ export default new class {
             skipHashCheck: false
         });
 
-        config_handler.write(config);
+        localConfig.write(config);
     }
 
     /**
@@ -102,7 +101,7 @@ export default new class {
      * @param file {string}
      */
     remove(file) {
-        const config = config_handler.get();
+        const config = localConfig.get();
         if (config == null) {
             return;
         }
@@ -114,7 +113,7 @@ export default new class {
 
         config.projects.splice(index, 1);
 
-        config_handler.write(config);
+        localConfig.write(config);
     }
 
     /**
@@ -122,24 +121,25 @@ export default new class {
      * @returns {Project[] | null}
      */
     #getProjects() {
-        const config = config_handler.get();
+        const config = localConfig.get();
         if (config == null || config.projects == null || config.projects.length === 0) {
             return null;
         }
 
-        return config.projects.map(this.#fetchProject, config);
+        return config.projects.map((x, i) => this.#fetchProject(x, config, i));
     }
 
     /**
      * gets project configuration
      * @param project {LocalProject}
      * @param config {LocalConfig}
+     * @param id {number}
      * @returns {Project}
      */
-    #fetchProject(project, config) {
-        // Todo: Add ID to Project (Reference to Array position)
+    #fetchProject(project, config, id) {
         return {
             ...json.read(project.path),
+            id: id,
             location: project.path,
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false

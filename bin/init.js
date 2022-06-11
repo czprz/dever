@@ -1,5 +1,5 @@
 import powershell from './common/helper/powershell.js';
-import projectsConfig from './configuration/projects-config.js';
+import projectConfigFacade from "./configuration/facades/projectConfigFacade.js";
 import versionChecker from './common/helper/version-checker.js';
 import configValidator from './common/helper/config-validator.js';
 
@@ -16,7 +16,7 @@ export default new class {
      * @return {Promise<void>}
      */
     async init() {
-        if (!projectsConfig.any()) {
+        if (!projectConfigFacade.any()) {
             await this.#findProjects();
             return;
         }
@@ -42,7 +42,7 @@ export default new class {
         const __filename = fileURLToPath(import.meta.url);
         const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
-        projectsConfig.clear();
+        projectConfigFacade.clear();
 
         const raw = await powershell.executeFileSync(file);
         if (raw == null || raw?.length === 0) {
@@ -56,7 +56,7 @@ export default new class {
             this.#verifyAndSavePathToDeverJson(path);
         }
 
-        const configs = projectsConfig.getAll();
+        const configs = projectConfigFacade.getAll();
 
         this.#checkForSupportedVersion(configs);
         this.#checkForKeywordViolations(configs);
@@ -80,7 +80,7 @@ export default new class {
             return;
         }
 
-        projectsConfig.add(file);
+        projectConfigFacade.add(file);
     }
 
     /**
@@ -108,7 +108,7 @@ export default new class {
 
             console.error(chalk.red(`Could not add the project '${project.name}' due to having keywords which are conflicting with pre-defined keys`));
 
-            projectsConfig.remove(path.join(project.location, 'dever.json'));
+            projectConfigFacade.remove(path.join(project.location, 'dever.json'));
         }
     }
 }
