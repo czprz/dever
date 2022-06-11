@@ -1,8 +1,8 @@
-import config_handler from '../configuration/local-config.js';
 import projectsConfig from '../configuration/projects-config.js';
 import versionChecker from '../common/helper/version-checker.js';
 import configValidator from '../common/helper/config-validator.js';
-import init from '../init.js';
+import localConfigHandler from "../configuration/handlers/localConfigHandler.js";
+import init from "../init.js";
 
 import path from 'path';
 import chalk from 'chalk';
@@ -19,8 +19,8 @@ export default new class {
             .command({
                 command: 'init',
                 desc: 'Initializes dever and searches for dever.json files',
-                handler: (argv) => {
-                    init.init(argv).catch(console.error);
+                handler: () => {
+                    init.init().catch(console.error);
                 }
             })
             .command({
@@ -33,6 +33,7 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
+                    console.log(argv);
                     switch (true) {
                         case argv.notSupported:
                             this.#listAllUnsupportedProjects();
@@ -41,56 +42,15 @@ export default new class {
                             this.#listAllComponents();
                     }
                 }
-            })
-            .command({
-                command: 'config',
-                desc: 'Show content of dever configuration file',
-                builder: (yargs) => {
-                    yargs
-                        .option('l', {
-                            alias: 'location',
-                            describe: 'Show location of dever configuration file'
-                        });
-                },
-                handler: (argv) => {
-                    switch (true) {
-                        case argv.location:
-                            this.#showLocation();
-                            break;
-                        default:
-                            this.#showConfig();
-                    }
-                }
-            })
-            .command({
-                command: 'validate',
-                desc: `Validate dever.json config file before running 'dever init'`,
-                builder: (yargs) => {
-                    yargs
-                        .option('f', {
-                            alias: 'file',
-                            describe: 'Filepath for dever.json that needs to be validated'
-                        });
-                },
-                handler: (argv) => {
-                    switch (true) {
-                        case argv.file != null:
-                        {
-                            this.#validate(argv.file);
-                            break;
-                        }
-                        default:
-                        {
-                            const file = path.join(process.cwd(), 'dever.json');
-                            this.#validate(file);
-                        }
-                    }
-                }
-            })
-            .command({
-                command: '[keyword]',
-                desc: 'Functionality for helping project development'
             });
+
+        this.#setupForConfig(yargs);
+        this.#setupForValidation(yargs);
+
+        yargs.command({
+            command: '[keyword]',
+            desc: 'Functionality for helping project development'
+        });
     }
 
     /**
@@ -136,30 +96,42 @@ export default new class {
         }
     }
 
-    /**
-     * Show location of dever configuration file
-     */
-    #showLocation() {
-        const filePath = config_handler.getFilePath();
-        if (filePath == null) {
-            console.error('Could not find dever.json');
-            return;
-        }
-
-        console.log(filePath);
+    #setupForConfig(yargs) {
+        yargs
+            .command({
+                command: `config`,
+                desc: 'Manage dever configuration',
+                builder: (yargs) => localConfigHandler.options(yargs),
+                handler: () => {
+                    yargs.showHelp();
+                }
+            });
     }
 
-    /**
-     * Show content of dever configuration
-     */
-    #showConfig() {
-        const config = config_handler.get();
-        if (config == null) {
-            console.error(chalk.redBright('Could not find dever configuration'));
-            return;
-        }
-
-        console.log(config);
+    #setupForValidation(yargs) {
+        yargs.command({
+            command: 'validate',
+            desc: `Validate dever.json config file before running 'dever init'`,
+            builder: (yargs) => {
+                yargs
+                    .option('f', {
+                        alias: 'file',
+                        describe: 'Filepath for dever.json that needs to be validated'
+                    });
+            },
+            handler: (argv) => {
+                switch (true) {
+                    case argv.file != null: {
+                        this.#validate(argv.file);
+                        break;
+                    }
+                    default: {
+                        const file = path.join(process.cwd(), 'dever.json');
+                        this.#validate(file);
+                    }
+                }
+            }
+        })
     }
 
     #validate(file) {
