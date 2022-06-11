@@ -79,6 +79,10 @@ export default new class {
             .option('s', {
                 alias: 'skip',
                 describe: 'Skip confirmation messages'
+            })
+            .option('shc', {
+                alias: 'skip-hash-check',
+                describe: 'Skip hash check when running command'
             });
 
         const customOptions = this.#getCustomOptions(config.environment);

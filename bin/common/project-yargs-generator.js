@@ -47,7 +47,7 @@ export default new class {
                 desc: 'Install project depended packages and functionality',
                 builder: (yargs) => install.getOptions(yargs),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -69,7 +69,7 @@ export default new class {
                 desc: 'Development environment organizer',
                 builder: (yargs) => env.getOptions(yargs, project),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -91,7 +91,7 @@ export default new class {
                 desc: 'Fix common possibly repeatable issues',
                 builder: (yargs) => fix.getOptions(yargs),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(project, keyword, () => fix.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => fix.handler(project, yargs, argv).catch(console.error));
                 }
             })
     }

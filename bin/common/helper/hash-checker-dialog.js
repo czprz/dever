@@ -6,12 +6,13 @@ import readline from "readline";
 export default new class {
     /**
      * Verify user wants to continue
+     * @param skipHashCheck {boolean}
      * @param project {Project}
      * @param keyword {string}
      * @param callback {Function}
      */
-    confirm(project, keyword, callback) {
-        if (hashChecker.check(project)) {
+    confirm(skipHashCheck, project, keyword, callback) {
+        if (hashChecker.check(project) || skipHashCheck) {
             callback();
             return;
         }
