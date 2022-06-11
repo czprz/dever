@@ -1,4 +1,4 @@
-import localConfig from "../local-config.js";
+import projectConfigFacade from "../facades/projectConfigFacade.js";
 
 import chalk from "chalk";
 
@@ -90,10 +90,9 @@ export default new class {
 
         switch (key[0]) {
             case 'skiphashcheck':
-                const config = localConfig.get();
-                const indexOf = config.projects.findIndex(x => x.path === project.location);
-                config.projects[indexOf].skipHashCheck = value === 'true' || value === '1';
-                localConfig.write(config);
+                projectConfigFacade.update(project.id, (project) => {
+                    project.skipHashCheck = value === 'true' || value === '1';
+                });
                 break;
             default:
                 console.warn('Key is not supported');
@@ -114,8 +113,8 @@ export default new class {
 
         switch (key[0]) {
             case 'skiphashcheck':
-                const config = localConfig.get().projects.find(x => x.path === project.location);
-                console.log(chalk.yellow(`skipHashCheck: `) + config.skipHashCheck)
+                const local = projectConfigFacade.getLocalValues(project.id);
+                console.log(chalk.yellow(`skipHashCheck: `) + local.skipHashCheck)
                 break;
             default:
                 console.warn('Key is not supported');
@@ -128,8 +127,8 @@ export default new class {
      * @param project
      */
     #listConfig(argv, project) {
-        const config = localConfig.get().projects.find(x => x.path === project.location);
-        console.log(chalk.yellow(`skipHashCheck: `) + config.skipHashCheck)
+        const local = projectConfigFacade.getLocalValues(project.id);
+        console.log(chalk.yellow(`skipHashCheck: `) + local.skipHashCheck);
     }
 
     /**

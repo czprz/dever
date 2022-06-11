@@ -28,7 +28,6 @@ export default new class {
         }
 
         const filteredProjects = projects.filter(x => x != null && x.keywords.includes(keyword));
-
         if (filteredProjects.length > 1) {
             console.error('Components are not allowed to share keywords. Please fix this.');
             return null;
@@ -50,6 +49,15 @@ export default new class {
         return projects.filter(x => x != null);
     }
 
+    /**
+     * Get actual value from .dever project
+     * @param id {number}
+     * @return LocalProject
+     */
+    getLocalValues(id) {
+        const config = localConfig.get();
+        return config.projects[id];
+    }
 
     /**
      * @callback updateRequest
