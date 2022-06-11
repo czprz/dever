@@ -1,7 +1,7 @@
-import projectConfigFacade from "../configuration/facades/projectConfigFacade.js";
+import projectConfigFacade from "../configuration/facades/project-config-facade.js";
 import versionChecker from '../common/helper/version-checker.js';
 import configValidator from '../common/helper/config-validator.js';
-import localConfigHandler from "../configuration/handlers/localConfigHandler.js";
+import localConfigHandler from "../configuration/handlers/local-config-handler.js";
 import init from "../init.js";
 
 import path from 'path';

@@ -1,4 +1,4 @@
-import projectConfigHandler from "../configuration/handlers/projectConfigHandler.js";
+import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
 import hashCheckerDialog from "./helper/hash-checker-dialog.js";
 import install from '../install/index.js';
 import env from '../environments/index.js';

@@ -3,7 +3,7 @@
 import defaultYargsGenerator from './common/default-yargs-generator.js';
 import projectYargsGenerator from './common/project-yargs-generator.js';
 import versionChecker from './common/helper/version-checker.js';
-import projectConfigFacade from "./configuration/facades/projectConfigFacade.js";
+import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
 import constants from './common/constants.js';
 

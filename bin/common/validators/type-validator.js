@@ -16,6 +16,8 @@ export default new class {
         value = typeof value !== 'string' ? value : value.toLowerCase();
 
         switch (value) {
+            case true:
+            case false:
             case 'true':
             case 'false':
             case 1:

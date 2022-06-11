@@ -1,5 +1,6 @@
-import projectConfigFacade from "../facades/projectConfigFacade.js";
-import typeValidator from "../../common/validators/typeValidator.js";
+import projectConfigFacade from "../facades/project-config-facade.js";
+import configUpdater from "../config-updater.js";
+import configGetter from "../config-getter.js";
 
 import chalk from "chalk";
 
@@ -81,7 +82,7 @@ export default new class {
      * @param project {Project}
      */
     #setConfig(argv, project) {
-        const key = this.#getKeys(argv._[2]);
+        const key = argv._[2];
         const value = argv._[3];
 
         if (key == null || key.length === 0 || value == null) {
@@ -89,20 +90,7 @@ export default new class {
             return;
         }
 
-        switch (key[0]) {
-            case 'skiphashcheck':
-                if (typeValidator.isValidBoolean(value)) {
-                    console.warn(chalk.red(`Could not set '${value}' to 'skipHashCheck'. Must a boolean. (true, false, 0 or 1)`));
-                    return;
-                }
-
-                projectConfigFacade.update(project.id, (project) => {
-                    project.skipHashCheck = value === 'true' || value === '1';
-                });
-                break;
-            default:
-                console.warn('Key is not supported');
-        }
+        configUpdater.update(`projects.${project.id}.${key}`, value);
     }
 
     /**
@@ -111,20 +99,14 @@ export default new class {
      * @param project {Project}
      */
     #getConfig(argv, project) {
-        const key = this.#getKeys(argv._[2]);
+        const key = argv._[2];
+
         if (key == null) {
             console.warn(`Missing key. Please try again with 'dever [keyword] config get [key]'`);
             return;
         }
 
-        switch (key[0]) {
-            case 'skiphashcheck':
-                const local = projectConfigFacade.getLocalValues(project.id);
-                console.log(chalk.yellow(`skipHashCheck: `) + local.skipHashCheck)
-                break;
-            default:
-                console.warn('Key is not supported');
-        }
+        configGetter.get(`projects.${project.id}.${key}`);
     }
 
     /**
@@ -135,23 +117,5 @@ export default new class {
     #listConfig(argv, project) {
         const local = projectConfigFacade.getLocalValues(project.id);
         console.log(chalk.yellow(`skipHashCheck: `) + local.skipHashCheck);
-    }
-
-    /**
-     * Transforms string into a number of a keys
-     * @param arg {string}
-     * @returns string[]
-     */
-    #getKeys(arg) {
-        if (arg == null) {
-            return null;
-        }
-
-        const keys = arg.split('.').map(x => x.toLowerCase());
-        if (keys.length === 0) {
-            return null;
-        }
-
-        return keys;
     }
 }

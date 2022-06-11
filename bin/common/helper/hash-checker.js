@@ -1,7 +1,7 @@
 
 import crypto from 'crypto';
 import fs from "fs";
-import projectConfigFacade from "../../configuration/facades/projectConfigFacade.js";
+import projectConfigFacade from "../../configuration/facades/project-config-facade.js";
 
 export default new class {
     /**
