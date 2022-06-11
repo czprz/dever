@@ -159,31 +159,37 @@ export default new class {
      * @param value {unknown}
      */
     #setOrGetConfigProjects(state, config, key, value) {
+        const id = +key[1];
+        if (isNaN(id) || id > (config.projects.length - 1) || id < 0) {
+            console.warn(chalk.red(`Could not set project with '${value}' due to '${key[1]}' being an invalid projects id`));
+            return;
+        }
+
         switch (key[2]) {
             case "path":
                 this.#executor(state,
                     () => {
                         if (!typeValidator.isValidPathToDeverJson(value)) {
-                            console.warn(chalk.red(`Could not set '${value}' to 'project.${key[1]}.path'. Must be a valid path to a dever.json file`));
+                            console.warn(chalk.red(`Could not set '${value}' to 'project.${id}.path'. Must be a valid path to a dever.json file`));
                             return;
                         }
 
-                        config.projects[key[1]].path = value;
+                        config.projects[id].path = value;
                     }, () => {
-                        console.log(config.projects[key[1]].path);
+                        console.log(config.projects[id].path);
                     });
                 break;
             case "skiphashcheck":
                 this.#executor(state,
                     () => {
                         if (!typeValidator.isValidBoolean(value)) {
-                            console.warn(chalk.red(`Could not set '${value}' to 'project.${key[1]}.skipHashCheck'. Must a boolean. (true, false, 0 or 1)`));
+                            console.warn(chalk.red(`Could not set '${value}' to 'project.${id}.skipHashCheck'. Must a boolean. (true, false, 0 or 1)`));
                             return;
                         }
 
-                        config.projects[key[1]].skipHashCheck = value === 'true' || value === '1';
+                        config.projects[id].skipHashCheck = value === 'true' || value === '1';
                     }, () => {
-                        console.log(config.projects[key[1]].skipHashCheck);
+                        console.log(config.projects[id].skipHashCheck);
                     });
                 break;
             default:

@@ -1,8 +1,8 @@
 import path from "path";
 import json from "../helper/json.js";
+import versionChecker from "../helper/version-checker.js";
 
 export default new class {
-
     /**
      * Checks whether a value can be converted into a boolean
      * @param value {string}
@@ -26,6 +26,11 @@ export default new class {
         }
     }
 
+    /**
+     * Validates that file path given is a valid dever.json
+     * @param file {string}
+     * @returns {boolean}
+     */
     isValidPathToDeverJson(file) {
         if (file == null || 'dever.json' !== path.basename(file)) {
             return false;
@@ -36,6 +41,6 @@ export default new class {
             return false;
         }
 
-        return content.version === 2
+        return versionChecker.supportedVersion(content.version);
     }
 }

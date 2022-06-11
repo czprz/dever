@@ -15,6 +15,15 @@ export default new class {
     }
 
     /**
+     * Check if version is supported
+     * @param version {number}
+     * @returns {boolean}
+     */
+    supportedVersion(version) {
+        return version === this.#supportedVersion;
+    }
+
+    /**
      * @param configs {Project[]}
      * @return {Project[]}
      */
