@@ -5,7 +5,7 @@ import fs from 'fs';
 export default new class {
     /**
      * Validate configuration
-     * @param config {Config}
+     * @param config {Project}
      * @return {boolean}
      */
     validate(config) {
@@ -47,7 +47,7 @@ export default new class {
     /**
      * Get json from file
      * @param file {string}
-     * @returns {Config}
+     * @returns {Project}
      */
     #getJson(file) {
         const content = fs.readFileSync(file);
@@ -57,7 +57,7 @@ export default new class {
     /**
      *
      * @param content {null|Buffer}
-     * @return {Config}
+     * @return {Project}
      */
     #convertToJson(content) {
         try {

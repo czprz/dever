@@ -9,7 +9,8 @@ import delayer from '../common/helper/delayer.js';
 import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
-import { Execution } from "../common/models/environments.js";
+import {Execution} from "../common/models/environments.js";
+import {Project} from "../common/models/internal.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
@@ -18,7 +19,7 @@ import chalk from 'chalk';
 export default new class {
     /**
      * Handler for dependencies
-     * @param config {Config}
+     * @param config {Project}
      * @param yargs {object}
      * @param args {EnvArgs}
      * @returns {Promise<void>}
@@ -43,7 +44,7 @@ export default new class {
     /**
      * Generate default or component options
      * @param yargs {object}
-     * @param config {Config}
+     * @param config {Project}
      * @returns {*|Object}
      */
     getOptions(yargs, config) {
@@ -78,6 +79,10 @@ export default new class {
             .option('s', {
                 alias: 'skip',
                 describe: 'Skip confirmation messages'
+            })
+            .option('shc', {
+                alias: 'skip-hash-check',
+                describe: 'Skip hash check when running command'
             });
 
         const customOptions = this.#getCustomOptions(config.environment);
@@ -86,7 +91,7 @@ export default new class {
 
     /**
      * Handles handlers for each environment dependency
-     * @param config {Config}
+     * @param config {Project}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
@@ -346,7 +351,7 @@ export default new class {
 
     /**
      * Maps environment to ensure usage of proper start or stop values
-     * @param config {Config}
+     * @param config {Project}
      * @param runtime {Runtime}
      * @returns {Execution[]}
      */

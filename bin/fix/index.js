@@ -47,6 +47,10 @@ export default new class {
             .option('list', {
                 alias: 'l',
                 describe: 'List all available fixes for project'
+            })
+            .option('shc', {
+                alias: 'skip-hash-check',
+                describe: 'Skip hash check when running command'
             });
     }
 

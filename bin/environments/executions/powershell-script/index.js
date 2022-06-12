@@ -2,6 +2,8 @@ import powershell from '../../../common/helper/powershell.js';
 import customOptions from '../../../common/helper/custom_options.js';
 import logger from '../../../common/helper/logger.js';
 
+import {Project} from "../../../common/models/internal.js";
+
 import path from 'path';
 import chalk from "chalk";
 
@@ -9,7 +11,7 @@ import chalk from "chalk";
 export default new class {
     /**
      *
-     * @param component {Config}
+     * @param component {Project}
      * @param execution {Execution}
      * @param runtime {Runtime}
      * @return {Promise<void>}

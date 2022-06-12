@@ -1,44 +1,23 @@
+import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
+import hashCheckerDialog from "./helper/hash-checker-dialog.js";
 import install from '../install/index.js';
 import env from '../environments/index.js';
 import fix from '../fix/index.js';
-
-import chalk from 'chalk';
 
 "use strict";
 export default new class {
     /**
      * Get yargs structure for project
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs {object}
      * @return void
      */
-    create(keyword, config, yargs) {
-        this.#createInstall(keyword, config, yargs);
-        this.#createEnvironment(keyword, config, yargs);
-        this.#createFix(keyword, config, yargs);
-
-        yargs
-            .command({
-                command: 'config',
-                desc: 'Show content of project configuration file',
-                builder: (yargs) => {
-                    yargs
-                        .option('l', {
-                            alias: 'location',
-                            describe: 'Show location of project configuration file'
-                        });
-                },
-                handler: (argv) => {
-                    switch (true) {
-                        case argv.location:
-                            this.#showConfigLocation(config);
-                            break;
-                        default:
-                            this.#showConfig(config);
-                    }
-                }
-            });
+    create(keyword, project, yargs) {
+        this.#setupOfInstallHandler(keyword, project, yargs);
+        this.#setupOfEnvHandler(keyword, project, yargs);
+        this.#setupOfFixHandler(keyword, project, yargs);
+        this.#setupOfConfigHandler(project, yargs);
     }
 
     /**
@@ -54,11 +33,11 @@ export default new class {
     /**
      * Create commands for install section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createInstall(keyword, config, yargs) {
-        if (config.install == null) {
+    #setupOfInstallHandler(keyword, project, yargs) {
+        if (project.install == null) {
             return;
         }
 
@@ -68,7 +47,7 @@ export default new class {
                 desc: 'Install project depended packages and functionality',
                 builder: (yargs) => install.getOptions(yargs),
                 handler: (argv) => {
-                    install.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -76,11 +55,11 @@ export default new class {
     /**
      * Create commands for environment section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createEnvironment(keyword, config, yargs) {
-        if (config.environment == null) {
+    #setupOfEnvHandler(keyword, project, yargs) {
+        if (project.environment == null) {
             return;
         }
 
@@ -88,9 +67,9 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => env.getOptions(yargs, config),
+                builder: (yargs) => env.getOptions(yargs, project),
                 handler: (argv) => {
-                    env.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -98,11 +77,11 @@ export default new class {
     /**
      * Create commands for fix section
      * @param keyword {string}
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs
      */
-    #createFix(keyword, config, yargs) {
-        if (config.fix == null) {
+    #setupOfFixHandler(keyword, project, yargs) {
+        if (project.fix == null) {
             return;
         }
 
@@ -112,34 +91,25 @@ export default new class {
                 desc: 'Fix common possibly repeatable issues',
                 builder: (yargs) => fix.getOptions(yargs),
                 handler: (argv) => {
-                    fix.handler(config, yargs, argv).catch(console.error);
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => fix.handler(project, yargs, argv).catch(console.error));
                 }
             })
     }
 
     /**
-     * Show location of project configuration file
-     * @param config {Config}
+     * Setup for configuration handler
+     * @param project {Project}
+     * @param yargs {object}
      */
-    #showConfigLocation(config) {
-        if (config == null) {
-            console.error(chalk.redBright('Could not find project'));
-            return;
-        }
-
-        console.log(config.location);
-    }
-
-    /**
-     * Show content of project configuration file
-     * @param config {Config}
-     */
-    #showConfig(config) {
-        if (config == null) {
-            console.error(chalk.redBright('Could not find project'));
-            return;
-        }
-
-        console.log(config);
+    #setupOfConfigHandler(project, yargs) {
+        yargs
+            .command({
+                command: 'config',
+                desc: 'Manage project configuration',
+                builder: (yargs) => projectConfigHandler.options(yargs, project),
+                handler: () => {
+                    yargs.showHelp();
+                }
+            });
     }
 }

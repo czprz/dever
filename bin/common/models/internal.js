@@ -1,67 +1,53 @@
-class LocalConfig {
+export class Project {
     /**
-     * @return {Config[]}
+     * @type {number}
      */
-    components;
-}
+    id;
 
-class Config {
     /**
-     * @return {string}
+     * @type {string}
      */
     version;
 
     /**
-     * @return {string}
+     * @type {string}
      */
     name;
 
     /**
-     * @return {string[]}
+     * @type {string[]}
      */
     keywords;
 
     /**
-     * @return {Fix[]}
+     * @type {Fix[]}
      */
     fix;
 
     /**
-     * @return {ExecutionConfig[]}
+     * @type {ExecutionConfig[]}
      */
     environment;
 
     /**
-     * @return {Install[]}
+     * @type {Install[]}
      */
     install;
 
     /**
-     * @return {string}
+     * @type {string}
      */
     location;
-}
-
-class ExecutionConfig extends ExecutionRunConfig {
-    /**
-     * @type {string} @required
-     */
-    name;
 
     /**
-     * @type {string | null} @optional
+     * @type {string}
      */
-    group;
+    lastHash;
 
     /**
-     * @type {ExecutionRunConfig} @required
+     * @type {boolean}
      */
-    start;
-
-    /**
-     * @type {ExecutionRunConfig} @optional
-     */
-    stop;
+    skipHashCheck;
 }
 
 class ExecutionRunConfig {
@@ -112,4 +98,24 @@ class ExecutionRunConfig {
     runAsElevated;
 }
 
+class ExecutionConfig extends ExecutionRunConfig {
+    /**
+     * @type {string} @required
+     */
+    name;
 
+    /**
+     * @type {string | null} @optional
+     */
+    group;
+
+    /**
+     * @type {ExecutionRunConfig} @required
+     */
+    start;
+
+    /**
+     * @type {ExecutionRunConfig} @optional
+     */
+    stop;
+}

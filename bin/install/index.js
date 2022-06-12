@@ -69,6 +69,10 @@ export default new class {
             .option('no-before-after', {
                 alias: 'nba',
                 describe: 'Disables running of before and after functionality if defined in project dever.json'
+            })
+            .option('shc', {
+                alias: 'skip-hash-check',
+                describe: 'Skip hash check when running command'
             });
     }
 
