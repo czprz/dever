@@ -55,7 +55,7 @@ const containerSchema = {
     },
     required: ["name", "image"],
     additionalProperties: false
-}
+};
 
 const commandSchema = {
     type: "string"
@@ -66,19 +66,32 @@ const fileSchema = {
 };
 
 const typeSchema = {
-    type: "string"
+    type: "string",
+    pattern: "^docker-container$|^powershell-command$|^powershell-script$|^docker-compose$|^mssql$"
 };
 
 const waitSchema = {
-    type: "object"
-}
+    type: "object",
+    properties: {
+        when: {
+            type: "string",
+            pattern: "^before$|^after$"
+        },
+        time: {type: "number"}
+    },
+    required: ["when", "time"],
+    additionalProperties: false
+};
 
 export default {
     type: "object",
     properties: {
         version: {type: "number"},
         name: {type: "string"},
-        keywords: {type: "array"},
+        keywords: {
+            type: "array",
+            items: {type: "string"}
+        },
         install: {type: "array"},
         fix: {type: "array"},
         environment: {
