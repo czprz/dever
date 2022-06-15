@@ -1,5 +1,8 @@
 import constants from '../constants.js';
-import fs from 'fs';
+import json from "./json.js";
+import v2 from "../schema/dever-json/v2.js";
+
+import Ajv from "ajv";
 
 "use strict";
 export default new class {
@@ -27,7 +30,22 @@ export default new class {
      */
     validateFile(file) {
         try {
-            const config = this.#getJson(file);
+            /**
+             * @type {Project}
+             */
+            const config = json.read(file);
+            if (config == null) {
+                return {status: false, message: 'no dever.json found at location'};
+                // Todo: Better error message
+            }
+
+            const ajv = new Ajv();
+            const validate = ajv.compile(v2);
+            if (!validate(config)) {
+                return {status: false, message: 'schema validation failed'};
+                // Todo: Schema validation errors should be shown in console
+            }
+
             if (this.validate(config)) {
                 return {status: true};
             }
@@ -41,29 +59,6 @@ export default new class {
                 default:
                     return {status: false, message: "Something went wrong. Most likely due to JSON being wrongly formatted!"};
             }
-        }
-    }
-
-    /**
-     * Get json from file
-     * @param file {string}
-     * @returns {Project}
-     */
-    #getJson(file) {
-        const content = fs.readFileSync(file);
-        return this.#convertToJson(content);
-    }
-
-    /**
-     *
-     * @param content {null|Buffer}
-     * @return {Project}
-     */
-    #convertToJson(content) {
-        try {
-            return JSON.parse(content);
-        } catch (e) {
-            throw e;
         }
     }
 }
