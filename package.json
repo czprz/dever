@@ -21,6 +21,7 @@
     "dever": "bin/index.js"
   },
   "dependencies": {
+    "ajv": "^8.11.0",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "execa": "^6.1.0",

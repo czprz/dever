@@ -1,7 +1,9 @@
+import json from '../common/helper/json.js';
+import v1 from "../common/schema/dot-dever/v1.js";
+
+import Ajv from "ajv";
 import path from 'path';
 import os from 'os';
-
-import json from '../common/helper/json.js';
 
 "use strict";
 export default new class {
@@ -20,7 +22,15 @@ export default new class {
      * @returns {LocalConfig}
      */
     get() {
-        return json.read(this.#filePath) ?? {projects: []};
+        const config = json.read(this.#filePath) ?? {projects: []};
+
+        const ajv = new Ajv();
+        const validate = ajv.compile(v1);
+        if (!validate(config)) {
+            throw new Error('.dever failed parsing. Please verify structure of the config file');
+        }
+
+        return config;
     }
 
     /**
