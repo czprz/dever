@@ -15,13 +15,6 @@ export default new class {
         return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
     }
 
-    /**
-     * Validate json
-     * @param json {string}
-     */
-    validateJson(json) {
-        // Todo: Missing implementation
-    }
 
     /**
      * Validate json file
@@ -35,15 +28,13 @@ export default new class {
              */
             const config = json.read(file);
             if (config == null) {
-                return {status: false, message: 'no dever.json found at location'};
-                // Todo: Better error message
+                return {status: false, message: 'could not find any dever.json at location'};
             }
 
             const ajv = new Ajv();
             const validate = ajv.compile(v2);
             if (!validate(config)) {
-                return {status: false, message: 'schema validation failed'};
-                // Todo: Schema validation errors should be shown in console
+                return {status: false, schemaErrors: validate.errors};
             }
 
             if (this.validate(config)) {
@@ -65,12 +56,17 @@ export default new class {
 
 class ConfigValidation {
     /**
-     * @return {boolean}
+     * @type {boolean}
      */
     status;
 
     /**
-     * @return {string}
+     * @type {string|?}
      */
     message;
+
+    /**
+     * @type {object[]|?}
+     */
+    schemaErrors;
 }

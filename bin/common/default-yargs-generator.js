@@ -136,7 +136,14 @@ export default new class {
     #validate(file) {
         const result = configValidator.validateFile(file);
         if (!result.status) {
-            console.error(chalk.redBright(result.message));
+            if (result.schemaErrors != null) {
+                for (const error of result.schemaErrors) {
+                    console.log(chalk.red(error.instancePath + ': ' + error.message));
+                }
+            } else if (result.message != null) {
+                console.error(chalk.redBright(result.message));
+            }
+
             return;
         }
 
