@@ -48,6 +48,16 @@ export class Project {
      * @type {boolean}
      */
     skipHashCheck;
+
+    /**
+     * @type {boolean}
+     */
+    supported;
+
+    /**
+     * @type {boolean}
+     */
+    validSchema;
 }
 
 class ExecutionRunConfig {

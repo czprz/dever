@@ -15,7 +15,6 @@ export default new class {
         return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
     }
 
-
     /**
      * Validate json file
      * @param file {string}

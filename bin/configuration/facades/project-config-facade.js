@@ -1,8 +1,7 @@
 import localConfig from "../local-config.js";
 import json from "../../common/helper/json.js";
-import v2 from "../../common/schema/dever-json/v2.js";
-
-import Ajv from "ajv";
+import schemaValidator, {SchemaTypes} from "../../common/validators/schema-validator.js";
+import versionChecker from "../../common/helper/version-checker.js";
 
 "use strict";
 export default new class {
@@ -149,10 +148,9 @@ export default new class {
      */
     #fetchProject(project, config, id) {
         const projectConfig = json.read(project.path);
-        const ajv = new Ajv();
-        const validate = ajv.compile(v2);
-        if (!validate(projectConfig)) {
-            throw new Error(`dever.json for ${project.path} failed parsing. Please verify structure of the config file`);
+
+        if (projectConfig?.version == null) {
+            return null;
         }
 
         return {
@@ -160,7 +158,9 @@ export default new class {
             id: id,
             location: project.path,
             lastHash: project.lastHash,
-            skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false
+            skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
+            supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig)
         }
     }
 }

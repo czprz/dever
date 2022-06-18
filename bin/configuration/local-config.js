@@ -1,7 +1,6 @@
 import json from '../common/helper/json.js';
-import v1 from "../common/schema/dot-dever/v1.js";
+import SchemaValidator, {SchemaTypes} from "../common/validators/schema-validator.js";
 
-import Ajv from "ajv";
 import path from 'path';
 import os from 'os';
 
@@ -24,9 +23,8 @@ export default new class {
     get() {
         const config = json.read(this.#filePath) ?? {projects: []};
 
-        const ajv = new Ajv();
-        const validate = ajv.compile(v1);
-        if (!validate(config)) {
+        const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
+        if (!result) {
             throw new Error('.dever failed parsing. Please verify structure of the config file');
         }
 

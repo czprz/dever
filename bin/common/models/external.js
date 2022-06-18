@@ -1,4 +1,4 @@
-class LocalConfig {
+export class LocalConfig {
     /**
      * @return {LocalProject[]}
      */
@@ -11,7 +11,7 @@ class LocalConfig {
     skipAllHashChecks;
 }
 
-class LocalProject {
+export class LocalProject {
     /**
      * Location of the projects dever.json
      * @type {string}

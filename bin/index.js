@@ -2,7 +2,6 @@
 
 import defaultYargsGenerator from './common/default-yargs-generator.js';
 import projectYargsGenerator from './common/project-yargs-generator.js';
-import versionChecker from './common/helper/version-checker.js';
 import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
 import constants from './common/constants.js';
@@ -19,16 +18,23 @@ class EntryPoint {
     start() {
         if (this.#argv.length !== 0 && !constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             const keyword = this.#argv[0];
-            const config = projectConfigFacade.get(keyword);
+            const project = projectConfigFacade.get(keyword);
 
-            if (config !== null) {
-                if (!versionChecker.supported(config)) {
+            if (project !== null) {
+                if (!project.supported) {
                     console.error(`dever does not support this projects dever.json version`);
                     console.error(`Please install version of '@czprz/dever' which supports the dever.json version`);
                     return;
                 }
 
-                EntryPoint.#projectYargs(keyword, config);
+                if (!project.validSchema) {
+                    console.error(`"${project.location}" - schema check against project configuration file. Found it to be invalid.`);
+                    console.error(`The project configuration file must be fixed. If the project is to used again.`);
+                    console.error(`Use 'dever validate -f "${project.location}"' to figure out what could be wrong`);
+                    return;
+                }
+
+                EntryPoint.#projectYargs(keyword, project);
                 return;
             }
 
