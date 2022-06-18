@@ -29,18 +29,12 @@ export default new class {
                     yargs
                         .option('not-supported', {
                             describe: 'List all projects with a dever.json which version is not supported'
-                        })
-                        .option('invalid', {
-                            describe: 'List all projects with a dever.json which has an invalid json structure'
                         });
                 },
                 handler: (argv) => {
                     switch (true) {
                         case argv.notSupported:
                             this.#listAllUnsupportedProjects();
-                            break;
-                        case argv.invalid:
-                            this.#listAllInvalidSchemaProjects();
                             break;
                         default:
                             this.#listAllProjects();
@@ -85,27 +79,13 @@ export default new class {
     }
 
     #listAllUnsupportedProjects() {
-        const projects = projectConfigFacade.getAll().filter(x => !x.supported);
+        const projects = projectConfigFacade.getAll().filter(x => !x.supported || !x.validSchema);
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any unsupported projects. Please try running ${chalk.green('dever init')}`);
             return;
         }
 
-        console.log(`List of all unsupported projects found after last ${chalk.green('dever init')} scan`);
-
-        for (const project of projects) {
-            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
-        }
-    }
-
-    #listAllInvalidSchemaProjects() {
-        const projects = projectConfigFacade.getAll().filter(x => !x.validSchema);
-        if (projects == null || projects.length === 0) {
-            console.error(`Could not find any projects with invalid json structure. Please try running ${chalk.green('dever init')}`);
-            return;
-        }
-
-        console.log(`List of all projects with invalid json structure found after last ${chalk.green('dever init')} scan`);
+        console.log(`List of all unsupported or invalid json structure projects found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
             console.log(`${chalk.green(project.location)}`);
