@@ -34,6 +34,7 @@ export default new class {
                 return {status: false, message: 'could not find any dever.json at location'};
             }
 
+            // Todo: Improve support of multiple dever-json versions by using schema-validator
             const ajv = new Ajv();
             const validate = ajv.compile(v2);
             if (!validate(config)) {
