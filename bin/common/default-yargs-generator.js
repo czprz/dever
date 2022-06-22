@@ -85,7 +85,8 @@ export default new class {
             return;
         }
 
-        console.log(`List of all unsupported, invalid json structure or not allowed keywords projects found after last ${chalk.green('dever init')} scan`);
+        console.log(`List of all unsupported found after last ${chalk.green('dever init')} scan`);
+        console.log(`Use 'dever validate -f [filePath]' to find out why they're unsupported`);
 
         for (const project of projects) {
             console.log(`${chalk.green(project.location)}`);
