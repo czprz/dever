@@ -2,6 +2,7 @@ import localConfig from "../local-config.js";
 import json from "../../common/helper/json.js";
 import schemaValidator, {SchemaTypes} from "../../common/validators/schema-validator.js";
 import versionChecker from "../../common/helper/version-checker.js";
+import configValidator from "../../common/helper/config-validator.js";
 
 "use strict";
 export default new class {
@@ -160,7 +161,8 @@ export default new class {
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig)
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
+            validKeywords: configValidator.validate(projectConfig)
         }
     }
 }

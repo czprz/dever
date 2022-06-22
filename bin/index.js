@@ -34,6 +34,12 @@ class EntryPoint {
                     return;
                 }
 
+                if (!project.validKeywords) {
+                    console.error(`'${project.name}' is using not allowed keywords. This must be corrected if the project is to be used again'`);
+                    console.error(`Use 'dever validate -f "${project.location}"' to figure out which keywords is not allowed`);
+                    return;
+                }
+
                 EntryPoint.#projectYargs(keyword, project);
                 return;
             }

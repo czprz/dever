@@ -12,6 +12,10 @@ export default new class {
      * @return {boolean}
      */
     validate(config) {
+        if (!Array.isArray(config.keywords) || config.keywords.length === 0) {
+            return false;
+        }
+
         return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
     }
 

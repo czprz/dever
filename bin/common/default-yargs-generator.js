@@ -65,7 +65,7 @@ export default new class {
      * Shows a list of found components in the console
      */
     #listAllProjects() {
-        const projects = projectConfigFacade.getAll()?.filter(x => x.supported && x.validSchema);
+        const projects = projectConfigFacade.getAll()?.filter(x => x.supported && x.validSchema && x.validKeywords);
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
@@ -79,13 +79,13 @@ export default new class {
     }
 
     #listAllUnsupportedProjects() {
-        const projects = projectConfigFacade.getAll().filter(x => !x.supported || !x.validSchema);
+        const projects = projectConfigFacade.getAll().filter(x => !x.supported || !x.validSchema || !x.validKeywords);
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any unsupported projects. Please try running ${chalk.green('dever init')}`);
             return;
         }
 
-        console.log(`List of all unsupported or invalid json structure projects found after last ${chalk.green('dever init')} scan`);
+        console.log(`List of all unsupported, invalid json structure or not allowed keywords projects found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
             console.log(`${chalk.green(project.location)}`);

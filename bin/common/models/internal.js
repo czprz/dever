@@ -58,6 +58,11 @@ export class Project {
      * @type {boolean}
      */
     validSchema;
+
+    /**
+     * @type {boolean}
+     */
+    validKeywords;
 }
 
 class ExecutionRunConfig {
