@@ -135,7 +135,8 @@ export default new class {
         if (!result.status) {
             if (result.schemaErrors != null) {
                 for (const error of result.schemaErrors) {
-                    console.log(chalk.red(error.instancePath + ': ' + error.message));
+                    const instancePath = !error.instancePath ? '' :  error.instancePath + ': ';
+                    console.log(chalk.red(instancePath + error.message));
                 }
             } else if (result.message != null) {
                 console.error(chalk.redBright(result.message));
