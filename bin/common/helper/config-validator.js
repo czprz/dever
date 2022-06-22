@@ -1,5 +1,8 @@
 import constants from '../constants.js';
-import fs from 'fs';
+import json from "./json.js";
+import v2 from "../schema/dever-json/v2.js";
+
+import Ajv from "ajv";
 
 "use strict";
 export default new class {
@@ -9,15 +12,11 @@ export default new class {
      * @return {boolean}
      */
     validate(config) {
-        return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
-    }
+        if (!Array.isArray(config.keywords) || config.keywords.length === 0) {
+            return false;
+        }
 
-    /**
-     * Validate json
-     * @param json {string}
-     */
-    validateJson(json) {
-        // Todo: Missing implementation
+        return config.keywords.every(x => !constants.predefinedKeys.includes(x.toLowerCase()));
     }
 
     /**
@@ -27,7 +26,21 @@ export default new class {
      */
     validateFile(file) {
         try {
-            const config = this.#getJson(file);
+            /**
+             * @type {Project}
+             */
+            const config = json.read(file);
+            if (config == null) {
+                return {status: false, message: 'could not find any dever.json at location'};
+            }
+
+            // Todo: Improve support of multiple dever-json versions by using schema-validator
+            const ajv = new Ajv();
+            const validate = ajv.compile(v2);
+            if (!validate(config)) {
+                return {status: false, schemaErrors: validate.errors};
+            }
+
             if (this.validate(config)) {
                 return {status: true};
             }
@@ -43,39 +56,21 @@ export default new class {
             }
         }
     }
-
-    /**
-     * Get json from file
-     * @param file {string}
-     * @returns {Project}
-     */
-    #getJson(file) {
-        const content = fs.readFileSync(file);
-        return this.#convertToJson(content);
-    }
-
-    /**
-     *
-     * @param content {null|Buffer}
-     * @return {Project}
-     */
-    #convertToJson(content) {
-        try {
-            return JSON.parse(content);
-        } catch (e) {
-            throw e;
-        }
-    }
 }
 
 class ConfigValidation {
     /**
-     * @return {boolean}
+     * @type {boolean}
      */
     status;
 
     /**
-     * @return {string}
+     * @type {string|?}
      */
     message;
+
+    /**
+     * @type {object[]|?}
+     */
+    schemaErrors;
 }

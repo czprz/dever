@@ -1,7 +1,8 @@
+import json from '../common/helper/json.js';
+import SchemaValidator, {SchemaTypes} from "../common/validators/schema-validator.js";
+
 import path from 'path';
 import os from 'os';
-
-import json from '../common/helper/json.js';
 
 "use strict";
 export default new class {
@@ -20,7 +21,14 @@ export default new class {
      * @returns {LocalConfig}
      */
     get() {
-        return json.read(this.#filePath) ?? {projects: []};
+        const config = json.read(this.#filePath) ?? {projects: []};
+
+        const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
+        if (!result) {
+            throw new Error('.dever failed parsing. Please verify structure of the config file');
+        }
+
+        return config;
     }
 
     /**

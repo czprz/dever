@@ -1,5 +1,4 @@
 import projectConfigFacade from "../configuration/facades/project-config-facade.js";
-import versionChecker from '../common/helper/version-checker.js';
 import configValidator from '../common/helper/config-validator.js';
 import localConfigHandler from "../configuration/handlers/local-config-handler.js";
 import init from "../init.js";
@@ -66,7 +65,7 @@ export default new class {
      * Shows a list of found components in the console
      */
     #listAllProjects() {
-        const projects = projectConfigFacade.getAll();
+        const projects = projectConfigFacade.getAll()?.filter(x => x.supported && x.validSchema && x.validKeywords);
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
             return;
@@ -80,18 +79,17 @@ export default new class {
     }
 
     #listAllUnsupportedProjects() {
-        const projects = projectConfigFacade.getAll();
+        const projects = projectConfigFacade.getAll().filter(x => !x.supported || !x.validSchema || !x.validKeywords);
         if (projects == null || projects.length === 0) {
-            console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
+            console.error(`Could not find any unsupported projects. Please try running ${chalk.green('dever init')}`);
             return;
         }
 
-        const unsupported = versionChecker.getOnlyUnsupported(projects);
+        console.log(`List of all unsupported found after last ${chalk.green('dever init')} scan`);
+        console.log(`Use 'dever validate -f [filePath]' to find out why they're unsupported`);
 
-        console.log(`List of all unsupported projects found after last ${chalk.green('dever init')} scan`);
-
-        for (const project of unsupported) {
-            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
+        for (const project of projects) {
+            console.log(`${chalk.green(project.location)}`);
         }
     }
 
@@ -136,7 +134,15 @@ export default new class {
     #validate(file) {
         const result = configValidator.validateFile(file);
         if (!result.status) {
-            console.error(chalk.redBright(result.message));
+            if (result.schemaErrors != null) {
+                for (const error of result.schemaErrors) {
+                    const instancePath = !error.instancePath ? '' :  error.instancePath + ': ';
+                    console.log(chalk.red(instancePath + error.message));
+                }
+            } else if (result.message != null) {
+                console.error(chalk.redBright(result.message));
+            }
+
             return;
         }
 

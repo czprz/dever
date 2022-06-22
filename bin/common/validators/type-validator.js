@@ -1,7 +1,9 @@
-import path from "path";
-import json from "../helper/json.js";
 import versionChecker from "../helper/version-checker.js";
+import json from "../helper/json.js";
 
+import path from "path";
+
+"use strict";
 export default new class {
     /**
      * Checks whether a value can be converted into a boolean
