@@ -24,7 +24,7 @@ class EntryPoint {
         }
 
         const keyword = this.#argv[0];
-        const projects = projectConfigFacade.get(keyword);
+        const projects = projectConfigFacade.get(keyword)?.filter(x => x.validKeywords && x.supported && x.validSchema);
         if (projects == null || projects.length === 0) {
             this.#argv = [];
             console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
@@ -44,11 +44,14 @@ class EntryPoint {
             choices: projects.map(x => this.mapChoices(x)),
         };
 
-        enquirer.prompt(options).then((answer) => {
-            const checkedAnswer = EntryPoint.#getAnswer(answer);
-            const project = projects.find(x => x.location === checkedAnswer);
-            EntryPoint.#projectYargs(keyword, project);
-        });
+        enquirer
+            .prompt(options)
+            .then((answer) => {
+                const checkedAnswer = EntryPoint.#getAnswer(answer);
+                const project = projects.find(x => x.location === checkedAnswer);
+                EntryPoint.#projectYargs(keyword, project);
+            })
+            .catch((_) => _);
     }
 
     #defaultYargs() {

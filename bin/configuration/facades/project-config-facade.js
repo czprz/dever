@@ -30,8 +30,11 @@ export default new class {
             return null;
         }
 
-        const filtered = projects.filter(x => x != null && x.keywords.includes(keyword));
-        return filtered.length === 0 ? null : filtered;
+        projects = this.#createCustomKeywords(projects);
+
+        projects = projects.filter(x => x != null && x.internalOptions.keywords.includes(keyword));
+
+        return projects.length === 0 ? null : projects;
     }
 
     /**
@@ -39,10 +42,12 @@ export default new class {
      * @returns {Project[] | null}
      */
     getAll() {
-        const projects = this.#getProjects();
+        let projects = this.#getProjects();
         if (projects == null) {
             return null;
         }
+
+        projects = this.#createCustomKeywords(projects);
 
         return projects.filter(x => x != null);
     }
@@ -151,14 +156,46 @@ export default new class {
 
         return {
             ...projectConfig,
-            // Todo: Add support for keywords mapping
             id: id,
             location: project.path,
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
             validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
-            validKeywords: configValidator.validate(projectConfig)
+            validKeywords: configValidator.validate(projectConfig),
+            internalOptions: {
+                keywords: null
+            }
         }
+    }
+
+    /**
+     * Create custom keywords
+     * @param projects {Project[]}
+     * @return {Project[]}
+     */
+    #createCustomKeywords(projects) {
+        const keywords = projects
+            .map(x => x.keywords)
+            .flat()
+            .filter((item, i, items) => items.indexOf(item) === i && items.lastIndexOf(item) !== i);
+
+        if (keywords.length === 0) {
+            return projects;
+        }
+
+        let n = 0;
+        for (const project of projects) {
+            let internalKeywords = project.keywords.map(x => x);
+
+            if (project.keywords.filter(x => keywords.includes(x)).length > 0) {
+                n++;
+                keywords.forEach(x => internalKeywords.push(`${x}${n}`));
+            }
+
+            project.internalOptions.keywords = internalKeywords;
+        }
+
+        return projects;
     }
 }
