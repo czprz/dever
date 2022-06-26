@@ -74,12 +74,12 @@ export default new class {
         console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
-            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.keywords)}`);
+            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.internalOptions.keywords)}`);
         }
     }
 
     #listAllUnsupportedProjects() {
-        const projects = projectConfigFacade.getAll().filter(x => !x.supported || !x.validSchema || !x.validKeywords);
+        const projects = projectConfigFacade.getAll()?.filter(x => !x.supported || !x.validSchema || !x.validKeywords);
         if (projects == null || projects.length === 0) {
             console.error(`Could not find any unsupported projects. Please try running ${chalk.green('dever init')}`);
             return;

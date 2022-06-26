@@ -63,6 +63,18 @@ export class Project {
      * @type {boolean}
      */
     validKeywords;
+
+    /**
+     * @type {InternalOptions}
+     */
+    internalOptions;
+}
+
+class InternalOptions {
+    /**
+     * @type {string[]}
+     */
+    keywords;
 }
 
 class ExecutionRunConfig {

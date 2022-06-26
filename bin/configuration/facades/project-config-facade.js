@@ -22,21 +22,19 @@ export default new class {
     /**
      * Gets only one project by specifically looking through keywords found in .dever
      * @param keyword {string}
-     * @returns Project | null
+     * @returns Project[] | null
      */
     get(keyword) {
-        let projects = this.#getProjects();
-        if (projects == null) {
+        let projects = this.#getProjects()?.filter(x => x != null);
+        if (projects == null || projects.length === 0) {
             return null;
         }
 
-        const filteredProjects = projects.filter(x => x != null && x.keywords.includes(keyword));
-        if (filteredProjects.length > 1) {
-            console.error('Components are not allowed to share keywords. Please fix this.');
-            return null;
-        }
+        projects = this.#addsKeywordsToInternalOptions(projects);
 
-        return filteredProjects.length === 0 ? null : filteredProjects[0];
+        projects = projects.filter(x => x.internalOptions.keywords.includes(keyword));
+
+        return projects;
     }
 
     /**
@@ -44,12 +42,14 @@ export default new class {
      * @returns {Project[] | null}
      */
     getAll() {
-        const projects = this.#getProjects();
-        if (projects == null) {
+        let projects = this.#getProjects()?.filter(x => x != null);
+        if (projects == null || projects.length === 0) {
             return null;
         }
 
-        return projects.filter(x => x != null);
+        projects = this.#addsKeywordsToInternalOptions(projects);
+
+        return projects;
     }
 
     /**
@@ -162,7 +162,70 @@ export default new class {
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
             validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
-            validKeywords: configValidator.validate(projectConfig)
+            validKeywords: configValidator.validate(projectConfig),
+            internalOptions: {
+                keywords: null
+            }
         }
+    }
+
+    /**
+     * Create custom keywords
+     * @param projects {Project[]}
+     * @return {Project[]}
+     */
+    #addsKeywordsToInternalOptions(projects) {
+        const duplicateKeywords = projects
+            .map(x => x.keywords)
+            .flat()
+            .filter((item, i, items) => items.indexOf(item) === i && items.lastIndexOf(item) !== i);
+
+        if (duplicateKeywords.length === 0) {
+            return projects;
+        }
+
+        const countOfKeywords = [];
+        for (const project of projects) {
+            let keywords = project.keywords.map(x => x);
+
+            this.#addCustomKeywords(keywords, duplicateKeywords, countOfKeywords);
+
+            project.internalOptions.keywords = keywords;
+        }
+
+        return projects;
+    }
+
+    /**
+     * Adds custom keywords to project if duplicates are found
+     * @param keywords {string[]}
+     * @param duplicateKeywords {string[]}
+     * @param countOfKeywords {Array<number>}
+     */
+    #addCustomKeywords(keywords, duplicateKeywords, countOfKeywords) {
+        if (keywords.filter(x => duplicateKeywords.includes(x)).length === 0) {
+            return;
+        }
+
+        duplicateKeywords.forEach(keyword => {
+            const count = this.#getKeywordCount(keyword, countOfKeywords);
+            keywords.push(`${keyword}${count}`);
+        });
+    }
+
+    /**
+     * Gets and sets project keyword count
+     * @param keyword {string}
+     * @param countOfKeywords {Array<number>}
+     * @returns {number}
+     */
+    #getKeywordCount(keyword, countOfKeywords) {
+        if (countOfKeywords[keyword] == null) {
+            countOfKeywords[keyword] = 0;
+        }
+
+        countOfKeywords[keyword]++;
+
+        return countOfKeywords[keyword];
     }
 }
