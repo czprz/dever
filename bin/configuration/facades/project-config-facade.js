@@ -30,7 +30,7 @@ export default new class {
             return null;
         }
 
-        projects = this.#createCustomKeywords(projects);
+        projects = this.#addsKeywordsToInternalOptions(projects);
 
         projects = projects.filter(x => x != null && x.internalOptions.keywords.includes(keyword));
 
@@ -47,7 +47,7 @@ export default new class {
             return null;
         }
 
-        projects = this.#createCustomKeywords(projects);
+        projects = this.#addsKeywordsToInternalOptions(projects);
 
         return projects.filter(x => x != null);
     }
@@ -174,28 +174,58 @@ export default new class {
      * @param projects {Project[]}
      * @return {Project[]}
      */
-    #createCustomKeywords(projects) {
-        const keywords = projects
+    #addsKeywordsToInternalOptions(projects) {
+        const duplicateKeywords = projects
             .map(x => x.keywords)
             .flat()
             .filter((item, i, items) => items.indexOf(item) === i && items.lastIndexOf(item) !== i);
 
-        if (keywords.length === 0) {
+        if (duplicateKeywords.length === 0) {
             return projects;
         }
 
-        let n = 0;
+        const countOfKeywords = [];
         for (const project of projects) {
-            let internalKeywords = project.keywords.map(x => x);
+            let keywords = project.keywords.map(x => x);
 
-            if (project.keywords.filter(x => keywords.includes(x)).length > 0) {
-                n++;
-                keywords.forEach(x => internalKeywords.push(`${x}${n}`));
-            }
+            this.#addCustomKeywords(keywords, duplicateKeywords, countOfKeywords);
 
-            project.internalOptions.keywords = internalKeywords;
+            project.internalOptions.keywords = keywords;
         }
 
         return projects;
+    }
+
+    /**
+     * Adds custom keywords to project if duplicates are found
+     * @param keywords {string[]}
+     * @param duplicateKeywords {string[]}
+     * @param countOfKeywords {Array<number>}
+     */
+    #addCustomKeywords(keywords, duplicateKeywords, countOfKeywords) {
+        if (keywords.filter(x => duplicateKeywords.includes(x)).length === 0) {
+            return;
+        }
+
+        duplicateKeywords.forEach(keyword => {
+            const count = this.#getKeywordCount(keyword, countOfKeywords);
+            keywords.push(`${keyword}${count}`);
+        });
+    }
+
+    /**
+     * Gets and sets project keyword count
+     * @param keyword {string}
+     * @param countOfKeywords {Array<number>}
+     * @returns {number}
+     */
+    #getKeywordCount(keyword, countOfKeywords) {
+        if (countOfKeywords[keyword] == null) {
+            countOfKeywords[keyword] = 0;
+        }
+
+        countOfKeywords[keyword]++;
+
+        return countOfKeywords[keyword];
     }
 }
