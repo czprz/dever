@@ -25,16 +25,16 @@ export default new class {
      * @returns Project[] | null
      */
     get(keyword) {
-        let projects = this.#getProjects();
-        if (projects == null) {
+        let projects = this.#getProjects()?.filter(x => x != null);
+        if (projects == null || projects.length === 0) {
             return null;
         }
 
         projects = this.#addsKeywordsToInternalOptions(projects);
 
-        projects = projects.filter(x => x != null && x.internalOptions.keywords.includes(keyword));
+        projects = projects.filter(x => x.internalOptions.keywords.includes(keyword));
 
-        return projects.length === 0 ? null : projects;
+        return projects;
     }
 
     /**
@@ -42,14 +42,14 @@ export default new class {
      * @returns {Project[] | null}
      */
     getAll() {
-        let projects = this.#getProjects();
-        if (projects == null) {
+        let projects = this.#getProjects()?.filter(x => x != null);
+        if (projects == null || projects.length === 0) {
             return null;
         }
 
         projects = this.#addsKeywordsToInternalOptions(projects);
 
-        return projects.filter(x => x != null);
+        return projects;
     }
 
     /**
