@@ -22,7 +22,7 @@ export default new class {
     /**
      * Gets only one project by specifically looking through keywords found in .dever
      * @param keyword {string}
-     * @returns Project | null
+     * @returns Project[] | null
      */
     get(keyword) {
         let projects = this.#getProjects();
@@ -30,13 +30,8 @@ export default new class {
             return null;
         }
 
-        const filteredProjects = projects.filter(x => x != null && x.keywords.includes(keyword));
-        if (filteredProjects.length > 1) {
-            console.error('Components are not allowed to share keywords. Please fix this.');
-            return null;
-        }
-
-        return filteredProjects.length === 0 ? null : filteredProjects[0];
+        const filtered = projects.filter(x => x != null && x.keywords.includes(keyword));
+        return filtered.length === 0 ? null : filtered;
     }
 
     /**
@@ -156,6 +151,7 @@ export default new class {
 
         return {
             ...projectConfig,
+            // Todo: Add support for keywords mapping
             id: id,
             location: project.path,
             lastHash: project.lastHash,
