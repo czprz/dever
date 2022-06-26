@@ -36,18 +36,18 @@ class EntryPoint {
             return;
         }
 
-        let choices = projects.map(x => this.create(x));
         const options = {
             type: 'autocomplete',
             name: 'project',
             message: 'Pick a project',
             limit: 10,
-            initial: 1,
-            choices: choices
+            choices: projects.map(x => this.mapChoices(x)),
         };
 
-        enquirer.prompt(options).then(project => {
-            EntryPoint.#projectYargs(keyword, project['project']);
+        enquirer.prompt(options).then((answer) => {
+            const checkedAnswer = EntryPoint.#getAnswer(answer);
+            const project = projects.find(x => x.location === checkedAnswer);
+            EntryPoint.#projectYargs(keyword, project);
         });
     }
 
@@ -76,10 +76,23 @@ class EntryPoint {
     /**
      * Create enquirer choices
      * @param project {Project}
-     * @returns {{name: string}}
+     * @returns {{name: string, hint: string, value: string}}
      */
-    create(project) {
-        return { name: `${project.name} - ${project.location}`, value: project };
+    mapChoices(project) {
+        return {name: project.name, hint: project.location, value: project.location};
+    }
+
+    /**
+     * Ensures proper answer
+     * @param answer {null|object|{project: string}}
+     * @returns {string}
+     */
+    static #getAnswer(answer) {
+        if (answer == null) {
+            throw new Error("Answer is null");
+        }
+
+        return answer.project;
     }
 }
 
