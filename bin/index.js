@@ -18,7 +18,7 @@ class EntryPoint {
     }
 
     start() {
-        if (this.#argv.length === 0 || constants.notAllowedKeywords.some(x => this.#argv[0].startsWith(x))) {
+        if (this.#argv.length === 0 || constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             this.#defaultYargs();
             return;
         }
