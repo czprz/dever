@@ -49,7 +49,7 @@ const containerSchema = {
             type: "array",
             items: {
                 type: "string",
-                pattern: "^\\w+=\\w+"
+                pattern: "^.+=.+$"
             }
         }
     },
