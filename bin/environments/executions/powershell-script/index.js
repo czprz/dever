@@ -11,12 +11,12 @@ import chalk from "chalk";
 export default new class {
     /**
      *
-     * @param component {Project}
+     * @param project {Project}
      * @param execution {Execution}
      * @param runtime {Runtime}
      * @return {Promise<void>}
      */
-    async handle(component, execution, runtime) {
+    async handle(project, execution, runtime) {
         if (runtime.stop && !execution.hasStop) {
             if (execution.hasStart) {
                 console.log(chalk.yellow(`powershell-script: '${execution.name}' does not have a stop action.`));
@@ -26,7 +26,7 @@ export default new class {
         }
 
         try {
-            const file = path.join(component.location, execution.file);
+            const file = path.join(project.location, execution.file);
             const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, runtime.args);
             await powershell.executeFileSync(fileWithParameters, execution.runAsElevated);
 

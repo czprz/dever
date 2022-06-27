@@ -58,6 +58,7 @@ export default new class {
 
         const configs = projectConfigFacade.getAll();
 
+        // Todo: Remove these. all dever.json should be added. Though only supported will work!
         this.#checkForSupportedVersion(configs);
         this.#checkForKeywordViolations(configs);
 
