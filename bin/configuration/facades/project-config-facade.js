@@ -4,6 +4,8 @@ import schemaValidator, {SchemaTypes} from "../../common/validators/schema-valid
 import versionChecker from "../../common/helper/version-checker.js";
 import configValidator from "../../common/helper/config-validator.js";
 
+import path from "path";
+
 "use strict";
 export default new class {
     /**
@@ -157,7 +159,7 @@ export default new class {
         return {
             ...projectConfig,
             id: id,
-            location: project.path,
+            location: path.dirname(project.path),
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
