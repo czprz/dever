@@ -26,7 +26,7 @@ export default new class {
         }
 
         try {
-            const file = path.join(project.location, execution.file);
+            const file = path.join(project.location.partial, execution.file);
             const fileWithParameters = customOptions.addOptionsToFile(file, execution.options, runtime.args);
             await powershell.executeFileSync(fileWithParameters, execution.runAsElevated);
 

@@ -89,7 +89,7 @@ export default new class {
         console.log(`Use 'dever validate -f [filePath]' to find out why they're unsupported`);
 
         for (const project of projects) {
-            console.log(`${chalk.green(project.location)}`);
+            console.log(`${chalk.green(project.location.full)}`);
         }
     }
 

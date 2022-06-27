@@ -14,7 +14,7 @@ export default new class {
             return true;
         }
 
-        return project.lastHash === this.#getHash(project.location);
+        return project.lastHash === this.#getHash(project.location.full);
     }
 
     /**
@@ -23,7 +23,7 @@ export default new class {
      */
     update(project) {
         projectConfigFacade.update(project.id, (local) => {
-            local.lastHash = this.#getHash(project.location);
+            local.lastHash = this.#getHash(project.location.full);
         });
     }
 
