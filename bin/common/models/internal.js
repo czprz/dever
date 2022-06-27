@@ -35,7 +35,7 @@ export class Project {
     install;
 
     /**
-     * @type {string}
+     * @type {Location}
      */
     location;
 
@@ -145,4 +145,16 @@ class ExecutionConfig extends ExecutionRunConfig {
      * @type {ExecutionRunConfig} @optional
      */
     stop;
+}
+
+export class Location {
+    /**
+     * @type {string} @required
+     */
+    full;
+
+    /**
+     * @type {string} @required
+     */
+    partial;
 }

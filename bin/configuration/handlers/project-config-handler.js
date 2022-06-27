@@ -60,7 +60,7 @@ export default new class {
             return;
         }
 
-        console.log(project.location);
+        console.log(project.location.full);
     }
 
     /**

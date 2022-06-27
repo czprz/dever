@@ -18,10 +18,10 @@ export default new class {
     handle(project, execution, runtime) {
         switch (true) {
             case runtime.start:
-                this.#start(execution, project.location, runtime);
+                this.#start(execution, project.location.partial, runtime);
                 break;
             case runtime.stop:
-                this.#stop(execution, project.location);
+                this.#stop(execution, project.location.partial);
                 break;
         }
     }

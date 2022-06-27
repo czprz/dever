@@ -159,7 +159,10 @@ export default new class {
         return {
             ...projectConfig,
             id: id,
-            location: path.dirname(project.path),
+            location: {
+                full: project.path,
+                partial: path.dirname(project.path)
+            },
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
