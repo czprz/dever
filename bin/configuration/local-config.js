@@ -21,7 +21,11 @@ export default new class {
      * @returns {LocalConfig}
      */
     get() {
-        const config = json.read(this.#filePath) ?? {projects: []};
+        const config = json.read(this.#filePath) ?? {projects: [], skipAllHashChecks: false};
+        // Todo: Temporary fix. Need to figure out a better way of handling upgrades of .dever
+        if (config.components != null) {
+            return {projects: [], skipAllHashChecks: false};
+        }
 
         const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
         if (!result) {
