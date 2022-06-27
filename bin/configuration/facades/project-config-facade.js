@@ -180,10 +180,6 @@ export default new class {
             .flat()
             .filter((item, i, items) => items.indexOf(item) === i && items.lastIndexOf(item) !== i);
 
-        if (duplicateKeywords.length === 0) {
-            return projects;
-        }
-
         const countOfKeywords = [];
         for (const project of projects) {
             let keywords = project.keywords.map(x => x);
