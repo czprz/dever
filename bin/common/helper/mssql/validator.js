@@ -3,13 +3,23 @@ import mssql from '../../../common/helper/mssql/index.js';
 "use strict";
 export default new class {
     /**
+     * Check conditions for dropping database
+     * @return {Promise<boolean>}
+     */
+    async dropDatabase(execution) {
+        return this.#hasDatabaseName(execution) ??
+            await this.#hasDatabase(execution, true) ??
+            true;
+    }
+
+    /**
      * Check if conditions for creating database
      * @param execution {Execution}
      * @return {Promise<boolean>}
      */
     async createDatabase(execution) {
         return this.#hasDatabaseName(execution) ??
-            await this.#hasDatabase(execution) ??
+            await this.#hasDatabase(execution, false) ??
             true;
     }
 
@@ -41,11 +51,15 @@ export default new class {
     /**
      * Checks if database name already exists
      * @param execution {Execution}
+     * @param ignore {boolean}
      * @returns {Promise<boolean|null>}
      */
-    async #hasDatabase(execution) {
+    async #hasDatabase(execution, ignore) {
         if (await mssql.databaseExists(execution.sql)) {
-            console.log(`mssql: '${execution.name}' :: database already exists`);
+            if (!ignore) {
+                console.log(`mssql: '${execution.name}' :: database already exists`);
+            }
+
             return false;
         }
 
@@ -58,7 +72,7 @@ export default new class {
      * @returns {boolean|null}
      */
     #hasDatabaseName(execution) {
-        if (!execution.sql?.database) {
+        if (execution.sql?.database == null) {
             console.log(`mssql: '${execution.name}' could not find database name`);
             return false;
         }
