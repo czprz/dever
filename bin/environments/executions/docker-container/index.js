@@ -82,8 +82,19 @@ export default new class {
      * @param container {Container}
      */
     #stop(container) {
-        console.log(`docker-container: '${container.name}' has been stopped!`);
-        docker.container.stop(container.name);
+        const state = docker.container.getRunState(container.name);
+        switch (state) {
+            case docker.states.Running:
+                docker.container.stop(container.name);
+                console.log(`docker-container: '${container.name}' has been stopped!`);
+                break;
+            case docker.states.NotFound:
+                console.log(`docker-container: '${container.name}' not found!`);
+                break;
+            case docker.states.NotRunning:
+                console.log(`docker-container: '${container.name}' is not running!`);
+                break;
+        }
     }
 }
 
