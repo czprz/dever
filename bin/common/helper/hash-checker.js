@@ -14,6 +14,10 @@ export default new class {
             return true;
         }
 
+        if (project.lastHash == null) {
+            return true;
+        }
+
         return project.lastHash === this.#getHash(project.location.full);
     }
 
