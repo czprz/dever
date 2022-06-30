@@ -13,7 +13,7 @@ export default new class {
     }
 
     /**
-     * Check if conditions for creating database
+     * Check conditions for creating database
      * @param execution {Execution}
      * @return {Promise<boolean>}
      */
@@ -24,7 +24,7 @@ export default new class {
     }
 
     /**
-     * Check if conditions for creating table
+     * Check conditions for creating table
      * @param execution {Execution}
      * @return {Promise<boolean>}
      */
@@ -37,7 +37,7 @@ export default new class {
     }
 
     /**
-     * Check if conditions for inserting data
+     * Check conditions for creating columns
      * @param execution {Execution}
      * @return {Promise<boolean>}
      */
@@ -67,21 +67,7 @@ export default new class {
     }
 
     /**
-     * Checks if database name already exists
-     * @param execution {Execution}
-     * @returns {boolean|null}
-     */
-    #hasDatabaseName(execution) {
-        if (execution.sql?.database == null) {
-            console.log(`mssql: '${execution.name}' could not find database name`);
-            return false;
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if database name already exists
+     * Checks conditions for creating table
      * @param execution {Execution}
      * @returns {Promise<boolean|null>}
      */
@@ -95,7 +81,21 @@ export default new class {
     }
 
     /**
-     * Checks if database name already exists
+     * Checks if database property is set
+     * @param execution {Execution}
+     * @returns {boolean|null}
+     */
+    #hasDatabaseName(execution) {
+        if (execution.sql?.database == null) {
+            console.log(`mssql: '${execution.name}' could not find database name`);
+            return false;
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if table property is set
      * @param execution {Execution}
      * @returns {boolean|null}
      */
@@ -109,7 +109,7 @@ export default new class {
     }
 
     /**
-     * Checks if database name already exists
+     * Checks if column property is set
      * @param execution {Execution}
      * @returns {boolean|null}
      */
