@@ -71,11 +71,11 @@ export default new class {
      * @return {string}
      */
     #createVariables(variables) {
-        if (variables == null || variables.length === 0) {
-            return '';
-        }
-
         let output = '';
+
+        if (variables == null || variables.length === 0) {
+            return output;
+        }
 
         for (const variable of variables) {
             output += `--env ${variable} `;
@@ -91,6 +91,10 @@ export default new class {
      */
     #createPortMappings(ports) {
         let output = '';
+
+        if (ports == null || ports.length === 0) {
+            return output;
+        }
 
         for (const port of ports) {
             output += `-p ${port}`;
