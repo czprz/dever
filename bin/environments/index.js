@@ -356,9 +356,15 @@ export default new class {
      * @returns {Execution[]}
      */
     #getExecutions(config, runtime) {
-        return config.environment.map(x => {
+        const executions = config.environment.map(x => {
             return new Execution(x, runtime);
-        })
+        });
+
+        if (runtime.stop) {
+            return executions.reverse();
+        }
+
+        return executions;
     }
 };
 

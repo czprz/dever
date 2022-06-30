@@ -93,14 +93,14 @@ export default new class {
 
     async #dropDatabase(execution) {
         try {
-            if (!await validator.createDatabase(execution)) {
+            if (await validator.dropDatabase(execution)) {
                 return;
             }
 
             await mssql.dropDatabase(execution.sql);
-            console.log(`mssql: '${execution.name}' :: database has been created`);
+            console.log(`mssql: '${execution.name}' :: database has been dropped`);
         } catch (e) {
-            logger.error(`mssql: '${execution.name}' :: database has not been created`, e);
+            logger.error(`mssql: '${execution.name}' :: database does not exist`, e);
         }
     }
 }
