@@ -13,6 +13,7 @@ export default new class {
      */
     confirm(skipHashCheck, project, keyword, callback) {
         if (hashChecker.check(project) || skipHashCheck) {
+            hashChecker.update(project);
             callback();
             return;
         }

@@ -15,7 +15,6 @@ export default new class {
         }
 
         if (project.lastHash == null) {
-            this.update(project);
             return true;
         }
 
