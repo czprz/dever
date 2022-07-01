@@ -48,7 +48,7 @@ class EntryPoint {
             .prompt(options)
             .then((answer) => {
                 const checkedAnswer = EntryPoint.#getAnswer(answer);
-                const project = projects.find(x => x.location === checkedAnswer);
+                const project = projects.find(x => x.location.full === checkedAnswer);
                 EntryPoint.#projectYargs(keyword, project);
             })
             .catch((_) => _);
@@ -82,7 +82,7 @@ class EntryPoint {
      * @returns {{name: string, hint: string, value: string}}
      */
     mapChoices(project) {
-        return {name: project.name, hint: project.location, value: project.location};
+        return {name: project.name, hint: project.location.partial, value: project.location.full};
     }
 
     /**
