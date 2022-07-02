@@ -100,16 +100,16 @@ export default new class {
 
         logger.create();
 
+        if (!this.#validate(executions, runtime)) {
+            return;
+        }
+
         const options = this.#getCustomOptions(executions);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
-        }
 
-        if (!this.#validate(executions)) {
-            console.error(chalk.redBright(`One or more of the executions are either missing type or name!`));
-            return;
         }
 
         if (!this.#checkAvailabilityOfDependencies(executions)) {
@@ -121,19 +121,6 @@ export default new class {
         }
 
         for (const execution of executions) {
-            const lowerCaseName = execution?.name?.toLowerCase();
-            const lowerCaseGroup = execution?.group?.toLowerCase();
-
-            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
-                continue;
-            }
-
-            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
-                continue;
-            }
-
             await this.#hasWait(execution, 'before');
 
             switch (execution.type) {
@@ -291,9 +278,20 @@ export default new class {
     /**
      * Validate executions
      * @param executions {Execution[]}
+     * @param runtime {Runtime}
      */
-    #validate(executions) {
-        return !executions.some(x => x.name == null || x.type == null);
+    #validate(executions, runtime) {
+        if (executions.length === 0) {
+            console.error(chalk.redBright('No executions found matching your criteria.'));
+            return false;
+        }
+
+        if (executions.some(x => x.name == null || x.type == null)) {
+            console.error(chalk.redBright(`One or more of the executions are either missing type or name!`));
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -356,15 +354,28 @@ export default new class {
      * @returns {Execution[]}
      */
     #getExecutions(config, runtime) {
-        const executions = config.environment.map(x => {
-            return new Execution(x, runtime);
+        let executions = config.environment.map(execution => {
+            const lowerCaseName = execution?.name?.toLowerCase();
+            const lowerCaseGroup = execution?.group?.toLowerCase();
+
+            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
+                return null;
+            }
+
+            if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+                runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
+                return null;
+            }
+
+            return new Execution(execution, runtime);
         });
 
         if (runtime.stop) {
-            return executions.reverse();
+            executions = executions.reverse();
         }
 
-        return executions;
+        return executions.filter(x => x != null);
     }
 };
 

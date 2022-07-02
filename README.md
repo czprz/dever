@@ -110,7 +110,7 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever [keyword] fix [key]                                   | Execute project fix listed in dever.json                                                  |
 | dever [keyword] fix -l, --list                              | List all available project fixes listed in dever.json                                     |
 | dever [keyword] fix -s, --show                              | Show in the console what the fix will execute                                             |
-| dever [keyword] fix --shc --skip-hash-check                 | Skips hash checking when attempting to run an fix command or option                       |
+| dever [keyword] fix --shc, --skip-hash-check                | Skips hash checking when attempting to run an fix command or option                       |
 
 ## Running the tests
 Currently no tests implemented..
