@@ -30,6 +30,36 @@ export default new class {
     }
 
     /**
+     * Get container image name
+     * @param name {string}
+     * @returns {string}
+     */
+    getImage(name) {
+        const image = execSync(`docker container inspect ${name} --format='{{.Config.Image}}'`, {
+            windowsHide: true,
+            encoding: 'UTF-8',
+            stdio: ['ignore']
+        });
+
+        return image?.trim().replace(/'/g, '');
+    }
+
+    /**
+     * Get environment variables from container
+     * @param name {string}
+     * @returns {string[]}
+     */
+    getEnvironmentVariables(name) {
+        const variables = execSync(`docker container inspect ${name} --format='{{.Config.Env}}'`, {
+            windowsHide: true,
+            encoding: 'UTF-8',
+            stdio: ['ignore']
+        });
+
+        return variables?.trim().replace(/'|\[|\]/g, '').split(' ');
+    }
+
+    /**
      * Create docker container
      * @param container {Container}
      */

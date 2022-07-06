@@ -44,6 +44,11 @@ export default new class {
                     return;
                 }
 
+                if (this.#inspectConfig(container)) {
+                    this.#recreate(container, true);
+                    return;
+                }
+
                 docker.container.start(container.name);
 
                 console.log(`docker-container: '${container.name}' has been started!`);
@@ -51,6 +56,11 @@ export default new class {
                 break;
             }
             case docker.states.Running:
+                if (this.#inspectConfig(container)) {
+                    this.#recreate(container, true);
+                    return;
+                }
+
                 console.log(`docker-container: '${container.name}' already running!`);
                 break;
             case docker.states.NotFound:
@@ -75,6 +85,27 @@ export default new class {
         console.log(`docker-container: '${container.name}' has been recreated!`);
 
         return true;
+    }
+
+    /**
+     *
+     * @param container {Container}
+     * @return boolean
+     */
+    #inspectConfig(container) {
+        const image = docker.container.getImage(container.name);
+        if (image !== container.image) {
+            return true;
+        }
+
+        const variables = docker.container.getEnvironmentVariables(container.name);
+        if (!container.variables.every((variable, index) => variable === variables[index])) {
+            return true;
+        }
+
+        // Todo: Check port mappings
+
+        return false;
     }
 
     /**
