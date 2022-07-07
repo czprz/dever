@@ -49,7 +49,7 @@ export default new class {
      * @param name {string}
      * @returns {string[]}
      */
-    getEnvironmentVariables(name) {
+    getVariables(name) {
         const variables = execSync(`docker container inspect ${name} --format='{{.Config.Env}}'`, {
             windowsHide: true,
             encoding: 'UTF-8',

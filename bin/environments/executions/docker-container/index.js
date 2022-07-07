@@ -98,7 +98,7 @@ export default new class {
             return true;
         }
 
-        const variables = docker.container.getEnvironmentVariables(container.name);
+        const variables = docker.container.getVariables(container.name);
         if (!container.variables.every((variable, index) => variable === variables[index])) {
             return true;
         }
