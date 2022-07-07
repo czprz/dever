@@ -88,7 +88,7 @@ export default new class {
     }
 
     /**
-     *
+     * Checks whether current container is running with correct configuration
      * @param container {Container}
      * @return boolean
      */
