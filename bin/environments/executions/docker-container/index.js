@@ -104,7 +104,7 @@ export default new class {
         }
 
         const ports = docker.container.getPorts(container.name);
-        return !container.ports.every((port, index) => port === ports[index]);
+        return ports.length !== container.ports.length || !container.ports.every((port, index) => port === ports[index]);
     }
 
     /**
