@@ -56,7 +56,30 @@ export default new class {
             stdio: ['ignore']
         });
 
-        return variables?.trim().replace(/'|\[|\]/g, '').split(' ');
+        return variables?.trim().replace(/'|\[|]/g, '').split(' ');
+    }
+
+    /**
+     * Get container port mappings
+     * @param name {string}
+     * @returns {string[]}
+     */
+    getPorts(name) {
+        const unmappedPorts = execSync(`docker container inspect ${name} --format='{{.NetworkSettings.Ports}}'`, {
+            windowsHide: true,
+            encoding: 'UTF-8',
+            stdio: ['ignore']
+        });
+
+        const re = new RegExp('(?<internal>\\d+)\\/(?:tcp|udp)\:\\[{\\d+.\\d+.\\d+.\\d+ (?<assigned>\\d+)}]', 'g');
+
+        let ports = [];
+        let values = [];
+        while ((values = re.exec(unmappedPorts)) !== null) {
+            ports.push(`${values.groups.assigned}:${values.groups.internal}`);
+        }
+
+        return ports;
     }
 
     /**
@@ -127,7 +150,7 @@ export default new class {
         }
 
         for (const port of ports) {
-            output += `-p ${port}`;
+            output += `-p ${port} `;
         }
 
         return output.trim();

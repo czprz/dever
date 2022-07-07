@@ -103,9 +103,8 @@ export default new class {
             return true;
         }
 
-        // Todo: Check port mappings
-
-        return false;
+        const ports = docker.container.getPorts(container.name);
+        return !container.ports.every((port, index) => port === ports[index]);
     }
 
     /**
