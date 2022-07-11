@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "name": "example-component",
   "keywords": [
     "example",
@@ -8,12 +8,13 @@
   ],
   "install": [
     {
+	  "name": "git",
       "type": "chocolatey",
       "package": "git",
       "group": "primary",
       "after": {
         "type": "powershell-command",
-        "command": "run this"
+        "command": "choco uninstall git"
       }
     }
   ],

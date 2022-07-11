@@ -65,9 +65,13 @@ const fileSchema = {
     type: "string"
 };
 
+const packageSchema = {
+    type: "string"
+}
+
 const typeSchema = {
     type: "string",
-    pattern: "^docker-container$|^powershell-command$|^powershell-script$|^docker-compose$|^mssql$"
+    pattern: "^(docker-container|powershell-command|powershell-script|docker-compose|mssql|chocolatey)$"
 };
 
 const waitSchema = {
@@ -83,6 +87,47 @@ const waitSchema = {
     additionalProperties: false
 };
 
+const itemsSchema = {
+    type: "object",
+    properties: {
+        name: {type: "string"},
+        type: typeSchema,
+        group: {type: "string"},
+        default: {type: "boolean"},
+        up: {
+            type: "object",
+            properties: {
+                type: typeSchema,
+                sql: sqlSchema,
+                command: commandSchema,
+                file: fileSchema,
+                container: containerSchema,
+                wait: waitSchema
+            },
+            required: ["type"]
+        },
+        down: {
+            type: "object",
+            properties: {
+                type: typeSchema,
+                sql: sqlSchema,
+                command: commandSchema,
+                file: fileSchema,
+                container: containerSchema,
+                wait: waitSchema
+            },
+            required: ["type"]
+        },
+        package: packageSchema,
+        sql: sqlSchema,
+        container: containerSchema,
+        file: fileSchema,
+        command: commandSchema,
+        wait: waitSchema
+    },
+    required: ["name"]
+};
+
 export default {
     type: "object",
     properties: {
@@ -94,38 +139,7 @@ export default {
         },
         install: {
             type: "array",
-            items: {
-                type: "object",
-                properties: {
-                    type: {
-                        type: "string",
-                        pattern: "^(chocolatey)$"
-                    },
-                    package: {type: "string"},
-                    group: {type: "string"},
-                    after: {
-                        type: "object",
-                        properties: {
-                            type: {
-                                type: "string",
-                                pattern: "^(powershell-command)$"
-                            },
-                            command: {type: "string"}
-                        }
-                    },
-                    before: {
-                        type: "object",
-                        properties: {
-                            type: {
-                                type: "string",
-                                pattern: "^(powershell-command)$"
-                            },
-                            command: {type: "string"}
-                        }
-                    },
-                },
-                required: ["type", "package"]
-            }
+            items: itemsSchema
         },
         fix: {
             type: "array",
