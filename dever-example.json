@@ -21,9 +21,7 @@
     {
       "key": "docker",
       "type": "powershell-command",
-      "start": {
-        "command": "run this"
-      }
+	  "command": "run this"
     }
   ],
   "environment": [

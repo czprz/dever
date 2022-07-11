@@ -8,21 +8,21 @@ import path from 'path';
 export default new class {
     /**
      * Handler for fixes
-     * @param config {Config}
+     * @param project {Project}
      * @param yargs {object}
      * @param args {FixArgs}
      * @returns {Promise<void>}
      */
-    async handler(config, yargs, args) {
+    async handler(project, yargs, args) {
         switch (true) {
             case args.list:
-                this.#showList(config);
+                this.#showList(project);
                 break;
             case args.show != null:
-                this.#showFix(config, args);
+                this.#showFix(project, args);
                 break;
             case args.key != null:
-                await this.#fix(config, args);
+                await this.#fix(project, args);
                 break;
             default:
                 yargs.showHelp();
@@ -56,16 +56,16 @@ export default new class {
 
     /**
      * Show in console what the 'fix [problem]' will execute
-     * @param config {Config}
+     * @param project {Project}
      * @param args {FixArgs}
      */
-    #showFix(config, args) {
+    #showFix(project, args) {
         if (args.key == null) {
             console.error('Missing [key] for finding fix');
             return;
         }
 
-        const fix = config?.fix.find(x => x.key === args.key);
+        const fix = project?.fix.find(x => x.key === args.key);
         if (fix == null) {
             console.log(`Fix could not be found`);
             return;
@@ -83,15 +83,15 @@ export default new class {
 
     /**
      * Show a list of problems which can be solved using 'fix [problem]'
-     * @param config {Config}
+     * @param project {Project}
      */
-    #showList(config) {
-        if (config == null) {
+    #showList(project) {
+        if (project == null) {
             console.log(chalk.redBright('Could not find any project with given keyword'));
             return;
         }
 
-        for (const fix of config.fix) {
+        for (const fix of project.fix) {
             console.log();
             console.log('key: ' + chalk.blue(fix.key));
             console.log(chalk.green(`${fix.type}: ${fix.command}`));
@@ -100,11 +100,11 @@ export default new class {
 
     /**
      * Fix problem
-     * @param config {Config}
+     * @param project {Project}
      * @param args {FixArgs}
      */
-    async #fix(config, args) {
-        const fix = config?.fix.find(x => x.key === args.key);
+    async #fix(project, args) {
+        const fix = project?.fix.find(x => x.key === args.key);
         if (fix == null) {
             console.error('Fix could not be found');
             return;
@@ -117,7 +117,8 @@ export default new class {
                 await this.#tryFix(fix.key, 'powershell-command', async () => await powershell.executeSync(fix.command));
                 break;
             case 'powershell-script':
-                const file = path.join(config.location, fix.file);
+                // Todo: Check fix.file is a full path
+                const file = path.join(project.location.partial, fix.file);
                 await this.#tryFix(fix.key, 'powershell-script', async () => await powershell.executeFileSync(file));
                 break;
             default:

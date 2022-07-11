@@ -92,8 +92,57 @@ export default {
             type: "array",
             items: {type: "string"}
         },
-        install: {type: "array"},
-        fix: {type: "array"},
+        install: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    type: {
+                        type: "string",
+                        pattern: "^(chocolatey)$"
+                    },
+                    package: {type: "string"},
+                    group: {type: "string"},
+                    after: {
+                        type: "object",
+                        properties: {
+                            type: {
+                                type: "string",
+                                pattern: "^(powershell-command)$"
+                            },
+                            command: {type: "string"}
+                        }
+                    },
+                    before: {
+                        type: "object",
+                        properties: {
+                            type: {
+                                type: "string",
+                                pattern: "^(powershell-command)$"
+                            },
+                            command: {type: "string"}
+                        }
+                    },
+                },
+                required: ["type", "package"]
+            }
+        },
+        fix: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    key: {type: "string"},
+                    type: {
+                        type: "string",
+                        pattern: "^(powershell-command|powershell-script)$"
+                    },
+                    command: {type: "string"},
+                    file: {type: "string"}
+                },
+                required: ["key", "type"],
+            }
+        },
         environment: {
             type: "array",
             items: {
@@ -102,6 +151,7 @@ export default {
                     name: {type: "string"},
                     type: typeSchema,
                     group: {type: "string"},
+                    default: {type: "boolean"},
                     start: {
                         type: "object",
                         properties: {
