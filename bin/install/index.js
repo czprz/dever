@@ -1,14 +1,14 @@
 import shell from '../common/helper/shell.js';
 import sudo from '../common/helper/elevated.js';
+import logger from "../common/helper/logger.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
-import logger from "../common/helper/logger.js";
 
 "use strict";
 export default new class {
     /**
-     * Handler for fixes
+     * Handler for installs
      * @param project {Project}
      * @param yargs {object}
      * @param args {InstallArgs}
@@ -71,8 +71,8 @@ export default new class {
                 alias: 'nba',
                 describe: 'Disables running of before and after functionality if defined in project dever.json'
             })
-            .option('shc', {
-                alias: 'skip-hash-check',
+            .option('skip-hash-check', {
+                alias: 'shc',
                 describe: 'Skip hash check when running command'
             });
     }
