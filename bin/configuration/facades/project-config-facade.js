@@ -4,6 +4,10 @@ import schemaValidator, {SchemaTypes} from "../../common/validators/schema-valid
 import versionChecker from "../../common/helper/version-checker.js";
 import configValidator from "../../common/helper/config-validator.js";
 
+import {Project} from "../../common/models/dever-json/internal.js";
+// noinspection ES6UnusedImports
+import {Config as ExternalConfig, Project as ExternalProject} from "../../common/models/dot-dever/external.js";
+
 import path from "path";
 
 "use strict";
@@ -24,7 +28,7 @@ export default new class {
     /**
      * Gets only one project by specifically looking through keywords found in .dever
      * @param keyword {string}
-     * @returns Project[] | null
+     * @returns {Project[] | null}
      */
     get(keyword) {
         let projects = this.#getProjects()?.filter(x => x != null);
@@ -57,7 +61,7 @@ export default new class {
     /**
      * Get actual value from .dever project
      * @param id {number}
-     * @return LocalProject
+     * @return {ExternalProject | null}
      */
     getLocalValues(id) {
         const config = localConfig.get();
@@ -66,7 +70,7 @@ export default new class {
 
     /**
      * @callback updateRequest
-     * @param {LocalProject} project
+     * @param {ExternalProject} project
      */
 
     /**
@@ -144,8 +148,8 @@ export default new class {
 
     /**
      * gets project configuration
-     * @param project {LocalProject}
-     * @param config {LocalConfig}
+     * @param project {ExternalProject}
+     * @param config {ExternalConfig}
      * @param id {number}
      * @returns {Project}
      */

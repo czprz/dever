@@ -98,6 +98,7 @@ const itemsSchema = {
             type: "object",
             properties: {
                 type: typeSchema,
+                package: packageSchema,
                 sql: sqlSchema,
                 command: commandSchema,
                 file: fileSchema,
@@ -110,6 +111,7 @@ const itemsSchema = {
             type: "object",
             properties: {
                 type: typeSchema,
+                package: packageSchema,
                 sql: sqlSchema,
                 command: commandSchema,
                 file: fileSchema,
@@ -159,45 +161,7 @@ export default {
         },
         environment: {
             type: "array",
-            items: {
-                type: "object",
-                properties: {
-                    name: {type: "string"},
-                    type: typeSchema,
-                    group: {type: "string"},
-                    default: {type: "boolean"},
-                    start: {
-                        type: "object",
-                        properties: {
-                            type: typeSchema,
-                            sql: sqlSchema,
-                            command: commandSchema,
-                            file: fileSchema,
-                            container: containerSchema,
-                            wait: waitSchema
-                        },
-                        required: ["type"]
-                    },
-                    end: {
-                        type: "object",
-                        properties: {
-                            type: typeSchema,
-                            sql: sqlSchema,
-                            command: commandSchema,
-                            file: fileSchema,
-                            container: containerSchema,
-                            wait: waitSchema
-                        },
-                        required: ["type"]
-                    },
-                    sql: sqlSchema,
-                    container: containerSchema,
-                    file: fileSchema,
-                    command: commandSchema,
-                    wait: waitSchema
-                },
-                required: ["name"]
-            }
+            items: itemsSchema
         }
     },
     required: ["version", "name", "keywords"],

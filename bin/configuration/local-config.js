@@ -1,6 +1,8 @@
 import json from '../common/helper/json.js';
 import SchemaValidator, {SchemaTypes} from "../common/validators/schema-validator.js";
 
+import {Config} from "../common/models/dot-dever/external.js";
+
 import path from 'path';
 import os from 'os';
 
@@ -18,12 +20,12 @@ export default new class {
 
     /**
      * Get dever configuration
-     * @returns {LocalConfig}
+     * @returns {Config}
      */
     get() {
         const config = json.read(this.#filePath) ?? {projects: [], skipAllHashChecks: false};
         // Todo: Temporary fix. Need to figure out a better way of handling upgrades of .dever
-        if (config.components != null) {
+        if (config.projects != null) {
             return {projects: [], skipAllHashChecks: false};
         }
 
@@ -37,7 +39,7 @@ export default new class {
 
     /**
      * Save configuration
-     * @param config {LocalConfig}
+     * @param config {Config}
      */
     write(config) {
         json.write(this.#filePath, config);

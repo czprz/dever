@@ -93,6 +93,11 @@ export class Runtime {
 
 export class Project {
     /**
+     * @type {number}
+     */
+    id;
+
+    /**
      * @type {string}
      */
     name;
@@ -121,9 +126,44 @@ export class Project {
      * @type {Execution[]}
      */
     environment;
+
+    /**
+     * @type {Location}
+     */
+    location;
+
+    /**
+     * @type {string}
+     */
+    lastHash;
+
+    /**
+     * @type {boolean}
+     */
+    skipHashCheck;
+
+    /**
+     * @type {boolean}
+     */
+    supported;
+
+    /**
+     * @type {boolean}
+     */
+    validSchema;
+
+    /**
+     * @type {boolean}
+     */
+    validKeywords;
+
+    /**
+     * @type {InternalOptions}
+     */
+    internalOptions;
 }
 
-class Fix {
+export class Fix {
     /**
      * @type {string}
      */
@@ -236,6 +276,25 @@ export class Execution extends ExecutionStep {
         step.wait = config.wait;
         step.runAsElevated = config.runAsElevated;
     }
+}
+
+class InternalOptions {
+    /**
+     * @type {string[]}
+     */
+    keywords;
+}
+
+class Location {
+    /**
+     * @type {string} @required
+     */
+    full;
+
+    /**
+     * @type {string} @required
+     */
+    partial;
 }
 
 class ExecutionStep extends Executable {
