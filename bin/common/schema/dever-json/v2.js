@@ -87,6 +87,21 @@ const waitSchema = {
     additionalProperties: false
 };
 
+const executableSchema = {
+    type: "object",
+    properties: {
+        type: typeSchema,
+        package: packageSchema,
+        sql: sqlSchema,
+        command: commandSchema,
+        file: fileSchema,
+        container: containerSchema,
+        wait: waitSchema
+    },
+    required: ["type"],
+    additionalProperties: false
+}
+
 const itemsSchema = {
     type: "object",
     properties: {
@@ -94,40 +109,19 @@ const itemsSchema = {
         type: typeSchema,
         group: {type: "string"},
         default: {type: "boolean"},
-        up: {
-            type: "object",
-            properties: {
-                type: typeSchema,
-                package: packageSchema,
-                sql: sqlSchema,
-                command: commandSchema,
-                file: fileSchema,
-                container: containerSchema,
-                wait: waitSchema
-            },
-            required: ["type"]
-        },
-        down: {
-            type: "object",
-            properties: {
-                type: typeSchema,
-                package: packageSchema,
-                sql: sqlSchema,
-                command: commandSchema,
-                file: fileSchema,
-                container: containerSchema,
-                wait: waitSchema
-            },
-            required: ["type"]
-        },
+        up: executableSchema,
+        down: executableSchema,
         package: packageSchema,
         sql: sqlSchema,
         container: containerSchema,
         file: fileSchema,
         command: commandSchema,
-        wait: waitSchema
+        wait: waitSchema,
+        before: executableSchema,
+        after: executableSchema
     },
-    required: ["name"]
+    required: ["name"],
+    additionalProperties: false
 };
 
 export default {

@@ -1,3 +1,5 @@
+export const Step = Object.freeze({"Before": 0, "After": 1});
+
 export class Args {
     /**
      * Option for starting environment
@@ -113,7 +115,7 @@ export class Project {
     keywords;
 
     /**
-     * @type {Execution[]}
+     * @type {Action[]}
      */
     setup;
 
@@ -123,7 +125,7 @@ export class Project {
     fix;
 
     /**
-     * @type {Execution[]}
+     * @type {Executable[]}
      */
     environment;
 
@@ -188,145 +190,7 @@ export class Fix {
     file;
 }
 
-export class Execution extends ExecutionStep {
-    /**
-     * @type {string}
-     */
-    name;
-
-    /**
-     * @type {string | null}
-     */
-    group;
-
-    /**
-     * @type {boolean}
-     */
-    default = true;
-
-    /**
-     * @type {ExecutionStep | null}
-     */
-    up;
-
-    /**
-     * @type {ExecutionStep | null}
-     */
-    down;
-
-    /**
-     * @param config {ExecutionConfig}
-     * @param runtime {Runtime}
-     */
-    constructor(config, runtime) {
-        super();
-
-        Execution.#mapToExecutionStep(this, config);
-
-        if (config.start != null) {
-            this.#migrate(config, runtime);
-        }
-    }
-
-    /**
-     *
-     * @param config {ExecutionRunConfig}
-     * @param runtime {Runtime}
-     */
-    #migrate(config, runtime) {
-        const selected = runtime.up ? 'up' : 'down';
-
-        if (runtime.up) {
-            this.up = new ExecutionStep();
-            Execution.#mapToExecutionStep(this.up, config.up);
-        } else {
-            this.down = new ExecutionStep();
-            Execution.#mapToExecutionStep(this.down, config.down);
-        }
-
-        this.#updateStepValues(this[selected] ?? this.up);
-    }
-
-    /**
-     * Set all selected step values
-     * @param executionStep {ExecutionStep}
-     * @return void
-     */
-    #updateStepValues(executionStep) {
-        for (const property in executionStep) {
-            if (this.hasOwnProperty(property)) {
-                this[property] = executionStep[property];
-            }
-        }
-    }
-
-    /**
-     * Update the selected step
-     * @param step {ExecutionStep}
-     * @param config {ExecutionRunConfig}
-     * @return void
-     */
-    static #mapToExecutionStep(step, config) {
-        step.type = config.type;
-        step.sql = config.sql;
-        step.file = config.file;
-        step.command = config.command;
-        step.container = config.container;
-        step.options = config.options;
-        step.wait = config.wait;
-        step.runAsElevated = config.runAsElevated;
-    }
-}
-
-class InternalOptions {
-    /**
-     * @type {string[]}
-     */
-    keywords;
-}
-
-class Location {
-    /**
-     * @type {string} @required
-     */
-    full;
-
-    /**
-     * @type {string} @required
-     */
-    partial;
-}
-
-class ExecutionStep extends Executable {
-    /**
-     * Custom options that will be passed along to dependency
-     * @type {Option[] | null}
-     */
-    options;
-
-    /**
-     * @type {Wait | null}
-     */
-    wait;
-
-    /**
-     * Informs whether a dependency needs to be run as elevated user
-     * @type {boolean | null}
-     */
-    runAsElevated;
-
-    /**
-     * @type {Executable | null}
-     */
-    after;
-
-    /**
-     * @type {Executable | null}
-     */
-    before;
-}
-
-class Executable {
+export class Execute {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey')
      * @type {string} @required
@@ -362,9 +226,154 @@ class Executable {
      * @type {string | null}
      */
     package;
+
+    /**
+     * Informs whether a dependency needs to be run as elevated user
+     * @type {boolean | null}
+     */
+    runAsElevated;
+
+    /**
+     * Custom options that will be passed along to dependency
+     * @type {Option[] | null}
+     */
+    options;
+
+    /**
+     * @type {string}
+     */
+    location;
 }
 
-class Wait {
+export class Action extends Execute {
+    /**
+     * @type {Wait | null}
+     */
+    wait;
+
+    /**
+     * @type {Execute | null}
+     */
+    after;
+
+    /**
+     * @type {Execute | null}
+     */
+    before;
+}
+
+export class Executable extends Action {
+    /**
+     * @type {string}
+     */
+    name;
+
+    /**
+     * @type {string | null}
+     */
+    group;
+
+    /**
+     * @type {boolean}
+     */
+    default = true;
+
+    /**
+     * @type {Action | null}
+     */
+    up;
+
+    /**
+     * @type {Action | null}
+     */
+    down;
+
+    /**
+     * @param config {ExecutionConfig}
+     * @param runtime {Runtime}
+     */
+    constructor(config, runtime) {
+        super();
+
+        Action.#map(this, config);
+
+        if (config.start != null) {
+            this.#migrate(config, runtime);
+        }
+    }
+
+    /**
+     *
+     * @param config {Executable}
+     * @param runtime {Runtime}
+     */
+    #migrate(config, runtime) {
+        const selected = runtime.up ? 'up' : 'down';
+
+        if (runtime.up) {
+            this.up = new Action();
+            Action.#map(this.up, config.up);
+        } else {
+            this.down = new Action();
+            Action.#map(this.down, config.down);
+        }
+
+        this.#updateStepValues(this[selected] ?? this.up);
+    }
+
+    /**
+     * Set all selected step values
+     * @param executionStep {Execute}
+     * @return void
+     */
+    #updateStepValues(executionStep) {
+        for (const property in executionStep) {
+            if (this.hasOwnProperty(property)) {
+                this[property] = executionStep[property];
+            }
+        }
+    }
+
+    /**
+     * Update the selected step
+     * @param step {Action}
+     * @param config {Executable}
+     * @return void
+     */
+    static #map(step, config) {
+        step.type = config.type;
+        step.sql = config.sql;
+        step.file = config.file;
+        step.command = config.command;
+        step.container = config.container;
+        step.options = config.options;
+        step.wait = config.wait;
+        step.runAsElevated = config.runAsElevated;
+        step.before = config.before;
+        step.after = config.after;
+    }
+}
+
+export class InternalOptions {
+    /**
+     * @type {string[]}
+     */
+    keywords;
+}
+
+export class Location {
+    /**
+     * @type {string} @required
+     */
+    full;
+
+    /**
+     * @type {string} @required
+     */
+    partial;
+}
+
+export class Wait {
     /**
      * Choose when wait should occur ('before', 'after')
      * @return {string}
@@ -378,7 +387,7 @@ class Wait {
     time; // in milliseconds
 }
 
-class Option {
+export class Option {
     /**
      * Check if dependency is allowed to execute without option
      * @type {boolean}
@@ -417,7 +426,7 @@ class Option {
     rule;
 }
 
-class OptionRule {
+export class OptionRule {
     /**
      * Check whether value being passed is as expected using regex match
      * @type {string}
@@ -431,7 +440,7 @@ class OptionRule {
     message;
 }
 
-class DbQuery {
+export class DbQuery {
     /**
      * Username for SQL connection
      * @return {string}
@@ -469,7 +478,7 @@ class DbQuery {
     columns;
 }
 
-class DbColumn {
+export class DbColumn {
     /**
      * Column name
      * @var {string}
@@ -489,7 +498,7 @@ class DbColumn {
     value;
 }
 
-class Container {
+export class Container {
     /**
      * Name
      * @var {string}

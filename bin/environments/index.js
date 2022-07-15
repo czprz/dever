@@ -1,19 +1,15 @@
-import docker_compose from './executions/docker-compose/index.js';
-import docker_container from './executions/docker-container/index.js';
-import powershell_script from './executions/powershell-script/index.js';
-import powershell_command from './executions/powershell-command/index.js';
-import mssql from './executions/mssql/index.js';
-
 import sudo from '../common/helper/elevated.js';
 import delayer from '../common/helper/delayer.js';
 import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
-import {Execution} from "../common/models/environments.js";
-import {Project} from "../common/models/internal.js";
+import Executor from "../common/executor/index.js";
+
+import {Project, Executable, Runtime} from "../common/models/dever-json/internal.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
+import responseHandler from "./response-handler.js";
 
 "use strict";
 export default new class {
@@ -26,14 +22,14 @@ export default new class {
      */
     async handler(config, yargs, args) {
         const runtime = this.#getRuntime(args);
-        if (runtime.start && runtime.stop) {
+        if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
             return;
         }
 
         switch (true) {
-            case runtime.start:
-            case runtime.stop:
+            case runtime.up:
+            case runtime.down:
                 await this.#run(config, runtime);
                 break;
             default:
@@ -96,54 +92,37 @@ export default new class {
      * @returns {Promise<void>}
      */
     async #run(config, runtime) {
-        const executions = this.#getExecutions(config, runtime);
+        const executables = this.#getExecutions(config, runtime);
 
         logger.create();
 
-        if (!this.#validate(executions, runtime)) {
+        if (!this.#validate(executables, runtime)) {
             return;
         }
 
-        const options = this.#getCustomOptions(executions);
+        const options = this.#getCustomOptions(executables);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
-
         }
 
-        if (!this.#checkAvailabilityOfDependencies(executions)) {
+        if (!this.#checkAvailabilityOfDependencies(executables)) {
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executions)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executables)) {
             return;
         }
 
-        for (const execution of executions) {
-            await this.#hasWait(execution, 'before');
+        for (const executable of executables) {
+            // Todo: Add steps
+            await this.#hasWait(executable, 'before');
 
-            switch (execution.type) {
-                case "docker-compose":
-                    docker_compose.handle(config, execution, runtime);
-                    break;
-                case "docker-container":
-                    docker_container.handle(execution, runtime);
-                    break;
-                case "powershell-script":
-                    await powershell_script.handle(config, execution, runtime);
-                    break;
-                case "powershell-command":
-                    await powershell_command.handle(execution, runtime);
-                    break;
-                case "mssql":
-                    await mssql.handle(execution, runtime);
-                    break;
-                default:
-                    console.error(`"${execution.name}::${execution.type}" not found`);
-            }
+            const result = await Executor.execute(executable, runtime);
+            responseHandler.respond(result, executable);
 
-            await this.#hasWait(execution, 'after');
+            await this.#hasWait(executable, 'after');
         }
 
         logger.destroy();
@@ -164,8 +143,8 @@ export default new class {
 
     /**
      * Get all custom options from dependencies
-     * @param executions {Execution[]}
-     * @return {CustomOption[]}
+     * @param executions {Action[]}
+     * @return {Option[]}
      */
     #getCustomOptions(executions) {
         const options = [];
@@ -184,7 +163,7 @@ export default new class {
 
     /**
      * Creates promise which delays an await for defined period of time
-     * @param execution {Execution}
+     * @param execution {Action}
      * @param timing {'after'|'before'}
      * @returns {Promise<unknown>}
      */
@@ -201,10 +180,10 @@ export default new class {
     /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
      * @param ignore {boolean}
-     * @param executions {Execution[]}
+     * @param executables {Executable[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, executions) {
+    async #confirmRunningWithoutElevated(ignore, executables) {
         if (ignore) {
             return true;
         }
@@ -213,7 +192,7 @@ export default new class {
             return true;
         }
 
-        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executions)) {
+        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executables)) {
             return true;
         }
 
@@ -239,12 +218,12 @@ export default new class {
 
     /**
      * Check if any dependencies wants to run with elevated permissions
-     * @param executions {Execution[]}
+     * @param executables {Executable[]}
      * @return {boolean}
      */
-    #anyDependencyWhichNeedsElevatedPermissions(executions) {
-        for (const execution of executions) {
-            if (execution.runAsElevated != null && execution.runAsElevated) {
+    #anyDependencyWhichNeedsElevatedPermissions(executables) {
+        for (const executable of executables) {
+            if (executable.runAsElevated != null && executable.runAsElevated) {
                 return true;
             }
         }
@@ -254,12 +233,13 @@ export default new class {
 
     /**
      * Check if dependency of dependency is available
-     * @param executions {Execution[]}
+     * @param executables {Executable[]}
      * @returns {boolean}
      */
-    #checkAvailabilityOfDependencies(executions) {
-        for (const execution of executions) {
-            switch (execution.type) {
+    #checkAvailabilityOfDependencies(executables) {
+        // Todo: should be moved
+        for (const executable of executables) {
+            switch (executable.type) {
                 case "docker-compose":
                     return docker_compose.check();
                 case "docker-container":
@@ -277,7 +257,7 @@ export default new class {
 
     /**
      * Validate executions
-     * @param executions {Execution[]}
+     * @param executions {Executable[]}
      * @param runtime {Runtime}
      */
     #validate(executions, runtime) {
@@ -351,12 +331,12 @@ export default new class {
      * Maps environment to ensure usage of proper start or stop values
      * @param config {Project}
      * @param runtime {Runtime}
-     * @returns {Execution[]}
+     * @returns {Executable[]}
      */
     #getExecutions(config, runtime) {
-        let executions = config.environment.map(execution => {
-            const lowerCaseName = execution?.name?.toLowerCase();
-            const lowerCaseGroup = execution?.group?.toLowerCase();
+        let executions = config.environment.map(executable => {
+            const lowerCaseName = executable?.name?.toLowerCase();
+            const lowerCaseGroup = executable?.group?.toLowerCase();
 
             if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
                 runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
@@ -368,10 +348,10 @@ export default new class {
                 return null;
             }
 
-            return new Execution(execution, runtime);
+            return executable;
         });
 
-        if (runtime.stop) {
+        if (runtime.down) {
             executions = executions.reverse();
         }
 

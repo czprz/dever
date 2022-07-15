@@ -1,8 +1,8 @@
-import localConfig from "../local-config.js";
-import json from "../../common/helper/json.js";
 import schemaValidator, {SchemaTypes} from "../../common/validators/schema-validator.js";
 import versionChecker from "../../common/helper/version-checker.js";
 import configValidator from "../../common/helper/config-validator.js";
+import json from "../../common/helper/json.js";
+import localConfig from "../local-config.js";
 
 import {Project} from "../../common/models/dever-json/internal.js";
 // noinspection ES6UnusedImports

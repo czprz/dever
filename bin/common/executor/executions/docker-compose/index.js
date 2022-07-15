@@ -1,6 +1,8 @@
-import docker from '../../../common/helper/docker/index.js';
-import shell from '../../../common/helper/shell.js';
-import {Project} from '../../../common/models/internal.js';
+import docker from '../../../helper/docker/index.js';
+import shell from '../../../helper/shell.js';
+
+import {Execute, Runtime} from '../../../models/dever-json/internal.js';
+import {ExecutionResult, Status} from "../../models.js";
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -11,18 +13,16 @@ const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 export default new class {
     /**
      * Handle starting and stopping of docker-compose
-     * @param project {Project} Project configuration
-     * @param execution {Execution} Dependency options
+     * @param execute {Execute} Dependency options
      * @param runtime {Runtime} shell arguments
+     * @return {ExecutionResult}
      */
-    handle(project, execution, runtime) {
+    handle(execute, runtime) {
         switch (true) {
-            case runtime.start:
-                this.#start(execution, project.location.partial, runtime);
-                break;
-            case runtime.stop:
-                this.#stop(execution, project.location.partial);
-                break;
+            case runtime.up:
+                return this.#up(execute, runtime);
+            case runtime.down:
+                return this.#down(execute);
         }
     }
 
@@ -41,47 +41,59 @@ export default new class {
 
     /**
      * Start docker-compose
-     * @param location {string} Project location
-     * @param execution {Execution} FilePath to docker-compose
+     * @param execute {Execute} FilePath to docker-compose
      * @param runtime {Runtime}
+     * @returns {ExecutionResult}
      */
-    #start(execution, location, runtime) {
+    #up(execute, runtime) {
         const state = this.#run_state();
+
         switch (state) {
             case states.NotRunning: {
-                if (this.#recreate(location, execution.file, execution.name, runtime.clean)) {
-                    return;
+                if (this.#recreate(execute.location, execute.file, runtime.clean)) {
+                    return new ExecutionResult(Status.Success, Operation.Recreated);
                 }
 
-                const filePath = path.join(location, execution.file);
+                const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
-                break;
+
+                return new ExecutionResult(Status.Success, Operation.Started);
             }
             case states.Running: {
-                if (this.#recreate(location, execution.file, execution.name, runtime.clean)) {
-                    return;
+                if (this.#recreate(execute.location, execute.file, runtime.clean)) {
+                    return new ExecutionResult(Status.Success, Operation.Recreated);
                 }
 
-                console.log(`docker-compose: '${execution.name}' already running!`);
-                break;
+                return new ExecutionResult(Status.Success, Operation.AlreadyRunning);
             }
             case states.NotFound: {
-                const filePath = path.join(location, execution.file);
+                const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
-                console.log(`docker-compose: '${execution.name}' created successfully`);
-                break;
+
+                return new ExecutionResult(Status.Success, Operation.Created);
             }
         }
+    }
+
+    /**
+     * Stop docker-compose
+     * @param execute {Execute} FilePath to docker-compose
+     * @returns {ExecutionResult}
+     */
+    #down(execute) {
+        const filePath = path.join(execute.location, execute.file);
+        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
+
+        return new ExecutionResult(Status.Success, Operation.Stopped);
     }
 
     /**
      * Handles recreating of docker-compose
      * @param location {string} Project location
      * @param file {string} FilePath of docker-compose.yml
-     * @param name {string} Name of docker-compose sequence
      * @param clean {boolean} Indicate whether it should docker-compose should be recreated
      */
-    #recreate(location, file, name, clean) {
+    #recreate(location, file, clean) {
         if (!clean) {
             return false;
         }
@@ -89,21 +101,7 @@ export default new class {
         const filePath = path.join(location, file);
         shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d --force-recreate`);
 
-        console.log(`docker-compose: '${name}' recreated successfully`);
-
         return true;
-    }
-
-    /**
-     * Stop docker-compose
-     * @param location {string} Project location
-     * @param execution {Execution} FilePath to docker-compose
-     */
-    #stop(execution, location) {
-        const filePath = path.join(location, execution.file);
-        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
-
-        console.log(`docker-compose: '${execution.name}' stopped successfully`);
     }
 
     /**
@@ -127,3 +125,5 @@ export default new class {
         }
     }
 }
+
+export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running'});

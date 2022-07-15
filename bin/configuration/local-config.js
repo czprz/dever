@@ -25,7 +25,8 @@ export default new class {
     get() {
         const config = json.read(this.#filePath) ?? {projects: [], skipAllHashChecks: false};
         // Todo: Temporary fix. Need to figure out a better way of handling upgrades of .dever
-        if (config.projects != null) {
+        // noinspection JSUnresolvedVariable
+        if (config.components != null) {
             return {projects: [], skipAllHashChecks: false};
         }
 
