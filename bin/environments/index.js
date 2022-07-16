@@ -10,6 +10,7 @@ import {Project, Executable, Runtime} from "../common/models/dever-json/internal
 import readline from 'readline';
 import chalk from 'chalk';
 import responseHandler from "./response-handler.js";
+import {Status} from "../common/executor/models.js";
 
 "use strict";
 export default new class {
@@ -104,6 +105,12 @@ export default new class {
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
+            return;
+        }
+
+        const checkResult = await Executor.dependencyCheck(executables);
+        if (checkResult.status === Status.Error) {
+            // Todo: Add response handler
             return;
         }
 
@@ -287,16 +294,16 @@ export default new class {
 
         if (stop === start && stopGroup === startGroup) {
             return {
-                start: start || startGroup,
-                stop: stop || stopGroup
+                up: start || startGroup,
+                down: stop || stopGroup
             };
         }
 
         const choice = start || startGroup ? 'start' : 'stop';
 
         return {
-            start: start || startGroup,
-            stop: stop || stopGroup,
+            up: start || startGroup,
+            down: stop || stopGroup,
             include: {
                 executions: this.#getVariables(args[choice]),
                 groups: this.#getVariables(args[`${choice}-group`])

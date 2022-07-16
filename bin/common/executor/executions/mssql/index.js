@@ -2,15 +2,15 @@ import mssql from '../../../helper/mssql/index.js';
 import validator from '../../../helper/mssql/validator.js';
 
 import {Execute, Runtime} from '../../../models/dever-json/internal.js';
-import {ExecutionResult, Status} from "../../models.js";
+import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
 
 "use strict";
-export default new class {
+export default new class extends ExecutionInterface {
     /**
-     * Handler for mssql dependencies
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @returns {Promise<ExecutionResult>}
+     * Handler for mssql execution
+     * @param execute
+     * @param runtime
+     * @return {Promise<ExecutionResult>}
      */
     async handle(execute, runtime) {
         switch (execute.sql.option) {
@@ -25,6 +25,14 @@ export default new class {
             default:
                 return new ExecutionResult(Status.Error, Operation.NotSupported);
         }
+    }
+
+    /**
+     * Check dependencies for mssql execution
+     * @return {CheckResult}
+     */
+    check() {
+        return new CheckResult(Status.Success, Operation.DependencyCheck);
     }
 
     /**
@@ -104,5 +112,5 @@ export default new class {
     }
 }
 
-export const Operation = Object.freeze({DatabaseCreated: 'database-created', DatabaseDropped: 'database-dropped', TableCreated: 'table-created', TableDropped: 'table-dropped', Inserted: 'inserted', TableOrColumnsNotFound: 'columns-not-found', DatabaseAlreadyExists: 'database-already-exists', DatabaseNotFound: 'database-not-found', TableAlreadyExists: 'table-already-exists', NotSupported: 'not-supported'});
+export const Operation = Object.freeze({DatabaseCreated: 'database-created', DatabaseDropped: 'database-dropped', TableCreated: 'table-created', TableDropped: 'table-dropped', Inserted: 'inserted', TableOrColumnsNotFound: 'columns-not-found', DatabaseAlreadyExists: 'database-already-exists', DatabaseNotFound: 'database-not-found', TableAlreadyExists: 'table-already-exists', NotSupported: 'not-supported', DependencyCheck: 'dependency-check'});
 

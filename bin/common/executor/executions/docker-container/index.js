@@ -1,15 +1,15 @@
 import docker from '../../../helper/docker/index.js';
 
 import {Execute, Runtime} from "../../../models/dever-json/internal.js";
-import {ExecutionResult, Status} from "../../models.js";
+import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
 
 "use strict";
-export default new class {
+export default new class extends ExecutionInterface {
     /**
-     * Handle starting and stopping of docker containers
+     * Handler for docker-container execution
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {ExecutionResult}
+     * @return {ExecutionResult}
      */
     handle(execute, runtime) {
         switch(true) {
@@ -21,16 +21,16 @@ export default new class {
     }
 
     /**
-     * Check if docker-container dependencies are available
-     * @returns {boolean}
+     * Check dependencies for docker-container execution
+     * @return {CheckResult}
      */
     check() {
         if (!docker.is_docker_running()) {
             console.error(`Docker engine not running. Please start docker and retry command`);
-            return false;
+            return new CheckResult(Status.Error, Operation.DependencyCheck);
         }
 
-        return true;
+        return new CheckResult(Status.Success, Operation.DependencyCheck);
     }
 
     /**
@@ -95,4 +95,4 @@ export default new class {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running'});
+export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running', 'DependencyCheck': 'docker-not-running'});

@@ -2,7 +2,7 @@ import docker from '../../../helper/docker/index.js';
 import shell from '../../../helper/shell.js';
 
 import {Execute, Runtime} from '../../../models/dever-json/internal.js';
-import {ExecutionResult, Status} from "../../models.js";
+import {CheckResult, ExecutionResult, ExecutionInterface, Status} from "../../models.js";
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -10,11 +10,11 @@ import path from 'path';
 const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 
 "use strict";
-export default new class {
+export default new class extends ExecutionInterface {
     /**
-     * Handle starting and stopping of docker-compose
-     * @param execute {Execute} Dependency options
-     * @param runtime {Runtime} shell arguments
+     * Handler for docker-compose execution
+     * @param execute {Execute}
+     * @param runtime {Runtime}
      * @return {ExecutionResult}
      */
     handle(execute, runtime) {
@@ -27,16 +27,16 @@ export default new class {
     }
 
     /**
-     * Check if docker-compose dependencies are available
-     * @returns {boolean}
+     * Check dependencies for docker-compose execution
+     * @return {CheckResult}
      */
     check() {
         if (!docker.is_docker_running()) {
             console.error(`Docker engine not running. Please start docker and retry command`);
-            return false;
+            return new CheckResult(Status.Error, Operation.DockerRunningCheck);
         }
 
-        return true;
+        return new CheckResult(Status.Success, Operation.DockerRunningCheck);
     }
 
     /**
@@ -126,4 +126,4 @@ export default new class {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running'});
+export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'DockerRunningCheck': 'docker-running-check'});

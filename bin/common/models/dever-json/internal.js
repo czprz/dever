@@ -88,7 +88,7 @@ export class Runtime {
     clean;
 
     /**
-     * @type {Args | null}
+     * @type {any | null}
      */
     args;
 }

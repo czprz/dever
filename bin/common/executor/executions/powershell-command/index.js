@@ -2,12 +2,12 @@ import powershell from '../../../helper/powershell.js';
 import customOptions from '../../../helper/custom_options.js';
 
 import {Execute, Runtime} from "../../../models/dever-json/internal.js";
-import {ExecutionResult, Status} from "../../models.js";
+import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
 
 "use strict";
-export default new class {
+export default new class extends ExecutionInterface {
     /**
-     * Executes powershell commands
+     * Handler for powershell-command execution
      * @param execute {Execute}
      * @param runtime {Runtime}
      * @return {Promise<ExecutionResult>}
@@ -22,6 +22,15 @@ export default new class {
             return new ExecutionResult(Status.Error, Operation.Executed, e);
         }
     }
+
+    /**
+     * Check dependencies for powershell-command execution
+     * @return {CheckResult}
+     */
+    check() {
+        // Todo: Check if powershell is supported
+        return new CheckResult(Status.Success, Operation.DependencyCheck);
+    }
 }
 
-export const Operation = Object.freeze({Executed: 'executed'});
+export const Operation = Object.freeze({Executed: 'executed', DependencyCheck: 'dependency-check'});

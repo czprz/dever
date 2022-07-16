@@ -5,7 +5,7 @@ import powershell_command from "../../common/executor/executions/powershell-comm
 import mssql from "../../common/executor/executions/mssql/index.js";
 
 import {Executable, Runtime} from "../models/dever-json/internal.js";
-import {ExecutionResult} from "./models.js";
+import {CheckResult, ExecutionResult, Status} from "./models.js";
 
 export default new class {
     /**
@@ -32,5 +32,58 @@ export default new class {
             default:
                 throw new Error(`'${executable.type}' type is not supported`);
         }
+    }
+
+    /**
+     * Check if all necessary dependencies are available
+     * @param executables {Executable[]}
+     * @return {Promise<CheckResult>}
+     */
+    async dependencyCheck(executables) {
+        let result;
+
+        for (const executable of executables) {
+            switch (executable.type) {
+                case "docker-compose":
+                    result = docker_compose.check();
+                    if (result.status === Status.Error) {
+                        return result;
+                    }
+                    break;
+                case "docker-container":
+                    result = docker_container.check();
+                    if (result.status === Status.Error) {
+                        return result;
+                    }
+                    break;
+                case "powershell-script":
+                    result = powershell_script.check();
+                    if (result.status === Status.Error) {
+                        return result;
+                    }
+                    break;
+                case "powershell-command":
+                    result = powershell_command.check();
+                    if (result.status === Status.Error) {
+                        return result;
+                    }
+                    break;
+                case "mssql":
+                    result = mssql.check();
+                    if (result.status === Status.Error) {
+                        return result;
+                    }
+                    break;
+                // case "chocolatey":
+                //     if (!chocolatey.check()) {
+                //         return false;
+                //     }
+                //     break;
+                default:
+                    throw new Error(`'${executable.type}' type is not supported`);
+            }
+        }
+
+        return new CheckResult(Status.Success, "All dependencies are available");
     }
 }
