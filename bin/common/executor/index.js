@@ -4,46 +4,46 @@ import powershell_script from "../../common/executor/executions/powershell-scrip
 import powershell_command from "../../common/executor/executions/powershell-command/index.js";
 import mssql from "../../common/executor/executions/mssql/index.js";
 
-import {Executable, Runtime} from "../models/dever-json/internal.js";
+import {Execute, Runtime} from "../models/dever-json/internal.js";
 import {CheckResult, ExecutionResult, Status} from "./models.js";
 
 export default new class {
     /**
      * Handles handlers for each environment dependency
-     * @param executable {Executable}
+     * @param execute {Execute}
      * @param runtime {Runtime}
      * @returns {Promise<ExecutionResult>}
      */
-    async execute(executable, runtime) {
-        switch (executable.type) {
+    async execute(execute, runtime) {
+        switch (execute.type) {
             case "docker-compose":
-                return docker_compose.handle(executable, runtime);
+                return docker_compose.handle(execute, runtime);
             case "docker-container":
-                return docker_container.handle(executable, runtime);
+                return docker_container.handle(execute, runtime);
             case "powershell-script":
-                return await powershell_script.handle(executable, runtime);
+                return await powershell_script.handle(execute, runtime);
             case "powershell-command":
-                return await powershell_command.handle(executable, runtime);
+                return await powershell_command.handle(execute, runtime);
             case "mssql":
-                return await mssql.handle(executable, runtime);
+                return await mssql.handle(execute, runtime);
             // case "chocolatey":
             //     await chocolatey.handle(execution, runtime);
             //     break;
             default:
-                throw new Error(`'${executable.type}' type is not supported`);
+                throw new Error(`'${execute.type}' type is not supported`);
         }
     }
 
     /**
      * Check if all necessary dependencies are available
-     * @param executables {Executable[]}
+     * @param executes {Execute[]}
      * @return {Promise<CheckResult>}
      */
-    async dependencyCheck(executables) {
+    async dependencyCheck(executes) {
         let result;
 
-        for (const executable of executables) {
-            switch (executable.type) {
+        for (const execute of executes) {
+            switch (execute.type) {
                 case "docker-compose":
                     result = docker_compose.check();
                     if (result.status === Status.Error) {
@@ -80,7 +80,7 @@ export default new class {
                 //     }
                 //     break;
                 default:
-                    throw new Error(`'${executable.type}' type is not supported`);
+                    throw new Error(`'${execute.type}' type is not supported`);
             }
         }
 

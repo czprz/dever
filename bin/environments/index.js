@@ -123,12 +123,13 @@ export default new class {
         }
 
         for (const executable of executables) {
-            // Todo: Add steps
             await this.#hasWait(executable, 'before');
+            await Executor.execute(executable.before, runtime);
 
             const result = await Executor.execute(executable, runtime);
             responseHandler.respond(result, executable);
 
+            await Executor.execute(executable.after, runtime);
             await this.#hasWait(executable, 'after');
         }
 
