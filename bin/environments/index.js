@@ -4,13 +4,13 @@ import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
 import Executor from "../common/executor/index.js";
+import Responder from "../common/executor/responder/index.js";
 
 import {Project, Executable, Runtime} from "../common/models/dever-json/internal.js";
+import {Status} from "../common/executor/models.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
-import responseHandler from "./response-handler.js";
-import {Status} from "../common/executor/models.js";
 
 "use strict";
 export default new class {
@@ -114,10 +114,6 @@ export default new class {
             return;
         }
 
-        if (!this.#checkAvailabilityOfDependencies(executables)) {
-            return;
-        }
-
         if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executables)) {
             return;
         }
@@ -127,7 +123,7 @@ export default new class {
             await Executor.execute(executable.before, runtime);
 
             const result = await Executor.execute(executable, runtime);
-            responseHandler.respond(result, executable);
+            Responder.respond(result, executable);
 
             await Executor.execute(executable.after, runtime);
             await this.#hasWait(executable, 'after');
@@ -237,30 +233,6 @@ export default new class {
         }
 
         return false;
-    }
-
-    /**
-     * Check if dependency of dependency is available
-     * @param executables {Executable[]}
-     * @returns {boolean}
-     */
-    #checkAvailabilityOfDependencies(executables) {
-        // Todo: should be moved
-        for (const executable of executables) {
-            switch (executable.type) {
-                case "docker-compose":
-                    return docker_compose.check();
-                case "docker-container":
-                    return docker_container.check();
-                case "run-command":
-                case "powershell-script":
-                case "powershell-command":
-                default:
-                    break;
-            }
-        }
-
-        return true;
     }
 
     /**

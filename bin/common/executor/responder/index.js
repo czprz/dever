@@ -1,13 +1,13 @@
-import {Operation as DComOperation} from '../common/executor/executions/docker-compose/index.js';
-import {Operation as DConOperation} from '../common/executor/executions/docker-container/index.js';
-import {Operation as PSScriptOperation} from '../common/executor/executions/powershell-script/index.js';
-import {Operation as PSCommandOperation} from '../common/executor/executions/powershell-command/index.js';
-import {Operation as MSSQLOperation} from '../common/executor/executions/mssql/index.js';
+import {Operation as DComOperation} from '../executions/docker-compose/index.js';
+import {Operation as DConOperation} from '../executions/docker-container/index.js';
+import {Operation as PSScriptOperation} from '../executions/powershell-script/index.js';
+import {Operation as PSCommandOperation} from '../executions/powershell-command/index.js';
+import {Operation as MSSQLOperation} from '../executions/mssql/index.js';
 
-import {Executable} from "../common/models/dever-json/internal.js";
-import {ExecutionResult, Status} from "../common/executor/models.js";
+import {Executable} from "../../models/dever-json/internal.js";
+import {ExecutionResult, Status} from "../models.js";
 
-import logger from "../common/helper/logger.js";
+import logger from "../../helper/logger.js";
 
 export default new class {
     /**
