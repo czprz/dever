@@ -1,15 +1,22 @@
 import docker from '../../../helper/docker/index.js';
 
 import {Execute, Runtime} from "../../../models/dever-json/internal.js";
-import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
+import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
     /**
+     * Execution type
+     * @type {string}
+     * @private
+     */
+    _type = 'docker-container';
+
+    /**
      * Handler for docker-container execution
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @return {ExecutionResult}
+     * @return {Result}
      */
     handle(execute, runtime) {
         switch(true) {
@@ -22,59 +29,58 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for docker-container execution
-     * @return {CheckResult}
+     * @return {Result}
      */
     check() {
         if (!docker.is_docker_running()) {
             console.error(`Docker engine not running. Please start docker and retry command`);
-            return new CheckResult(Status.Error, Operation.DependencyCheck);
+            return this._error(Operation.DependencyCheck);
         }
 
-        return new CheckResult(Status.Success, Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck);
     }
 
     /**
      * Start docker container
      * @param container {Container}
      * @param runtime {Runtime}
-     * @returns {ExecutionResult}
+     * @returns {Result}
      */
     #up(container, runtime) {
         const state = docker.container.getRunState(container.name);
         switch (state) {
             case docker.states.NotRunning: {
                 if (this.#recreate(container, runtime.clean)) {
-                    return new ExecutionResult(Status.Success, Operation.Recreated);
+                    return this._success(Operation.Recreated);
                 }
 
                 docker.container.start(container.name);
 
-                return new ExecutionResult(Status.Success, Operation.Started);
+                return this._success(Operation.Started);
             }
             case docker.states.Running:
-                return new ExecutionResult(Status.Success, Operation.AlreadyRunning);
+                return this._success(Operation.AlreadyRunning);
             case docker.states.NotFound:
                 docker.container.create(container);
-
-                return new ExecutionResult(Status.Success, Operation.Created);
+                return this._success(Operation.Created);
         }
     }
 
     /**
      * Stop docker container
      * @param container {Container}
-     * @return {ExecutionResult}
+     * @return {Result}
      */
     #down(container) {
         const state = docker.container.getRunState(container.name);
         switch (state) {
             case docker.states.Running:
                 docker.container.stop(container.name);
-                return new ExecutionResult(Status.Success, Operation.Stopped);
+                return this._success(Operation.Stopped);
             case docker.states.NotFound:
-                return new ExecutionResult(Status.Success, Operation.NotFound);
+                return this._success(Operation.NotFound);
             case docker.states.NotRunning:
-                return new ExecutionResult(Status.Success, Operation.NotRunning);
+                return this._success(Operation.NotRunning);
         }
     }
 
@@ -95,4 +101,4 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running', 'DependencyCheck': 'docker-not-running'});
+export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running', 'DependencyCheck': 'dependency-check'});

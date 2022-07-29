@@ -2,34 +2,41 @@ import powershell from '../../../helper/powershell.js';
 import customOptions from '../../../helper/custom_options.js';
 
 import {Execute, Runtime} from "../../../models/dever-json/internal.js";
-import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
+import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
     /**
+     * Execution type
+     * @type {string}
+     * @private
+     */
+    _type = 'powershell-command';
+
+    /**
      * Handler for powershell-command execution
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @return {Promise<ExecutionResult>}
+     * @return {Promise<Result>}
      */
     async handle(execute, runtime) {
         try {
             const command = customOptions.addOptionsToCommand(execute.command, execute.options, runtime.args);
             await powershell.executeSync(command, execute.runAsElevated);
 
-            return new ExecutionResult(Status.Success, Operation.Executed);
+            return this._success(Operation.Executed);
         } catch (e) {
-            return new ExecutionResult(Status.Error, Operation.Executed, e);
+            return this._error(Operation.Executed, e);
         }
     }
 
     /**
      * Check dependencies for powershell-command execution
-     * @return {CheckResult}
+     * @return {Result}
      */
     check() {
         // Todo: Check if powershell is supported
-        return new CheckResult(Status.Success, Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck);
     }
 }
 

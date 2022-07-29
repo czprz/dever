@@ -5,20 +5,20 @@ import {Operation as PSCommandOperation} from '../executions/powershell-command/
 import {Operation as MSSQLOperation} from '../executions/mssql/index.js';
 
 import {Executable} from "../../models/dever-json/internal.js";
-import {ExecutionResult, Status} from "../models.js";
+import {Result, Status} from "../models.js";
 
 import logger from "../../helper/logger.js";
 
 export default new class {
     /**
      * Handles error messages
-     * @param result {ExecutionResult}
+     * @param result {Result}
      * @param executable {Executable}
      */
     respond(result, executable) {
         let response = null;
 
-        switch (executable.type) {
+        switch (result.type) {
             case "docker-compose":
                 response = this.#docker_compose(result, executable);
                 break;
@@ -59,6 +59,8 @@ export default new class {
                 return new Response(result.status, `docker-compose: '${executable.name}' has been recreated`)
             case DComOperation.AlreadyRunning:
                 return new Response(result.status, `docker-compose: '${executable.name}' is already running`)
+            case DComOperation.DependencyCheck:
+                return new Response(result.status, `Docker engine not running. Please start docker and retry command`);
             default:
                 break;
         }
@@ -66,7 +68,7 @@ export default new class {
 
     /**
      * Handles error messages for type docker-container
-     * @param result {ExecutionResult}
+     * @param result {Result}
      * @param executable {Executable}
      * @return {Response}
      */
@@ -86,6 +88,8 @@ export default new class {
                 return new Response(result.status, `docker-container: '${executable.name}' not found`)
             case DConOperation.NotRunning:
                 return new Response(result.status, `docker-container: '${executable.name}' is not running`)
+            case DConOperation.DependencyCheck:
+                return new Response(result.status, `Docker engine not running. Please start docker and retry command`);
             default:
                 break;
         }
@@ -93,7 +97,7 @@ export default new class {
 
     /**
      * Handles error messages for type powershell-script
-     * @param result {ExecutionResult}
+     * @param result {Result}
      * @param executable {Executable}
      * @return {Response}
      */
@@ -111,7 +115,7 @@ export default new class {
 
     /**
      * Handles error messages for type powershell-command
-     * @param result {ExecutionResult}
+     * @param result {Result}
      * @param executable {Executable}
      * @return {Response}
      */
@@ -129,7 +133,7 @@ export default new class {
 
     /**
      * Handles error messages for type mssql
-     * @param result {ExecutionResult}
+     * @param result {Result}
      * @param executable {Executable}
      * @return {Response}
      */

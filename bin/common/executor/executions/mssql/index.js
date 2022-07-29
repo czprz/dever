@@ -1,16 +1,23 @@
 import mssql from '../../../helper/mssql/index.js';
 import validator from '../../../helper/mssql/validator.js';
 
-import {Execute, Runtime} from '../../../models/dever-json/internal.js';
-import {CheckResult, ExecutionInterface, ExecutionResult, Status} from "../../models.js";
+import {Execute} from '../../../models/dever-json/internal.js';
+import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
     /**
+     * Execution type
+     * @type {string}
+     * @private
+     */
+    _type = 'mssql';
+
+    /**
      * Handler for mssql execution
      * @param execute
      * @param runtime
-     * @return {Promise<ExecutionResult>}
+     * @return {Promise<Result>}
      */
     async handle(execute, runtime) {
         switch (execute.sql.option) {
@@ -23,91 +30,91 @@ export default new class extends ExecutionInterface {
             case "insert":
                 return await this.#insert(execute);
             default:
-                return new ExecutionResult(Status.Error, Operation.NotSupported);
+                return this._error(Operation.NotSupported);
         }
     }
 
     /**
      * Check dependencies for mssql execution
-     * @return {CheckResult}
+     * @return {Result}
      */
     check() {
-        return new CheckResult(Status.Success, Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck);
     }
 
     /**
      * Create database
      * @param execute {Execute}
-     * @returns {Promise<ExecutionResult>}
+     * @returns {Promise<Result>}
      */
     async #createDatabase(execute) {
         try {
             if (!await validator.createDatabase(execute)) {
-                return new ExecutionResult(Status.Error, Operation.DatabaseAlreadyExists);
+                return this._error(Operation.DatabaseAlreadyExists);
             }
 
             await mssql.createDatabase(execute.sql);
 
-            return new ExecutionResult(Status.Success, Operation.DatabaseCreated);
+            return this._success(Operation.DatabaseCreated);
         } catch (e) {
-            return new ExecutionResult(Status.Error, Operation.DatabaseCreated, e);
+            return this._error(Operation.DatabaseCreated, e);
         }
     }
 
     /**
      * Create table
      * @param execute {Execute}
-     * @returns {Promise<ExecutionResult>}
+     * @returns {Promise<Result>}
      */
     async #createTable(execute) {
         try {
             if (!await validator.createTable(execute)) {
-                return new ExecutionResult(Status.Error, Operation.TableAlreadyExists);
+                return this._error(Operation.TableAlreadyExists);
             }
 
             await mssql.createTable(execute.sql);
 
-            return new ExecutionResult(Status.Success, Operation.TableCreated);
+            return this._success(Operation.TableCreated);
         } catch (e) {
-            return new ExecutionResult(Status.Error, Operation.TableCreated, e);
+            return this._error(Operation.TableCreated, e);
         }
     }
 
     /**
      * Checks and runs 'insert into' once or multiple times depending on whether it's a string or array
      * @param execute {Execute}
-     * @returns {Promise<ExecutionResult>}
+     * @returns {Promise<Result>}
      */
     async #insert(execute) {
         try {
             if (!await validator.columns(execute)) {
-                return new ExecutionResult(Status.Error, Operation.TableOrColumnsNotFound);
+                return this._error(Operation.TableOrColumnsNotFound);
             }
 
             await mssql.insert(execute.sql);
 
-            return new ExecutionResult(Status.Success, Operation.Inserted);
+            return this._success(Operation.Inserted);
         } catch (e) {
-            return new ExecutionResult(Status.Error, Operation.Inserted, e);
+            return this._error(Operation.Inserted, e);
         }
     }
 
     /**
      * Drops database
      * @param execute {Execute}
-     * @return {Promise<ExecutionResult>}
+     * @return {Promise<Result>}
      */
     async #dropDatabase(execute) {
         try {
             if (await validator.dropDatabase(execute)) {
-                return new ExecutionResult(Status.Error, Operation.DatabaseNotFound);
+                return this._error(Operation.DatabaseNotFound);
             }
 
             await mssql.dropDatabase(execute.sql);
 
-            return new ExecutionResult(Status.Success, Operation.DatabaseDropped);
+            return this._success(Operation.DatabaseDropped);
         } catch (e) {
-            return new ExecutionResult(Status.Error, Operation.DatabaseDropped, e);
+            return this._error(Operation.DatabaseDropped, e);
         }
     }
 }

@@ -2,7 +2,7 @@ import docker from '../../../helper/docker/index.js';
 import shell from '../../../helper/shell.js';
 
 import {Execute, Runtime} from '../../../models/dever-json/internal.js';
-import {CheckResult, ExecutionResult, ExecutionInterface, Status} from "../../models.js";
+import {Result, ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -12,10 +12,17 @@ const states = Object.freeze({"NotFound": 0, "Running": 1, "NotRunning": 2});
 "use strict";
 export default new class extends ExecutionInterface {
     /**
+     * Execution type
+     * @type {string}
+     * @private
+     */
+    _type = 'docker-compose';
+
+    /**
      * Handler for docker-compose execution
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @return {ExecutionResult}
+     * @return {Result}
      */
     handle(execute, runtime) {
         switch (true) {
@@ -28,22 +35,21 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for docker-compose execution
-     * @return {CheckResult}
+     * @return {Result}
      */
     check() {
         if (!docker.is_docker_running()) {
-            console.error(`Docker engine not running. Please start docker and retry command`);
-            return new CheckResult(Status.Error, Operation.DockerRunningCheck);
+            return this._error(Operation.DependencyCheck);
         }
 
-        return new CheckResult(Status.Success, Operation.DockerRunningCheck);
+        return this._success(Operation.DependencyCheck);
     }
 
     /**
      * Start docker-compose
      * @param execute {Execute} FilePath to docker-compose
      * @param runtime {Runtime}
-     * @returns {ExecutionResult}
+     * @returns {Result}
      */
     #up(execute, runtime) {
         const state = this.#run_state();
@@ -51,26 +57,26 @@ export default new class extends ExecutionInterface {
         switch (state) {
             case states.NotRunning: {
                 if (this.#recreate(execute.location, execute.file, runtime.clean)) {
-                    return new ExecutionResult(Status.Success, Operation.Recreated);
+                    return this._success(Operation.Recreated);
                 }
 
                 const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
 
-                return new ExecutionResult(Status.Success, Operation.Started);
+                return this._success(Operation.Started);
             }
             case states.Running: {
                 if (this.#recreate(execute.location, execute.file, runtime.clean)) {
-                    return new ExecutionResult(Status.Success, Operation.Recreated);
+                    return this._success(Operation.Recreated);
                 }
 
-                return new ExecutionResult(Status.Success, Operation.AlreadyRunning);
+                return this._success(Operation.AlreadyRunning);
             }
             case states.NotFound: {
                 const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
 
-                return new ExecutionResult(Status.Success, Operation.Created);
+                return this._success(Operation.Started);
             }
         }
     }
@@ -78,13 +84,13 @@ export default new class extends ExecutionInterface {
     /**
      * Stop docker-compose
      * @param execute {Execute} FilePath to docker-compose
-     * @returns {ExecutionResult}
+     * @returns {Result}
      */
     #down(execute) {
         const filePath = path.join(execute.location, execute.file);
         shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
 
-        return new ExecutionResult(Status.Success, Operation.Stopped);
+        return this._success(Operation.Stopped);
     }
 
     /**
@@ -126,4 +132,4 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'DockerRunningCheck': 'docker-running-check'});
+export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'DependencyCheck': 'dependency-check'});

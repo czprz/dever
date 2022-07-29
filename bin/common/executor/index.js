@@ -5,14 +5,14 @@ import powershell_command from "../../common/executor/executions/powershell-comm
 import mssql from "../../common/executor/executions/mssql/index.js";
 
 import {Execute, Runtime} from "../models/dever-json/internal.js";
-import {CheckResult, ExecutionResult, Status} from "./models.js";
+import {Result, Status} from "./models.js";
 
 export default new class {
     /**
      * Handles handlers for each environment dependency
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {Promise<ExecutionResult>}
+     * @returns {Promise<Result>}
      */
     async execute(execute, runtime) {
         switch (execute.type) {
@@ -37,53 +37,39 @@ export default new class {
     /**
      * Check if all necessary dependencies are available
      * @param executes {Execute[]}
-     * @return {Promise<CheckResult>}
+     * @return {Promise<Result>}
      */
     async dependencyCheck(executes) {
         let result;
 
         for (const execute of executes) {
+            if (result?.status === Status.Error) {
+                return result;
+            }
+
             switch (execute.type) {
                 case "docker-compose":
                     result = docker_compose.check();
-                    if (result.status === Status.Error) {
-                        return result;
-                    }
                     break;
                 case "docker-container":
                     result = docker_container.check();
-                    if (result.status === Status.Error) {
-                        return result;
-                    }
                     break;
                 case "powershell-script":
                     result = powershell_script.check();
-                    if (result.status === Status.Error) {
-                        return result;
-                    }
                     break;
                 case "powershell-command":
                     result = powershell_command.check();
-                    if (result.status === Status.Error) {
-                        return result;
-                    }
                     break;
                 case "mssql":
                     result = mssql.check();
-                    if (result.status === Status.Error) {
-                        return result;
-                    }
                     break;
                 // case "chocolatey":
-                //     if (!chocolatey.check()) {
-                //         return false;
-                //     }
                 //     break;
                 default:
                     throw new Error(`'${execute.type}' type is not supported`);
             }
         }
 
-        return new CheckResult(Status.Success, "All dependencies are available");
+        return new Result(Status.Success, "dependency-check", "dependency-check");
     }
 }

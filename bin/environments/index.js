@@ -110,7 +110,7 @@ export default new class {
 
         const checkResult = await Executor.dependencyCheck(executables);
         if (checkResult.status === Status.Error) {
-            // Todo: Add response handler
+            Responder.respond(checkResult, null);
             return;
         }
 
