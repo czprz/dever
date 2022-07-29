@@ -6,7 +6,7 @@ import chalk from "chalk";
 
 export default new class {
     /**
-     *
+     * Update .dever configuration
      * @param unstructuredKey {string}
      * @param value {string}
      */
@@ -28,7 +28,7 @@ export default new class {
     }
 
     /**
-     *
+     * Generate keys
      * @param unstructuredKey {string}
      * @return {{case: string, id?: number | null}}
      */
@@ -81,6 +81,11 @@ export default new class {
         });
     }
 
+    /**
+     * Save global hash check
+     * @param key {string}
+     * @param value {string}
+     */
     #saveSkipAllHashChecks(key, value) {
         if (!typeValidator.isValidBoolean(value)) {
             console.warn(chalk.red(`Could not set '${value}' to '${key}'. Must a boolean. (true, false, 0 or 1)`));

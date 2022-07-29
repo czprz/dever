@@ -1,5 +1,6 @@
 import shell from '../common/helper/shell.js';
 import sudo from '../common/helper/elevated.js';
+import logger from "../common/helper/logger.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
@@ -7,31 +8,31 @@ import chalk from 'chalk';
 "use strict";
 export default new class {
     /**
-     * Handler for fixes
-     * @param config {Config}
+     * Handler for installs
+     * @param project {Project}
      * @param yargs {object}
      * @param args {InstallArgs}
      * @returns {Promise<void>}
      */
-    async handler(config, yargs, args) {
+    async handler(project, yargs, args) {
         switch (true) {
             case args.listGroups:
-                this.#listGroups(config);
+                this.#listGroups(project);
                 break;
             case args.list:
-                this.#showListOfPackages(config);
+                this.#showListOfPackages(project);
                 break;
             case args.listGroup != null:
-                this.#showAllInstallsForSpecificGroup(config, args);
+                this.#showAllInstallsForSpecificGroup(project, args);
                 break;
             case args.group != null:
-                await this.#installAllWithSameGroup(config, args);
+                await this.#installAllWithSameGroup(project, args);
                 break;
             case args.only != null:
-                await this.#installOnlyPackage(config, args);
+                await this.#installOnlyPackage(project, args);
                 break;
             default:
-                await this.#installAllPackages(config, args);
+                await this.#installAllPackages(project, args);
         }
     }
 
@@ -70,20 +71,20 @@ export default new class {
                 alias: 'nba',
                 describe: 'Disables running of before and after functionality if defined in project dever.json'
             })
-            .option('shc', {
-                alias: 'skip-hash-check',
+            .option('skip-hash-check', {
+                alias: 'shc',
                 describe: 'Skip hash check when running command'
             });
     }
 
     /**
      * Show all groups and what they will install
-     * @param config {Config}
+     * @param project {Project}
      */
-    #listGroups(config) {
+    #listGroups(project) {
         console.log('Lists all available installs for the project by group.')
 
-        const sorted = config.install.sort(x => x.group);
+        const sorted = project.install.sort(x => x.group);
         let prevGroup = null;
 
         for (const install of sorted) {
@@ -99,23 +100,23 @@ export default new class {
 
     /**
      * List all packages for project
-     * @param config {Config}
+     * @param project {Project}
      */
-    #showListOfPackages(config) {
+    #showListOfPackages(project) {
         console.log('Lists all available installs for the project.');
 
-        for (const install of config.install) {
+        for (const install of project.install) {
             this.#showPackage(install);
         }
     }
 
     /**
      * List all installs for a specific install group
-     * @param config {Config}
+     * @param project {Project}
      * @param args {InstallArgs}
      */
-    #showAllInstallsForSpecificGroup(config, args) {
-        if (config.install.length === 0) {
+    #showAllInstallsForSpecificGroup(project, args) {
+        if (project.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
@@ -125,108 +126,81 @@ export default new class {
             return;
         }
 
-        const groupInstalls = config.install.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
-        if (groupInstalls.length === 0) {
+        const installs = project.install.filter(x => x.group.toLowerCase() === args.listGroup.toLowerCase());
+        if (installs.length === 0) {
             console.log('Could not find any installs for this project with that specific group');
             return;
         }
 
         console.log('List of installs found:');
 
-        for (const install of groupInstalls) {
+        for (const install of installs) {
             this.#showPackage(install);
         }
     }
 
     /**
      * Installs all items defined under a project install group
-     * @param config {Config}
+     * @param project {Project}
      * @param args {InstallArgs}
      */
-    async #installAllWithSameGroup(config, args) {
+    async #installAllWithSameGroup(project, args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        if (config.install.length === 0) {
+        if (project.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
 
-        const groupInstalls = config.install.filter(x => x.group.toLowerCase() === args.group.toLowerCase());
+        const groupInstalls = project.install.filter(x => x.group.toLowerCase() === args.group.toLowerCase());
         if (groupInstalls.length === 0) {
             console.log('Could not find any installs for this project with that specific group');
             return;
         }
 
-        console.log('Packages about to be installed:');
-
-        for (const install of config.install) {
-            this.#showPackage(install);
-        }
-
-        console.log();
-
-        this.#confirmInstall(args, () => {
-            for (const install of groupInstalls) {
-                this.#installPackage(args, install);
-            }
-        });
+        this.#install(groupInstalls, args);
     }
 
     /**
      * Install only specific project install package
-     * @param config {Config}
+     * @param project {Project}
      * @param args {InstallArgs}
      */
-    async #installOnlyPackage(config, args) {
+    async #installOnlyPackage(project, args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        if (config.install.length === 0) {
+        if (project.install.length === 0) {
             console.log('Project does not have an install section');
             return;
         }
 
-        const install = config.install.find(x => x.package.toLowerCase() === args.only.toLowerCase());
+        const install = project.install.find(x => x.package.toLowerCase() === args.only.toLowerCase());
         if (install == null) {
             console.log('Could not find any install package');
             return;
         }
 
-        this.#confirmInstall(args, () => {
-            this.#installPackage(args, install);
-        });
+        this.#install([install], args);
     }
 
     /**
      * Install all items for specific project or show help
-     * @param config {Config}
+     * @param project {Project}
      * @param args {InstallArgs}
      */
-    async #installAllPackages(config, args) {
+    async #installAllPackages(project, args) {
         if (!await sudo.isElevated()) {
             console.log(chalk.red('Install of packages requires elevated permissions'));
             return;
         }
 
-        console.log('Packages about to be installed:');
-
-        for (const install of config.install) {
-            this.#showPackage(install);
-        }
-
-        console.log();
-
-        this.#confirmInstall(args, () => {
-            for (const install of config.install) {
-                // Todo: Better handling of error/progress messages
-                this.#installPackage(args, install);
-            }
-        })
+        this.#install(project.install, args);
     }
 
     /**
@@ -273,16 +247,46 @@ export default new class {
     }
 
     /**
-     * Install chocolatey package
+     * Start installation of all packages
+     * @param installs {Install[]}
      * @param args {InstallArgs}
-     * @param install {Install}
      */
-    #installPackage(args, install) {
-        this.executeStep(args, install.before);
+    #install(installs, args) {
+        if (installs.length > 1) {
+            console.log('Packages about to be installed:');
 
-        shell.executeSync(`choco install ${install.package} -y`);
+            for (const install of installs) {
+                this.#showPackage(install);
+            }
 
-        this.executeStep(args, install.after);
+            console.log();
+        }
+
+        logger.create();
+
+        this.#confirmInstall(args, () => {
+            for (const install of installs) {
+                console.log(`Installing ${install.type}: ${install.package}..`);
+
+                try {
+                    this.#executeStep(args, install.before);
+
+                    shell.executeSync(`choco install ${install.package} -y`);
+
+                    this.#executeStep(args, install.after);
+
+                    console.log(`${install.type}: '${install.package}' completed successfully`);
+                } catch (e) {
+                    logger.error(`${install.type}: '${install.package}' completed with errors`, e);
+                }
+            }
+        });
+
+        logger.destroy();
+
+        if (logger.hasLogs()) {
+            console.log(chalk.yellow(`Install command ended with errors. Please check the log for more detail. ${logger.getLogFile()}`));
+        }
     }
 
     /**
@@ -290,13 +294,14 @@ export default new class {
      * @param args {InstallArgs}
      * @param step {Step}
      */
-    executeStep(args, step) {
+    #executeStep(args, step) {
         if (args.noBeforeAfter || step == null) {
             return;
         }
 
         switch (step.type) {
             case 'powershell-command':
+                // Todo: Add support for using any functionality available
                 shell.executeSync(step.command);
                 break;
             default:

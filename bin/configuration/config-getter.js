@@ -2,6 +2,10 @@ import localConfig from "./local-config.js";
 import projectConfigFacade from "./facades/project-config-facade.js";
 
 export default new class {
+    /**
+     * Show value of a key in .dever
+     * @param unstructuredKey {string}
+     */
     get(unstructuredKey) {
         const key = this.#keyGenerator(unstructuredKey);
         switch (key.case) {
