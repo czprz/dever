@@ -3,6 +3,7 @@ import docker_container from "../../common/executor/executions/docker-container/
 import powershell_script from "../../common/executor/executions/powershell-script/index.js";
 import powershell_command from "../../common/executor/executions/powershell-command/index.js";
 import mssql from "../../common/executor/executions/mssql/index.js";
+import chocolatey from "./executions/chocolatey/index.js";
 
 import {Execute, Runtime} from "../models/dever-json/internal.js";
 import {Result, Status} from "./models.js";
@@ -26,9 +27,8 @@ export default new class {
                 return await powershell_command.handle(execute, runtime);
             case "mssql":
                 return await mssql.handle(execute, runtime);
-            // case "chocolatey":
-            //     await chocolatey.handle(execution, runtime);
-            //     break;
+            case "chocolatey":
+                return chocolatey.handle(execute, runtime);
             default:
                 throw new Error(`'${execute.type}' type is not supported`);
         }
@@ -63,8 +63,9 @@ export default new class {
                 case "mssql":
                     result = mssql.check();
                     break;
-                // case "chocolatey":
-                //     break;
+                case "chocolatey":
+                    result = chocolatey.check();
+                    break;
                 default:
                     throw new Error(`'${execute.type}' type is not supported`);
             }

@@ -16,6 +16,16 @@
         "type": "powershell-command",
         "command": "choco uninstall git"
       }
+    },
+    {
+      "name": "docker",
+      "type": "powershell-script",
+      "command": "/development/scripts/install-docker.ps1",
+      "group": "primary",
+      "before": {
+        "type": "powershell-command",
+        "command": "choco uninstall docker"
+      }
     }
   ],
   "fix": [
