@@ -120,12 +120,12 @@ export default new class {
 
         for (const executable of executables) {
             await this.#hasWait(executable, 'before');
-            await Executor.execute(executable.before, runtime);
+            await this.executeStep(executable.before, runtime);
 
             const result = await Executor.execute(executable, runtime);
             Responder.respond(result, executable);
 
-            await Executor.execute(executable.after, runtime);
+            await this.executeStep(executable.after, runtime);
             await this.#hasWait(executable, 'after');
         }
 
@@ -179,6 +179,20 @@ export default new class {
         if (execution.wait.when === timing) {
             return new Promise(resolve => setTimeout(resolve, execution.wait.time));
         }
+    }
+
+    /**
+     * Executes before or after steps
+     * @param execute {Execute}
+     * @param runtime {Runtime}
+     * @return {Promise<void>}
+     */
+    async executeStep(execute, runtime) {
+        if (execute == null) {
+            return;
+        }
+
+        await Executor.execute(execute, runtime);
     }
 
     /**
