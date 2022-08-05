@@ -75,7 +75,7 @@ export default new class {
     #docker_container(result, executable) {
         switch (result.operation) {
             case DConOperation.Created:
-                return new Response(result, `docker-container: '${executable.name}' has been created`);
+                return new Response(result, `docker-container: '${executable.name}' has been created and started`);
             case DConOperation.Started:
                 return new Response(result, `docker-container: '${executable.name}' has been started`);
             case DConOperation.Stopped:
@@ -141,20 +141,28 @@ export default new class {
         switch (result.operation) {
             case MSSQLOperation.DatabaseCreated:
                 return new Response(result, `mssql: '${executable.name}' database has been created`);
+            case MSSQLOperation.NotDatabaseCreated:
+                return new Response(result, `mssql: '${executable.name}' database was not created due to errors`);
             case MSSQLOperation.DatabaseDropped:
                 return new Response(result, `mssql: '${executable.name}' database has been dropped`);
+            case MSSQLOperation.NotDatabaseDropped:
+                return new Response(result, `mssql: '${executable.name}' database was not dropped due to errors`);
             case MSSQLOperation.DatabaseAlreadyExists:
                 return new Response(result, `mssql: '${executable.name}' database already exists`);
             case MSSQLOperation.DatabaseNotFound:
                 return new Response(result, `mssql: '${executable.name}' database not found`);
             case MSSQLOperation.TableCreated:
                 return new Response(result, `mssql: '${executable.name}' table has been created`);
+            case MSSQLOperation.NotTableCreated:
+                return new Response(result, `mssql: '${executable.name}' table was not created due to errors`);
             case MSSQLOperation.TableDropped:
                 return new Response(result, `mssql: '${executable.name}' table has been dropped`);
             case MSSQLOperation.TableAlreadyExists:
                 return new Response(result, `mssql: '${executable.name}' table already exists`);
             case MSSQLOperation.Inserted:
                 return new Response(result, `mssql: '${executable.name}' data has been inserted`);
+            case MSSQLOperation.NotInserted:
+                return new Response(result, `mssql: '${executable.name}' data was not inserted due to errors`);
             case MSSQLOperation.TableOrColumnsNotFound:
                 return new Response(result, `mssql: '${executable.name}' table or columns not found`);
             case MSSQLOperation.NotSupported:

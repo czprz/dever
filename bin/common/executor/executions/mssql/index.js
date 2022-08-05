@@ -57,7 +57,7 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.DatabaseCreated);
         } catch (e) {
-            return this._error(Operation.DatabaseCreated, e);
+            return this._error(Operation.NotDatabaseCreated, e);
         }
     }
 
@@ -76,7 +76,7 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.TableCreated);
         } catch (e) {
-            return this._error(Operation.TableCreated, e);
+            return this._error(Operation.NotTableCreated, e);
         }
     }
 
@@ -95,7 +95,7 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.Inserted);
         } catch (e) {
-            return this._error(Operation.Inserted, e);
+            return this._error(Operation.NotInserted, e);
         }
     }
 
@@ -114,10 +114,10 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.DatabaseDropped);
         } catch (e) {
-            return this._error(Operation.DatabaseDropped, e);
+            return this._error(Operation.NotDatabaseDropped, e);
         }
     }
 }
 
-export const Operation = Object.freeze({DatabaseCreated: 'database-created', DatabaseDropped: 'database-dropped', TableCreated: 'table-created', TableDropped: 'table-dropped', Inserted: 'inserted', TableOrColumnsNotFound: 'columns-not-found', DatabaseAlreadyExists: 'database-already-exists', DatabaseNotFound: 'database-not-found', TableAlreadyExists: 'table-already-exists', NotSupported: 'not-supported', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({DatabaseCreated: 'database-created', NotDatabaseCreated: 'not-database-created', DatabaseDropped: 'database-dropped', NotDatabaseDropped: 'not-database-dropped', TableCreated: 'table-created', NotTableCreated: 'not-table-created', TableDropped: 'table-dropped', Inserted: 'inserted', NotInserted: 'not-insert', TableOrColumnsNotFound: 'columns-not-found', DatabaseAlreadyExists: 'database-already-exists', DatabaseNotFound: 'database-not-found', TableAlreadyExists: 'table-already-exists', NotSupported: 'not-supported', DependencyCheck: 'dependency-check'});
 
