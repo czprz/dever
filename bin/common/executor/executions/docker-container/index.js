@@ -33,7 +33,6 @@ export default new class extends ExecutionInterface {
      */
     check() {
         if (!docker.is_docker_running()) {
-            console.error(`Docker engine not running. Please start docker and retry command`);
             return this._error(Operation.DependencyCheck);
         }
 

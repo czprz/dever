@@ -289,15 +289,17 @@ export class Executable extends Action {
     down;
 
     /**
-     * @param config {ExecutionConfig}
+     * @param config {Executable}
      * @param runtime {Runtime}
      */
     constructor(config, runtime) {
         super();
 
-        Action.#map(this, config);
+        this.name = config.name;
 
-        if (config.start != null) {
+        Executable.#map(this, config);
+
+        if (config.up != null) {
             this.#migrate(config, runtime);
         }
     }
@@ -312,10 +314,10 @@ export class Executable extends Action {
 
         if (runtime.up) {
             this.up = new Action();
-            Action.#map(this.up, config.up);
+            Executable.#map(this.up, config.up);
         } else {
             this.down = new Action();
-            Action.#map(this.down, config.down);
+            Executable.#map(this.down, config.down);
         }
 
         this.#updateStepValues(this[selected] ?? this.up);

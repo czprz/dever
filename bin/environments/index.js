@@ -342,7 +342,7 @@ export default new class {
                 return null;
             }
 
-            return executable;
+            return new Executable(executable, runtime);
         });
 
         if (runtime.down) {

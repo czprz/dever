@@ -88,10 +88,7 @@ export default new class Logger {
 
         console.error(message);
 
-        Logger.#logger.log('error', message);
-
-        if (error != null)
-            Logger.#logger.log('error', error?.message);
+        Logger.#logger.log('error', message, error);
 
         Logger.#hasLogs = true;
     }
