@@ -49,7 +49,7 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.Install);
         } catch {
-            return this._error(Operation.Install);
+            return this._error(Operation.NotInstall);
         }
     }
 
@@ -59,9 +59,9 @@ export default new class extends ExecutionInterface {
 
             return this._success(Operation.Uninstall);
         } catch {
-            return this._error(Operation.Uninstall);
+            return this._error(Operation.NotUninstall);
         }
     }
 }
 
-export const Operation = Object.freeze({Install: 'install', Uninstall: 'uninstall', dependencyCheck: 'dependencyCheck'});
+export const Operation = Object.freeze({Install: 'install', NotInstall: 'not-install', Uninstall: 'uninstall', NotUninstall: 'not-uninstall', DependencyCheck: 'dependency-check'});

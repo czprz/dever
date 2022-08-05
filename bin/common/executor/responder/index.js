@@ -3,6 +3,7 @@ import {Operation as DConOperation} from '../executions/docker-container/index.j
 import {Operation as PSScriptOperation} from '../executions/powershell-script/index.js';
 import {Operation as PSCommandOperation} from '../executions/powershell-command/index.js';
 import {Operation as MSSQLOperation} from '../executions/mssql/index.js';
+import {Operation as ChocolateyOperation} from '../executions/chocolatey/index.js';
 
 import {Executable} from "../../models/dever-json/internal.js";
 import {Result, Status} from "../models.js";
@@ -33,6 +34,9 @@ export default new class {
                 break;
             case "mssql":
                 response = this.#mssql(result, executable);
+                break;
+            case "chocolatey":
+                response = this.#chocolatey(result, executable);
                 break;
             default:
                 break;
@@ -104,10 +108,9 @@ export default new class {
     #powershell_script(result, executable) {
         switch (result.operation) {
             case PSScriptOperation.Executed:
-                const message = result.status === Status.Success ?
-                    `powershell-script: '${executable.name}' has been executed` :
-                    `powershell-script: '${executable.name}' has been executed with errors`;
-                return new Response(result, message);
+                return new Response(result, `powershell-script: '${executable.name}' has been executed`);
+            case PSScriptOperation.NotExecuted:
+                return new Response(result, `powershell-script: '${executable.name}' has been executed with errors`);
             default:
                 break;
         }
@@ -122,10 +125,9 @@ export default new class {
     #powershell_command(result, executable) {
         switch (result.operation) {
             case PSCommandOperation.Executed:
-                const message = result.status === Status.Success ?
-                    `powershell-command: '${executable.name}' has been executed` :
-                    `powershell-command: '${executable.name}' has been executed with errors`;
-                return new Response(result, message);
+                return new Response(result, `powershell-command: '${executable.name}' has been executed`);
+            case !PSCommandOperation.NotExecuted:
+                return new Response(result, `powershell-command: '${executable.name}' has been executed with errors`);
             default:
                 break;
         }
@@ -169,6 +171,27 @@ export default new class {
                 return new Response(result, `mssql: '${executable.name}' sql option is not supported!`);
             default:
                 break;
+        }
+    }
+
+    /**
+     * Handles error messages for type chocolatey
+     * @param result {Result}
+     * @param executable {Executable}
+     * @return {Response}
+     */
+    #chocolatey(result, executable) {
+        switch (result.operation) {
+            case ChocolateyOperation.Install:
+                return new Response(result, `chocolatey: '${executable.name}' has been installed`);
+            case ChocolateyOperation.NotInstall:
+                return new Response(result, `chocolatey: '${executable.name}' was not installed due to errors`);
+            case ChocolateyOperation.Uninstall:
+                return new Response(result, `chocolatey: '${executable.name}' has been uninstalled`);
+            case ChocolateyOperation.NotUninstall:
+                return new Response(result, `chocolatey: '${executable.name}' was not uninstalled due to errors`);
+            case ChocolateyOperation.DependencyCheck:
+                return new Response(result, `Chocolatey not installed. Please install chocolatey and retry command`);
         }
     }
 
