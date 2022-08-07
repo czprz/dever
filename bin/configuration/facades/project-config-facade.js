@@ -7,6 +7,8 @@ import localConfig from "../local-config.js";
 import {Project} from "../../common/models/dever-json/internal.js";
 // noinspection ES6UnusedImports
 import {Config as ExternalConfig, Project as ExternalProject} from "../../common/models/dot-dever/external.js";
+// noinspection ES6UnusedImports
+import {Project as ExternalConfigProject} from "../../common/models/dever-json/external.js";
 
 import path from "path";
 
@@ -154,12 +156,14 @@ export default new class {
      * @returns {Project}
      */
     #fetchProject(project, config, id) {
-        const projectConfig = json.read(project.path);
+        const projectConfigRaw = json.read(project.path);
+        const projectConfig = this.#mapProjectConfig(projectConfigRaw);
 
         if (projectConfig?.version == null) {
             return null;
         }
 
+        // Todo: Implement better mapping
         return {
             ...projectConfig,
             id: id,
@@ -170,7 +174,7 @@ export default new class {
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfigRaw),
             validKeywords: configValidator.validate(projectConfig),
             internalOptions: {
                 keywords: null
@@ -232,5 +236,18 @@ export default new class {
         countOfKeywords[keyword]++;
 
         return countOfKeywords[keyword];
+    }
+
+    /**
+     * Maps ExternalConfigProject to ensure optional is set
+     * @param project {ExternalConfigProject}
+     * @return {ExternalConfigProject}
+     */
+    #mapProjectConfig(project) {
+        for (const execute of project.environment) {
+            execute.optional = execute.optional ?? false;
+        }
+
+        return project;
     }
 }

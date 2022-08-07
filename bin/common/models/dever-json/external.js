@@ -17,7 +17,7 @@ export class Project {
     /**
      * @type {Execution[]}
      */
-    setup;
+    install;
 
     /**
      * @type {Fix[]}
@@ -53,62 +53,6 @@ class Fix {
      * @type {string | null}
      */
     file;
-}
-
-class Execution extends ExecutionStep {
-    /**
-     * @type {string}
-     */
-    name;
-
-    /**
-     * @type {boolean | null}
-     */
-    default = true;
-
-    /**
-     * @type {string | null}
-     */
-    group;
-
-    /**
-     * @type {ExecutionStep | null}
-     */
-    up;
-
-    /**
-     * @type {ExecutionStep | null}
-     */
-    down;
-}
-
-class ExecutionStep extends Executable {
-    /**
-     * Custom options that will be passed along to dependency
-     * @type {Option[] | null}
-     */
-    options;
-
-    /**
-     * @type {Wait | null}
-     */
-    wait;
-
-    /**
-     * Informs whether a dependency needs to be run as elevated user
-     * @type {boolean | null}
-     */
-    runAsElevated;
-
-    /**
-     * @type {Executable | null}
-     */
-    after;
-
-    /**
-     * @type {Executable | null}
-     */
-    before;
 }
 
 class Executable {
@@ -147,6 +91,62 @@ class Executable {
      * @type {string | null}
      */
     package;
+}
+
+class ExecutionStep extends Executable {
+    /**
+     * Custom options that will be passed along to dependency
+     * @type {Option[] | null}
+     */
+    options;
+
+    /**
+     * @type {Wait | null}
+     */
+    wait;
+
+    /**
+     * Informs whether a dependency needs to be run as elevated user
+     * @type {boolean | null}
+     */
+    runAsElevated;
+
+    /**
+     * @type {Executable | null}
+     */
+    after;
+
+    /**
+     * @type {Executable | null}
+     */
+    before;
+}
+
+class Execution extends ExecutionStep {
+    /**
+     * @type {string}
+     */
+    name;
+
+    /**
+     * @type {boolean | null}
+     */
+    optional = true;
+
+    /**
+     * @type {string | null}
+     */
+    group;
+
+    /**
+     * @type {ExecutionStep | null}
+     */
+    up;
+
+    /**
+     * @type {ExecutionStep | null}
+     */
+    down;
 }
 
 class Wait {

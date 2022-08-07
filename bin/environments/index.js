@@ -332,8 +332,14 @@ export default new class {
             const lowerCaseName = executable?.name?.toLowerCase();
             const lowerCaseGroup = executable?.group?.toLowerCase();
 
-            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
+            const included = runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName);
+            const includedGroup = runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup);
+
+            if (included || includedGroup) {
+                return null;
+            }
+
+            if (included && includedGroup && executable.optional) {
                 return null;
             }
 

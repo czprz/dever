@@ -126,7 +126,7 @@ export default new class {
         switch (result.operation) {
             case PSCommandOperation.Executed:
                 return new Response(result, `powershell-command: '${executable.name}' has been executed`);
-            case !PSCommandOperation.NotExecuted:
+            case PSCommandOperation.NotExecuted:
                 return new Response(result, `powershell-command: '${executable.name}' has been executed with errors`);
             default:
                 break;

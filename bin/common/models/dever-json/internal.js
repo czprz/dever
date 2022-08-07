@@ -117,7 +117,7 @@ export class Project {
     /**
      * @type {Action[]}
      */
-    setup;
+    install;
 
     /**
      * @type {Fix[]}
@@ -276,7 +276,7 @@ export class Executable extends Action {
     /**
      * @type {boolean}
      */
-    default = true;
+    optional;
 
     /**
      * @type {Action | null}
