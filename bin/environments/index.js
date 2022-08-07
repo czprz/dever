@@ -50,17 +50,17 @@ export default new class {
                 describe: 'Keyword for component',
                 type: 'string'
             })
-            .option('start', {
-                describe: 'Start project dependencies',
+            .option('up', {
+                describe: 'Setup project environment',
             })
-            .option('stop', {
-                describe: 'Stop project dependencies'
+            .option('down', {
+                describe: 'Take down project environment',
             })
-            .option('start-group', {
-                describe: 'Start group of project dependencies'
+            .option('up-group', {
+                describe: 'Setup project environment using only items from group',
             })
-            .option('stop-group', {
-                describe: 'Stop group of project dependencies'
+            .option('down-group', {
+                describe: 'Take down project environment using only items from group',
             })
             .option('not', {
                 alias: 'n',
@@ -274,23 +274,23 @@ export default new class {
      * @returns {Runtime}
      */
     #getRuntime(args) {
-        const stop = args.hasOwnProperty('stop');
-        const start = args.hasOwnProperty('start');
-        const stopGroup = args.hasOwnProperty('stop-group');
-        const startGroup = args.hasOwnProperty('start-group');
+        const up = args.hasOwnProperty('up');
+        const down = args.hasOwnProperty('down');
+        const upGroup = args.hasOwnProperty('up-group');
+        const downGroup = args.hasOwnProperty('down-group');
 
-        if (stop === start && stopGroup === startGroup) {
+        if (up === down && downGroup === upGroup) {
             return {
-                up: start || startGroup,
-                down: stop || stopGroup
+                up: up || upGroup,
+                down: down || downGroup
             };
         }
 
-        const choice = start || startGroup ? 'start' : 'stop';
+        const choice = down || upGroup ? 'up' : 'down';
 
         return {
-            up: start || startGroup,
-            down: stop || stopGroup,
+            up: up || upGroup,
+            down: down || downGroup,
             include: {
                 executions: this.#getVariables(args[choice]),
                 groups: this.#getVariables(args[`${choice}-group`])
@@ -364,25 +364,25 @@ class EnvArgs {
      * Option for starting environment
      * @type {boolean|string|string[]}
      */
-    start;
+    up;
 
     /**
      * Option for stopping environment
      * @type {boolean|string|string[]}
      */
-    stop;
+    down;
 
     /**
      * Starts one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    startGroup;
+    upGroup;
 
     /**
      * Stops one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    stopGroup;
+    downGroup;
 
     /**
      * Option (optional) included with start for starting environment cleanly
