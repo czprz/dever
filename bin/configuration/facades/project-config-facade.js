@@ -1,8 +1,14 @@
-import localConfig from "../local-config.js";
-import json from "../../common/helper/json.js";
 import schemaValidator, {SchemaTypes} from "../../common/validators/schema-validator.js";
 import versionChecker from "../../common/helper/version-checker.js";
 import configValidator from "../../common/helper/config-validator.js";
+import json from "../../common/helper/json.js";
+import localConfig from "../local-config.js";
+
+import {Project} from "../../common/models/dever-json/internal.js";
+// noinspection ES6UnusedImports
+import {Config as ExternalConfig, Project as ExternalProject} from "../../common/models/dot-dever/external.js";
+// noinspection ES6UnusedImports
+import {Project as ExternalConfigProject} from "../../common/models/dever-json/external.js";
 
 import path from "path";
 
@@ -24,7 +30,7 @@ export default new class {
     /**
      * Gets only one project by specifically looking through keywords found in .dever
      * @param keyword {string}
-     * @returns Project[] | null
+     * @returns {Project[] | null}
      */
     get(keyword) {
         let projects = this.#getProjects()?.filter(x => x != null);
@@ -57,7 +63,7 @@ export default new class {
     /**
      * Get actual value from .dever project
      * @param id {number}
-     * @return LocalProject
+     * @return {ExternalProject | null}
      */
     getLocalValues(id) {
         const config = localConfig.get();
@@ -66,7 +72,7 @@ export default new class {
 
     /**
      * @callback updateRequest
-     * @param {LocalProject} project
+     * @param {ExternalProject} project
      */
 
     /**
@@ -144,18 +150,20 @@ export default new class {
 
     /**
      * gets project configuration
-     * @param project {LocalProject}
-     * @param config {LocalConfig}
+     * @param project {ExternalProject}
+     * @param config {ExternalConfig}
      * @param id {number}
      * @returns {Project}
      */
     #fetchProject(project, config, id) {
-        const projectConfig = json.read(project.path);
+        const projectConfigRaw = json.read(project.path);
+        const projectConfig = this.#mapProjectConfig(projectConfigRaw);
 
         if (projectConfig?.version == null) {
             return null;
         }
 
+        // Todo: Implement better mapping
         return {
             ...projectConfig,
             id: id,
@@ -166,7 +174,7 @@ export default new class {
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfigRaw),
             validKeywords: configValidator.validate(projectConfig),
             internalOptions: {
                 keywords: null
@@ -228,5 +236,18 @@ export default new class {
         countOfKeywords[keyword]++;
 
         return countOfKeywords[keyword];
+    }
+
+    /**
+     * Maps ExternalConfigProject to ensure optional is set
+     * @param project {ExternalConfigProject}
+     * @return {ExternalConfigProject}
+     */
+    #mapProjectConfig(project) {
+        for (const execute of project.environment) {
+            execute.optional = execute.optional ?? false;
+        }
+
+        return project;
     }
 }
