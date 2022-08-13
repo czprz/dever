@@ -6,7 +6,8 @@ import logger from './helper/logger.js';
 import Executor from "./executor/index.js";
 import Responder from "./executor/responder/index.js";
 
-import {Executable, Runtime, Args} from "./models/dever-json/internal.js";
+import {Args} from "./models/common.js";
+import {Executable, Runtime} from "./models/dever-json/internal.js";
 import {Status} from "./executor/models.js";
 
 import readline from 'readline';

@@ -44,9 +44,9 @@ export default new class {
             .command({
                 command: `install`,
                 desc: 'Install project depended packages and functionality',
-                builder: (yargs) => executor.getOptions(yargs, project),
+                builder: (yargs) => executor.getOptions(yargs, project.install),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project.install, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -66,9 +66,9 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => executor.getOptions(yargs, project),
+                builder: (yargs) => executor.getOptions(yargs, project.environment),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project.environment, yargs, argv).catch(console.error));
                 }
             });
     }
