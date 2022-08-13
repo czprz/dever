@@ -6,7 +6,7 @@ import logger from './helper/logger.js';
 import Executor from "./executor/index.js";
 import Responder from "./executor/responder/index.js";
 
-import {Project, Executable, Runtime, Args} from "./models/dever-json/internal.js";
+import {Executable, Runtime, Args} from "./models/dever-json/internal.js";
 import {Status} from "./executor/models.js";
 
 import readline from 'readline';
@@ -16,12 +16,12 @@ import chalk from 'chalk';
 export default new class {
     /**
      * Handler for executions
-     * @param config {Project}
+     * @param executables {Executable[]}
      * @param yargs {object}
      * @param args {Args}
      * @returns {Promise<void>}
      */
-    async handler(config, yargs, args) {
+    async handler(executables, yargs, args) {
         const runtime = this.#getRuntime(args);
         if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
@@ -31,7 +31,7 @@ export default new class {
         switch (true) {
             case runtime.up:
             case runtime.down:
-                await this.#run(config, runtime);
+                await this.#run(executables, runtime);
                 break;
             default:
                 this.#showHelp(yargs);
@@ -41,10 +41,10 @@ export default new class {
     /**
      * Generate default or component options
      * @param yargs {object}
-     * @param config {Project}
+     * @param executions {Executable[]}
      * @returns {*|Object}
      */
-    getOptions(yargs, config) {
+    getOptions(yargs, executions) {
         const options = yargs
             .positional('keyword', {
                 describe: 'Keyword for project',
@@ -85,49 +85,49 @@ export default new class {
         // Todo: Add support for listing executions in groups
         // Todo: Add support for describing options differently for each execution type (install, environment)
 
-        return customOptions.addToYargs(options, config.environment);
+        return customOptions.addToYargs(options, executions);
     }
 
     /**
      * Handles execution of up or down
-     * @param config {Project}
+     * @param executables {Executable[]}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async #run(config, runtime) {
-        const executables = this.#getExecutions(config, runtime);
+    async #run(executables, runtime) {
+        const executions = this.#getExecutions(executables, runtime);
 
         logger.create();
 
-        if (!this.#validate(executables, runtime)) {
+        if (!this.#validate(executions, runtime)) {
             return;
         }
 
-        const result = customOptions.validate(runtime.args, executables);
+        const result = customOptions.validate(runtime.args, executions);
         if (!result.status) {
             console.error(result.message);
             return;
         }
 
-        const checkResult = await Executor.dependencyCheck(executables);
+        const checkResult = await Executor.dependencyCheck(executions);
         if (checkResult.status === Status.Error) {
             Responder.respond(checkResult, null);
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executables)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executions)) {
             return;
         }
 
-        for (const executable of executables) {
-            await this.#hasWait(executable, 'before');
-            await this.executeStep(executable.before, runtime);
+        for (const execution of executions) {
+            await this.#hasWait(execution, 'before');
+            await this.executeStep(execution.before, runtime);
 
-            const result = await Executor.execute(executable, runtime);
-            Responder.respond(result, executable);
+            const result = await Executor.execute(execution, runtime);
+            Responder.respond(result, execution);
 
-            await this.executeStep(executable.after, runtime);
-            await this.#hasWait(executable, 'after');
+            await this.executeStep(execution.after, runtime);
+            await this.#hasWait(execution, 'after');
         }
 
         logger.destroy();
@@ -304,12 +304,12 @@ export default new class {
 
     /**
      * Maps environment to ensure usage of proper start or stop values
-     * @param config {Project}
+     * @param executables {Executable[]}
      * @param runtime {Runtime}
      * @returns {Executable[]}
      */
-    #getExecutions(config, runtime) {
-        let executions = config.environment.map(executable => {
+    #getExecutions(executables, runtime) {
+        let executions = executables.map(executable => {
             const lowerCaseName = executable?.name?.toLowerCase();
             const lowerCaseGroup = executable?.group?.toLowerCase();
 
