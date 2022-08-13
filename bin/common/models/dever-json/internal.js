@@ -5,25 +5,25 @@ export class Args {
      * Option for starting environment
      * @type {boolean|string|string[]}
      */
-    start;
+    up;
 
     /**
      * Option for stopping environment
      * @type {boolean|string|string[]}
      */
-    stop;
+    down;
 
     /**
      * Starts one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    startGroup;
+    upGroup;
 
     /**
      * Stops one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    stopGroup;
+    downGroup;
 
     /**
      * Option (optional) included with start for starting environment cleanly

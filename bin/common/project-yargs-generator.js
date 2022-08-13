@@ -1,7 +1,6 @@
 import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
 import hashCheckerDialog from "./helper/hash-checker-dialog.js";
-import install from '../install/index.js';
-import env from '../environments/index.js';
+import executor from "./config-executor.js";
 import fix from '../fix/index.js';
 
 "use strict";
@@ -45,9 +44,9 @@ export default new class {
             .command({
                 command: `install`,
                 desc: 'Install project depended packages and functionality',
-                builder: (yargs) => install.getOptions(yargs),
+                builder: (yargs) => executor.getOptions(yargs, project),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -67,9 +66,9 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => env.getOptions(yargs, project),
+                builder: (yargs) => executor.getOptions(yargs, project),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => executor.handler(project, yargs, argv).catch(console.error));
                 }
             });
     }

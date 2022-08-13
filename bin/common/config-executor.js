@@ -1,13 +1,13 @@
-import sudo from '../common/helper/elevated.js';
-import delayer from '../common/helper/delayer.js';
-import customOption from '../common/helper/custom_options.js';
-import logger from '../common/helper/logger.js';
+import sudo from './helper/elevated.js';
+import delayer from './helper/delayer.js';
+import customOptions from './helper/options/custom-options-creator.js';
+import logger from './helper/logger.js';
 
-import Executor from "../common/executor/index.js";
-import Responder from "../common/executor/responder/index.js";
+import Executor from "./executor/index.js";
+import Responder from "./executor/responder/index.js";
 
-import {Project, Executable, Runtime} from "../common/models/dever-json/internal.js";
-import {Status} from "../common/executor/models.js";
+import {Project, Executable, Runtime, Args} from "./models/dever-json/internal.js";
+import {Status} from "./executor/models.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
@@ -15,16 +15,16 @@ import chalk from 'chalk';
 "use strict";
 export default new class {
     /**
-     * Handler for dependencies
+     * Handler for executions
      * @param config {Project}
      * @param yargs {object}
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @returns {Promise<void>}
      */
     async handler(config, yargs, args) {
         const runtime = this.#getRuntime(args);
         if (runtime.up && runtime.down) {
-            console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
+            console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
             return;
         }
 
@@ -47,7 +47,7 @@ export default new class {
     getOptions(yargs, config) {
         const options = yargs
             .positional('keyword', {
-                describe: 'Keyword for component',
+                describe: 'Keyword for project',
                 type: 'string'
             })
             .option('up', {
@@ -82,12 +82,14 @@ export default new class {
                 describe: 'Skip hash check when running command'
             });
 
-        const customOptions = this.#getCustomOptions(config.environment);
-        return customOption.addOptionsToYargs(options, customOptions);
+        // Todo: Add support for listing executions in groups
+        // Todo: Add support for describing options differently for each execution type (install, environment)
+
+        return customOptions.addToYargs(options, config.environment);
     }
 
     /**
-     * Handles handlers for each environment dependency
+     * Handles execution of up or down
      * @param config {Project}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
@@ -101,8 +103,7 @@ export default new class {
             return;
         }
 
-        const options = this.#getCustomOptions(executables);
-        const result = customOption.validateOptions(runtime.args, options);
+        const result = customOptions.validate(runtime.args, executables);
         if (!result.status) {
             console.error(result.message);
             return;
@@ -143,26 +144,6 @@ export default new class {
      */
     #showHelp(yargs) {
         yargs.showHelp();
-    }
-
-    /**
-     * Get all custom options from dependencies
-     * @param executions {Action[]}
-     * @return {Option[]}
-     */
-    #getCustomOptions(executions) {
-        const options = [];
-        for (const execution of executions) {
-            if (execution.options == null) {
-                continue;
-            }
-
-            for (const option in execution.options) {
-                options.push(execution.options[option]);
-            }
-        }
-
-        return options;
     }
 
     /**
@@ -210,11 +191,11 @@ export default new class {
             return true;
         }
 
-        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executables)) {
+        if (!this.#anyElevatedPermissionsRequired(executables)) {
             return true;
         }
 
-        console.log(chalk.redBright('There is one or more dependencies which needs elevated permissions.'));
+        console.log(chalk.redBright('There is one or more executions which needs elevated permissions.'));
         console.log(chalk.redBright(`It's recommended to run this command again with a terminal started with elevated permissions.`));
         console.log();
 
@@ -235,11 +216,11 @@ export default new class {
     }
 
     /**
-     * Check if any dependencies wants to run with elevated permissions
+     * Check if any executions wants to run with elevated permissions
      * @param executables {Executable[]}
      * @return {boolean}
      */
-    #anyDependencyWhichNeedsElevatedPermissions(executables) {
+    #anyElevatedPermissionsRequired(executables) {
         for (const executable of executables) {
             if (executable.runAsElevated != null && executable.runAsElevated) {
                 return true;
@@ -270,7 +251,7 @@ export default new class {
 
     /**
      *
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @returns {Runtime}
      */
     #getRuntime(args) {
@@ -358,59 +339,3 @@ export default new class {
         return executions.filter(x => x != null);
     }
 };
-
-class EnvArgs {
-    /**
-     * Option for starting environment
-     * @type {boolean|string|string[]}
-     */
-    up;
-
-    /**
-     * Option for stopping environment
-     * @type {boolean|string|string[]}
-     */
-    down;
-
-    /**
-     * Starts one or more groups of executions
-     * @type {boolean|string|string[]}
-     */
-    upGroup;
-
-    /**
-     * Stops one or more groups of executions
-     * @type {boolean|string|string[]}
-     */
-    downGroup;
-
-    /**
-     * Option (optional) included with start for starting environment cleanly
-     * @type {boolean}
-     */
-    clean;
-
-    /**
-     * List of execution names which should not be included in starting or stopping
-     * @type {boolean|string|string[]}
-     */
-    not;
-
-    /**
-     * List of group names which should not be included in starting or stopping
-     * @type {boolean|string|string[]}
-     */
-    notGroup;
-
-    /**
-     * Component
-     * @type {string}
-     */
-    keyword;
-
-    /**
-     * Skip warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
-     * @type {boolean}
-     */
-    skip;
-}
