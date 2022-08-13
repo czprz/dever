@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "name": "example-component",
   "keywords": [
     "example",
@@ -8,12 +8,23 @@
   ],
   "install": [
     {
+	  "name": "git",
       "type": "chocolatey",
       "package": "git",
       "group": "primary",
       "after": {
         "type": "powershell-command",
-        "command": "run this"
+        "command": "choco uninstall git"
+      }
+    },
+    {
+      "name": "docker",
+      "type": "powershell-script",
+      "command": "/development/scripts/install-docker.ps1",
+      "group": "primary",
+      "before": {
+        "type": "powershell-command",
+        "command": "choco uninstall docker"
       }
     }
   ],
@@ -21,9 +32,7 @@
     {
       "key": "docker",
       "type": "powershell-command",
-      "start": {
-        "command": "run this"
-      }
+	  "command": "run this"
     }
   ],
   "environment": [

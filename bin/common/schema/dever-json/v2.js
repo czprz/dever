@@ -65,9 +65,13 @@ const fileSchema = {
     type: "string"
 };
 
+const packageSchema = {
+    type: "string"
+}
+
 const typeSchema = {
     type: "string",
-    pattern: "^docker-container$|^powershell-command$|^powershell-script$|^docker-compose$|^mssql$"
+    pattern: "^(docker-container|powershell-command|powershell-script|docker-compose|mssql|chocolatey)$"
 };
 
 const waitSchema = {
@@ -83,6 +87,43 @@ const waitSchema = {
     additionalProperties: false
 };
 
+const executableSchema = {
+    type: "object",
+    properties: {
+        type: typeSchema,
+        package: packageSchema,
+        sql: sqlSchema,
+        command: commandSchema,
+        file: fileSchema,
+        container: containerSchema,
+        wait: waitSchema
+    },
+    required: ["type"],
+    additionalProperties: false
+}
+
+const itemsSchema = {
+    type: "object",
+    properties: {
+        name: {type: "string"},
+        type: typeSchema,
+        group: {type: "string"},
+        optional: {type: "boolean"},
+        up: executableSchema,
+        down: executableSchema,
+        package: packageSchema,
+        sql: sqlSchema,
+        container: containerSchema,
+        file: fileSchema,
+        command: commandSchema,
+        wait: waitSchema,
+        before: executableSchema,
+        after: executableSchema
+    },
+    required: ["name"],
+    additionalProperties: false
+};
+
 export default {
     type: "object",
     properties: {
@@ -92,48 +133,29 @@ export default {
             type: "array",
             items: {type: "string"}
         },
-        install: {type: "array"},
-        fix: {type: "array"},
-        environment: {
+        install: {
+            type: "array",
+            items: itemsSchema
+        },
+        fix: {
             type: "array",
             items: {
                 type: "object",
                 properties: {
-                    name: {type: "string"},
-                    type: typeSchema,
-                    group: {type: "string"},
-                    start: {
-                        type: "object",
-                        properties: {
-                            type: typeSchema,
-                            sql: sqlSchema,
-                            command: commandSchema,
-                            file: fileSchema,
-                            container: containerSchema,
-                            wait: waitSchema
-                        },
-                        required: ["type"]
+                    key: {type: "string"},
+                    type: {
+                        type: "string",
+                        pattern: "^(powershell-command|powershell-script)$"
                     },
-                    end: {
-                        type: "object",
-                        properties: {
-                            type: typeSchema,
-                            sql: sqlSchema,
-                            command: commandSchema,
-                            file: fileSchema,
-                            container: containerSchema,
-                            wait: waitSchema
-                        },
-                        required: ["type"]
-                    },
-                    sql: sqlSchema,
-                    container: containerSchema,
-                    file: fileSchema,
-                    command: commandSchema,
-                    wait: waitSchema
+                    command: {type: "string"},
+                    file: {type: "string"}
                 },
-                required: ["name"]
+                required: ["key", "type"],
             }
+        },
+        environment: {
+            type: "array",
+            items: itemsSchema
         }
     },
     required: ["version", "name", "keywords"],

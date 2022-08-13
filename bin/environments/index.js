@@ -1,16 +1,13 @@
-import docker_compose from './executions/docker-compose/index.js';
-import docker_container from './executions/docker-container/index.js';
-import powershell_script from './executions/powershell-script/index.js';
-import powershell_command from './executions/powershell-command/index.js';
-import mssql from './executions/mssql/index.js';
-
 import sudo from '../common/helper/elevated.js';
 import delayer from '../common/helper/delayer.js';
 import customOption from '../common/helper/custom_options.js';
 import logger from '../common/helper/logger.js';
 
-import {Execution} from "../common/models/environments.js";
-import {Project} from "../common/models/internal.js";
+import Executor from "../common/executor/index.js";
+import Responder from "../common/executor/responder/index.js";
+
+import {Project, Executable, Runtime} from "../common/models/dever-json/internal.js";
+import {Status} from "../common/executor/models.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
@@ -26,14 +23,14 @@ export default new class {
      */
     async handler(config, yargs, args) {
         const runtime = this.#getRuntime(args);
-        if (runtime.start && runtime.stop) {
+        if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --start and --stop in the same command'));
             return;
         }
 
         switch (true) {
-            case runtime.start:
-            case runtime.stop:
+            case runtime.up:
+            case runtime.down:
                 await this.#run(config, runtime);
                 break;
             default:
@@ -53,17 +50,17 @@ export default new class {
                 describe: 'Keyword for component',
                 type: 'string'
             })
-            .option('start', {
-                describe: 'Start project dependencies',
+            .option('up', {
+                describe: 'Setup project environment',
             })
-            .option('stop', {
-                describe: 'Stop project dependencies'
+            .option('down', {
+                describe: 'Take down project environment',
             })
-            .option('start-group', {
-                describe: 'Start group of project dependencies'
+            .option('up-group', {
+                describe: 'Setup project environment using only items from group',
             })
-            .option('stop-group', {
-                describe: 'Stop group of project dependencies'
+            .option('down-group', {
+                describe: 'Take down project environment using only items from group',
             })
             .option('not', {
                 alias: 'n',
@@ -96,54 +93,40 @@ export default new class {
      * @returns {Promise<void>}
      */
     async #run(config, runtime) {
-        const executions = this.#getExecutions(config, runtime);
+        const executables = this.#getExecutions(config, runtime);
 
         logger.create();
 
-        if (!this.#validate(executions, runtime)) {
+        if (!this.#validate(executables, runtime)) {
             return;
         }
 
-        const options = this.#getCustomOptions(executions);
+        const options = this.#getCustomOptions(executables);
         const result = customOption.validateOptions(runtime.args, options);
         if (!result.status) {
             console.error(result.message);
             return;
-
         }
 
-        if (!this.#checkAvailabilityOfDependencies(executions)) {
+        const checkResult = await Executor.dependencyCheck(executables);
+        if (checkResult.status === Status.Error) {
+            Responder.respond(checkResult, null);
             return;
         }
 
-        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executions)) {
+        if (!await this.#confirmRunningWithoutElevated(runtime.args.skip, executables)) {
             return;
         }
 
-        for (const execution of executions) {
-            await this.#hasWait(execution, 'before');
+        for (const executable of executables) {
+            await this.#hasWait(executable, 'before');
+            await this.executeStep(executable.before, runtime);
 
-            switch (execution.type) {
-                case "docker-compose":
-                    docker_compose.handle(config, execution, runtime);
-                    break;
-                case "docker-container":
-                    docker_container.handle(execution, runtime);
-                    break;
-                case "powershell-script":
-                    await powershell_script.handle(config, execution, runtime);
-                    break;
-                case "powershell-command":
-                    await powershell_command.handle(execution, runtime);
-                    break;
-                case "mssql":
-                    await mssql.handle(execution, runtime);
-                    break;
-                default:
-                    console.error(`"${execution.name}::${execution.type}" not found`);
-            }
+            const result = await Executor.execute(executable, runtime);
+            Responder.respond(result, executable);
 
-            await this.#hasWait(execution, 'after');
+            await this.executeStep(executable.after, runtime);
+            await this.#hasWait(executable, 'after');
         }
 
         logger.destroy();
@@ -164,8 +147,8 @@ export default new class {
 
     /**
      * Get all custom options from dependencies
-     * @param executions {Execution[]}
-     * @return {CustomOption[]}
+     * @param executions {Action[]}
+     * @return {Option[]}
      */
     #getCustomOptions(executions) {
         const options = [];
@@ -184,7 +167,7 @@ export default new class {
 
     /**
      * Creates promise which delays an await for defined period of time
-     * @param execution {Execution}
+     * @param execution {Action}
      * @param timing {'after'|'before'}
      * @returns {Promise<unknown>}
      */
@@ -199,12 +182,26 @@ export default new class {
     }
 
     /**
+     * Executes before or after steps
+     * @param execute {Execute}
+     * @param runtime {Runtime}
+     * @return {Promise<void>}
+     */
+    async executeStep(execute, runtime) {
+        if (execute == null) {
+            return;
+        }
+
+        await Executor.execute(execute, runtime);
+    }
+
+    /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
      * @param ignore {boolean}
-     * @param executions {Execution[]}
+     * @param executables {Executable[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, executions) {
+    async #confirmRunningWithoutElevated(ignore, executables) {
         if (ignore) {
             return true;
         }
@@ -213,7 +210,7 @@ export default new class {
             return true;
         }
 
-        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executions)) {
+        if (!this.#anyDependencyWhichNeedsElevatedPermissions(executables)) {
             return true;
         }
 
@@ -239,12 +236,12 @@ export default new class {
 
     /**
      * Check if any dependencies wants to run with elevated permissions
-     * @param executions {Execution[]}
+     * @param executables {Executable[]}
      * @return {boolean}
      */
-    #anyDependencyWhichNeedsElevatedPermissions(executions) {
-        for (const execution of executions) {
-            if (execution.runAsElevated != null && execution.runAsElevated) {
+    #anyDependencyWhichNeedsElevatedPermissions(executables) {
+        for (const executable of executables) {
+            if (executable.runAsElevated != null && executable.runAsElevated) {
                 return true;
             }
         }
@@ -253,31 +250,8 @@ export default new class {
     }
 
     /**
-     * Check if dependency of dependency is available
-     * @param executions {Execution[]}
-     * @returns {boolean}
-     */
-    #checkAvailabilityOfDependencies(executions) {
-        for (const execution of executions) {
-            switch (execution.type) {
-                case "docker-compose":
-                    return docker_compose.check();
-                case "docker-container":
-                    return docker_container.check();
-                case "run-command":
-                case "powershell-script":
-                case "powershell-command":
-                default:
-                    break;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Validate executions
-     * @param executions {Execution[]}
+     * @param executions {Executable[]}
      * @param runtime {Runtime}
      */
     #validate(executions, runtime) {
@@ -300,23 +274,23 @@ export default new class {
      * @returns {Runtime}
      */
     #getRuntime(args) {
-        const stop = args.hasOwnProperty('stop');
-        const start = args.hasOwnProperty('start');
-        const stopGroup = args.hasOwnProperty('stop-group');
-        const startGroup = args.hasOwnProperty('start-group');
+        const up = args.hasOwnProperty('up');
+        const down = args.hasOwnProperty('down');
+        const upGroup = args.hasOwnProperty('up-group');
+        const downGroup = args.hasOwnProperty('down-group');
 
-        if (stop === start && stopGroup === startGroup) {
+        if (up === down && downGroup === upGroup) {
             return {
-                start: start || startGroup,
-                stop: stop || stopGroup
+                up: up || upGroup,
+                down: down || downGroup
             };
         }
 
-        const choice = start || startGroup ? 'start' : 'stop';
+        const choice = down || upGroup ? 'up' : 'down';
 
         return {
-            start: start || startGroup,
-            stop: stop || stopGroup,
+            up: up || upGroup,
+            down: down || downGroup,
             include: {
                 executions: this.#getVariables(args[choice]),
                 groups: this.#getVariables(args[`${choice}-group`])
@@ -351,15 +325,21 @@ export default new class {
      * Maps environment to ensure usage of proper start or stop values
      * @param config {Project}
      * @param runtime {Runtime}
-     * @returns {Execution[]}
+     * @returns {Executable[]}
      */
     #getExecutions(config, runtime) {
-        let executions = config.environment.map(execution => {
-            const lowerCaseName = execution?.name?.toLowerCase();
-            const lowerCaseGroup = execution?.group?.toLowerCase();
+        let executions = config.environment.map(executable => {
+            const lowerCaseName = executable?.name?.toLowerCase();
+            const lowerCaseGroup = executable?.group?.toLowerCase();
 
-            if (runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-                runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
+            const notIncluded = runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName);
+            const notIncludedGroup = runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup);
+
+            if (notIncluded || notIncludedGroup) {
+                return null;
+            }
+
+            if (!notIncluded && !notIncludedGroup && executable.optional) {
                 return null;
             }
 
@@ -368,10 +348,10 @@ export default new class {
                 return null;
             }
 
-            return new Execution(execution, runtime);
+            return new Executable(executable, runtime);
         });
 
-        if (runtime.stop) {
+        if (runtime.down) {
             executions = executions.reverse();
         }
 
@@ -384,25 +364,25 @@ class EnvArgs {
      * Option for starting environment
      * @type {boolean|string|string[]}
      */
-    start;
+    up;
 
     /**
      * Option for stopping environment
      * @type {boolean|string|string[]}
      */
-    stop;
+    down;
 
     /**
      * Starts one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    startGroup;
+    upGroup;
 
     /**
      * Stops one or more groups of executions
      * @type {boolean|string|string[]}
      */
-    stopGroup;
+    downGroup;
 
     /**
      * Option (optional) included with start for starting environment cleanly

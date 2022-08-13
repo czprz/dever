@@ -58,9 +58,7 @@ export default new class {
 
         const configs = projectConfigFacade.getAll();
 
-        // Todo: Remove these. all dever.json should be added. Though only supported will work!
-        this.#checkForSupportedVersion(configs);
-        this.#checkForKeywordViolations(configs);
+        this.#informOfUnsupportedProjects(configs);
 
         console.log('Initialization has been completed!');
     }
@@ -89,27 +87,10 @@ export default new class {
      * @param projects {Project[]}
      * @return void
      */
-    #checkForSupportedVersion(projects) {
-        if (!versionChecker.supported(projects)) {
-            console.warn(chalk.yellow(`One or more of the found projects is not supported due to the dever.json version`));
+    #informOfUnsupportedProjects(projects) {
+        if (!versionChecker.supported(projects) || projects.some(x => configValidator.validate(x))) {
+            console.warn(chalk.yellow('One or more of the found projects are not supported'));
             console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
-        }
-    }
-
-    /**
-     * Check if any projects has keywords which violate pre-defined keys ('init', 'list', 'config', 'validate')
-     * @param projects {Project[]}
-     * @return void
-     */
-    #checkForKeywordViolations(projects) {
-        for (const project of projects) {
-            if (configValidator.validate(project)) {
-                continue;
-            }
-
-            console.error(chalk.red(`Could not add the project '${project.name}' due to having keywords which are conflicting with pre-defined keys`));
-
-            projectConfigFacade.remove(path.join(project.location, 'dever.json'));
         }
     }
 }

@@ -57,7 +57,23 @@ export default new class Logger {
     info(message) {
         Logger.#throwIfLoggerIsNotInstantiated();
 
+        console.info(message);
+
         Logger.#logger.log('info', message);
+        Logger.#hasLogs = true;
+    }
+
+    /**
+     * Log warning level
+     * @param message {string}
+     * @return void
+     */
+    warn(message) {
+        Logger.#throwIfLoggerIsNotInstantiated();
+
+        console.warn(message);
+
+        Logger.#logger.log('warning', message);
         Logger.#hasLogs = true;
     }
 
@@ -65,16 +81,14 @@ export default new class Logger {
      * Log error level
      * @param message {string}
      * @param error {Error=} null
+     * @return void
      */
     error(message, error = null) {
         Logger.#throwIfLoggerIsNotInstantiated();
 
         console.error(message);
 
-        Logger.#logger.log('error', message);
-
-        if (error != null)
-            Logger.#logger.log('error', error?.message);
+        Logger.#logger.log('error', message, error);
 
         Logger.#hasLogs = true;
     }

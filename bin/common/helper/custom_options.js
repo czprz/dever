@@ -3,7 +3,7 @@ export default new class {
     /**
      *
      * @param yargs {object}
-     * @param options {CustomOption[]}
+     * @param options {Option[]}
      * @return {object}
      */
     addOptionsToYargs(yargs, options) {
@@ -29,7 +29,7 @@ export default new class {
     /**
      * Validate arguments against options rules
      * @param args {EnvArgs}
-     * @param options {CustomOption[]}
+     * @param options {Option[]}
      * @return { { status: boolean, message: string|null } }
      */
     validateOptions(args, options) {
@@ -56,7 +56,7 @@ export default new class {
 
     /**
      * @param command {string} Command that is going to receive additional options
-     * @param options {CustomOption[]}
+     * @param options {Option[]}
      * @param args {EnvArgs}
      * @return {string}
      */
@@ -77,7 +77,7 @@ export default new class {
 
     /**
      * @param file {string} File path
-     * @param options {CustomOption[]}
+     * @param options {Option[]}
      * @param args {EnvArgs}
      * @return {string}
      */

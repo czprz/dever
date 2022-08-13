@@ -2,6 +2,8 @@ import localConfig from "../local-config.js";
 import configUpdater from "../config-updater.js";
 import configGetter from "../config-getter.js";
 
+import {Config} from "../../common/models/dot-dever/external.js";
+
 import chalk from "chalk";
 
 export default new class {
@@ -55,12 +57,21 @@ export default new class {
         console.log(filePath);
     }
 
+    /**
+     * Lists all key and values in .dever
+     */
     #listConfig() {
         const config = localConfig.get();
 
         this.#listArrayOrObject(null, null, config);
     }
 
+    /**
+     * List all keys and values in .dever
+     * @param parent {string | null}
+     * @param key {string | null}
+     * @param config {Config}
+     */
     #listArrayOrObject(parent, key, config) {
         for (const property in config) {
             if (property === 'lastHash') {
