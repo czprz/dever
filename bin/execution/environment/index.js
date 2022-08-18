@@ -84,7 +84,6 @@ export default new class {
             });
 
         // Todo: Add support for listing executions in groups
-        // Todo: Add support for describing options differently for each execution type (install, environment)
 
         return customOptions.addToYargs(options, executions);
     }
@@ -179,12 +178,12 @@ export default new class {
 
     /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
-     * @param ignore {boolean}
+     * @param skip {boolean}
      * @param executables {Executable[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, executables) {
-        if (ignore) {
+    async #confirmRunningWithoutElevated(skip, executables) {
+        if (skip) {
             return true;
         }
 
