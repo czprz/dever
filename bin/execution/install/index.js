@@ -52,10 +52,10 @@ export default new class {
                 type: 'string'
             })
             .option('up', {
-                describe: 'Install project dependencies',
+                describe: 'Install dependencies',
             })
             .option('down', {
-                describe: 'Uninstall project dependencies',
+                describe: 'Uninstall dependencies',
             })
             .option('up-group', {
                 describe: 'Install only specified group dependencies',
@@ -84,7 +84,6 @@ export default new class {
             });
 
         // Todo: Add support for listing executions in groups
-        // Todo: Add support for describing options differently for each execution type (install, environment)
 
         return customOptions.addToYargs(options, executions);
     }
@@ -179,12 +178,12 @@ export default new class {
 
     /**
      * Check if confirmation message should be shown if some steps in dever.json needs to be elevated and shell is not run with elevated permissions
-     * @param ignore {boolean}
+     * @param skip {boolean}
      * @param executables {Executable[]}
      * @returns {Promise<boolean>}
      */
-    async #confirmRunningWithoutElevated(ignore, executables) {
-        if (ignore) {
+    async #confirmRunningWithoutElevated(skip, executables) {
+        if (skip) {
             return true;
         }
 
@@ -192,7 +191,7 @@ export default new class {
             return true;
         }
 
-        if (!this.#anyElevatedPermissionsRequired(executables)) {
+        if (executables.some(executable => executable.runAsElevated != null && executable.runAsElevated)) {
             return true;
         }
 
@@ -214,21 +213,6 @@ export default new class {
         });
 
         return timer.delay(36000000, false);
-    }
-
-    /**
-     * Check if any executions wants to run with elevated permissions
-     * @param executables {Executable[]}
-     * @return {boolean}
-     */
-    #anyElevatedPermissionsRequired(executables) {
-        for (const executable of executables) {
-            if (executable.runAsElevated != null && executable.runAsElevated) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

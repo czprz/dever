@@ -61,7 +61,7 @@ export class Project {
     /**
      * @type {Executable[]}
      */
-    setup;
+    install;
 
     /**
      * @type {Fix[]}

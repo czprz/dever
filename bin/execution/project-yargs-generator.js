@@ -1,6 +1,6 @@
 import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
 import hashCheckerDialog from "../common/helper/hash-checker-dialog.js";
-import setupExecutor from './setup/index.js';
+import installExecutor from './install/index.js';
 import environmentExecutor from './environment/index.js';
 import fixExecutor from './fix/index.js';
 
@@ -37,17 +37,17 @@ export default new class {
      * @param yargs
      */
     #setupOfInstallHandler(keyword, project, yargs) {
-        if (project.setup == null) {
+        if (project.install == null) {
             return;
         }
 
         yargs
             .command({
-                command: `setup`,
-                desc: 'Setup will install project dependencies',
-                builder: (yargs) => setupExecutor.getOptions(yargs, project.setup),
+                command: `install`,
+                desc: 'Install project dependencies',
+                builder: (yargs) => installExecutor.getOptions(yargs, project.install),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => setupExecutor.handler(project.setup, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => installExecutor.handler(project.install, yargs, argv).catch(console.error));
                 }
                 // Todo: Create commands for up and down instead of having them as options // Create task for this
             });
