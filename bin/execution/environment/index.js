@@ -1,14 +1,14 @@
-import sudo from './helper/elevated.js';
-import delayer from './helper/delayer.js';
-import customOptions from './helper/options/custom-options-creator.js';
-import logger from './helper/logger.js';
+import sudo from '../../common/helper/elevated.js';
+import delayer from '../../common/helper/delayer.js';
+import customOptions from '../../common/helper/options/custom-options-creator.js';
+import logger from '../../common/helper/logger.js';
 
-import Executor from "./executor/index.js";
-import Responder from "./executor/responder/index.js";
+import Executor from "../../common/executor/index.js";
+import Responder from "../../common/executor/responder/index.js";
 
-import {Args} from "./models/common.js";
-import {Executable, Runtime} from "./models/dever-json/internal.js";
-import {Status} from "./executor/models.js";
+import {Args} from "../../common/models/common.js";
+import {Executable, Runtime} from "../../common/models/dever-json/internal.js";
+import {Status} from "../../common/executor/models.js";
 
 import readline from 'readline';
 import chalk from 'chalk';
@@ -72,7 +72,7 @@ export default new class {
                 describe: 'Include group name of executions to avoid starting or stopping them'
             })
             .option('clean', {
-                describe: `Usage '--start --clean' which will do a clean startup`
+                describe: `Usage '--up --clean' which will do a clean startup`
             })
             .option('s', {
                 alias: 'skip',

@@ -1,5 +1,5 @@
-import powershell from '../common/helper/powershell.js';
-import logger from '../common/helper/logger.js';
+import powershell from '../../common/helper/powershell.js';
+import logger from '../../common/helper/logger.js';
 
 import chalk from 'chalk';
 import path from 'path';

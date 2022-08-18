@@ -30,9 +30,9 @@ export default new class extends ExecutionInterface {
      */
     check() {
         try {
-            shell.executeSync(`choco`);
+            shell.executeSync(`choco -?`);
             return this._success(Operation.DependencyCheck);
-        } catch {
+        } catch (e) {
             return this._error(Operation.DependencyCheck);
         }
     }
@@ -48,8 +48,8 @@ export default new class extends ExecutionInterface {
             shell.executeSync(`choco install ${execute.package} -y`);
 
             return this._success(Operation.Install);
-        } catch {
-            return this._error(Operation.NotInstall);
+        } catch (error) {
+            return this._error(Operation.NotInstall, error);
         }
     }
 
@@ -58,8 +58,8 @@ export default new class extends ExecutionInterface {
             shell.executeSync(`choco uninstall ${execute.package} -y`);
 
             return this._success(Operation.Uninstall);
-        } catch {
-            return this._error(Operation.NotUninstall);
+        } catch (error) {
+            return this._error(Operation.NotUninstall, error);
         }
     }
 }

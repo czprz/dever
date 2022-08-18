@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
-import defaultYargsGenerator from './common/default-yargs-generator.js';
-import projectYargsGenerator from './common/project-yargs-generator.js';
+import defaultYargsGenerator from './execution/default-yargs-generator.js';
+import projectYargsGenerator from './execution/project-yargs-generator.js';
 import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
 import constants from './common/constants.js';

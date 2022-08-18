@@ -59,9 +59,9 @@ export class Project {
     keywords;
 
     /**
-     * @type {Action[]}
+     * @type {Executable[]}
      */
-    install;
+    setup;
 
     /**
      * @type {Fix[]}
@@ -292,6 +292,7 @@ export class Executable extends Action {
         step.file = config.file;
         step.command = config.command;
         step.container = config.container;
+        step.package = config.package;
         step.options = config.options;
         step.wait = config.wait;
         step.runAsElevated = config.runAsElevated;

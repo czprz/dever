@@ -133,7 +133,7 @@ export default {
             type: "array",
             items: {type: "string"}
         },
-        install: {
+        setup: {
             type: "array",
             items: itemsSchema
         },
