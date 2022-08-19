@@ -1,7 +1,7 @@
-import powershell from './common/helper/powershell.js';
-import projectConfigFacade from "./configuration/facades/project-config-facade.js";
-import versionChecker from './common/helper/version-checker.js';
-import configValidator from './common/helper/config-validator.js';
+import powershell from '../../common/helper/powershell.js';
+import projectConfigFacade from "../../configuration/facades/project-config-facade.js";
+import versionChecker from '../../common/helper/version-checker.js';
+import configValidator from '../../common/helper/config-validator.js';
 
 import { fileURLToPath } from 'url';
 import readline from 'readline';

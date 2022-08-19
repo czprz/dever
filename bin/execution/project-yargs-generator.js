@@ -1,8 +1,8 @@
 import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
-import hashCheckerDialog from "./helper/hash-checker-dialog.js";
-import install from '../install/index.js';
-import env from '../environments/index.js';
-import fix from '../fix/index.js';
+import hashCheckerDialog from "../common/helper/hash-checker-dialog.js";
+import installExecutor from './install/index.js';
+import environmentExecutor from './environment/index.js';
+import fixExecutor from './fix/index.js';
 
 "use strict";
 export default new class {
@@ -44,11 +44,12 @@ export default new class {
         yargs
             .command({
                 command: `install`,
-                desc: 'Install project depended packages and functionality',
-                builder: (yargs) => install.getOptions(yargs),
+                desc: 'Install project dependencies',
+                builder: (yargs) => installExecutor.getOptions(yargs, project.install),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => install.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => installExecutor.handler(project.install, yargs, argv).catch(console.error));
                 }
+                // Todo: Create commands for up and down instead of having them as options // Create task for this
             });
     }
 
@@ -67,9 +68,9 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => env.getOptions(yargs, project),
+                builder: (yargs) => environmentExecutor.getOptions(yargs, project.environment),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => env.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => environmentExecutor.handler(project.environment, yargs, argv).catch(console.error));
                 }
             });
     }
@@ -89,9 +90,9 @@ export default new class {
             .command({
                 command: 'fix [key]',
                 desc: 'Fix common possibly repeatable issues',
-                builder: (yargs) => fix.getOptions(yargs),
+                builder: (yargs) => fixExecutor.getOptions(yargs),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => fix.handler(project, yargs, argv).catch(console.error));
+                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => fixExecutor.handler(project, yargs, argv).catch(console.error));
                 }
             })
     }

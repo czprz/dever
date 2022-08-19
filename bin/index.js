@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
-import defaultYargsGenerator from './common/default-yargs-generator.js';
-import projectYargsGenerator from './common/project-yargs-generator.js';
+import defaultYargsGenerator from './execution/default-yargs-generator.js';
+import projectYargsGenerator from './execution/project-yargs-generator.js';
 import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
 import constants from './common/constants.js';
@@ -27,7 +27,7 @@ class EntryPoint {
         const projects = projectConfigFacade.get(keyword)?.filter(x => x.validKeywords && x.supported && x.validSchema);
         if (projects == null || projects.length === 0) {
             this.#argv = [];
-            console.error(`Project could not be found. Please check if spelled correctly or run 'dever init'`);
+            console.error(`Project could not be found. Please check if keyword is spelled correctly or run 'dever init'`);
             return;
         }
 

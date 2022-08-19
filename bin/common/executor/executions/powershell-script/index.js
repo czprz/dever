@@ -1,5 +1,5 @@
 import powershell from '../../../helper/powershell.js';
-import customOptions from '../../../helper/custom_options.js';
+import customOptions from '../../../helper/options/custom-options-creator.js';
 
 import {Execute, Runtime} from '../../../models/dever-json/internal.js';
 import {ExecutionInterface, Result} from '../../models.js';
@@ -24,7 +24,7 @@ export default new class extends ExecutionInterface {
     async handle(execute, runtime) {
         try {
             const file = path.join(execute.location, execute.file);
-            const fileWithParameters = customOptions.addOptionsToFile(file, execute.options, runtime.args);
+            const fileWithParameters = customOptions.addToFile(file, execute.options, runtime.args);
             await powershell.executeFileSync(fileWithParameters, execute.runAsElevated);
 
             return this._success(Operation.Executed);

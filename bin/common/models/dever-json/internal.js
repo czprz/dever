@@ -1,61 +1,5 @@
 export const Step = Object.freeze({"Before": 0, "After": 1});
 
-export class Args {
-    /**
-     * Option for starting environment
-     * @type {boolean|string|string[]}
-     */
-    start;
-
-    /**
-     * Option for stopping environment
-     * @type {boolean|string|string[]}
-     */
-    stop;
-
-    /**
-     * Starts one or more groups of executions
-     * @type {boolean|string|string[]}
-     */
-    startGroup;
-
-    /**
-     * Stops one or more groups of executions
-     * @type {boolean|string|string[]}
-     */
-    stopGroup;
-
-    /**
-     * Option (optional) included with start for starting environment cleanly
-     * @type {boolean}
-     */
-    clean;
-
-    /**
-     * List of execution names which should not be included in starting or stopping
-     * @type {boolean|string|string[]}
-     */
-    not;
-
-    /**
-     * List of group names which should not be included in starting or stopping
-     * @type {boolean|string|string[]}
-     */
-    notGroup;
-
-    /**
-     * Component
-     * @type {string}
-     */
-    keyword;
-
-    /**
-     * Skip warnings (typically used together with --start, if e.g. something needs to be elevated but you actually don't need it)
-     * @type {boolean}
-     */
-    skip;
-}
-
 export class Runtime {
     /**
      * Start option is true when set
@@ -115,7 +59,7 @@ export class Project {
     keywords;
 
     /**
-     * @type {Action[]}
+     * @type {Executable[]}
      */
     install;
 
@@ -348,6 +292,7 @@ export class Executable extends Action {
         step.file = config.file;
         step.command = config.command;
         step.container = config.container;
+        step.package = config.package;
         step.options = config.options;
         step.wait = config.wait;
         step.runAsElevated = config.runAsElevated;

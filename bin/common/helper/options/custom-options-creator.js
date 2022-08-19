@@ -1,13 +1,17 @@
+import {Executable} from "../../models/dever-json/internal.js";
+
 "use strict";
 export default new class {
     /**
      *
      * @param yargs {object}
-     * @param options {Option[]}
+     * @param executions {Executable[]}
      * @return {object}
      */
-    addOptionsToYargs(yargs, options) {
+    addToYargs(yargs, executions) {
         const demandedOptions = [];
+
+        const options = this.#getOptions(executions);
 
         for (const option of options) {
             if (option.required) {
@@ -27,12 +31,56 @@ export default new class {
     }
 
     /**
+     * @param command {string} Command that is going to receive additional options
+     * @param options {Option[]}
+     * @param args {EnvArgs}
+     * @return {string}
+     */
+    addToCommand(command, options, args) {
+        if (options == null || options.length === 0) {
+            return command;
+        }
+
+        let modifiedCommand = command;
+
+        for (const option of options) {
+            const replaceWith = this.#replaceWith(option.key, option.insert, args);
+            modifiedCommand = modifiedCommand.replace(`$${option.key}`, replaceWith);
+        }
+
+        return modifiedCommand;
+    }
+
+    /**
+     * @param file {string} File path
+     * @param options {Option[]}
+     * @param args {EnvArgs}
+     * @return {string}
+     */
+    addToFile(file, options, args) {
+        if (options == null || options.length === 0) {
+            return file;
+        }
+
+        let fileModified = file;
+
+        for (const option of options) {
+            const customOption = this.#replaceWith(option.key, option.insert, args);
+            fileModified = `${fileModified} ${customOption}`;
+        }
+
+        return fileModified;
+    }
+
+    /**
      * Validate arguments against options rules
      * @param args {EnvArgs}
-     * @param options {Option[]}
+     * @param executions {Executable[]}
      * @return { { status: boolean, message: string|null } }
      */
-    validateOptions(args, options) {
+    validate(args, executions) {
+        const options = this.#getOptions(executions);
+
         for (const optionKey in options) {
             const option = options[optionKey];
             const value = args[option.key];
@@ -55,48 +103,6 @@ export default new class {
     }
 
     /**
-     * @param command {string} Command that is going to receive additional options
-     * @param options {Option[]}
-     * @param args {EnvArgs}
-     * @return {string}
-     */
-    addOptionsToCommand(command, options, args) {
-        if (options == null || options.length === 0) {
-            return command;
-        }
-
-        let modifiedCommand = command;
-
-        for (const option of options) {
-            const replaceWith = this.#replaceWith(option.key, option.insert, args);
-            modifiedCommand = modifiedCommand.replace(`$${option.key}`, replaceWith);
-        }
-
-        return modifiedCommand;
-    }
-
-    /**
-     * @param file {string} File path
-     * @param options {Option[]}
-     * @param args {EnvArgs}
-     * @return {string}
-     */
-    addOptionsToFile(file, options, args) {
-        if (options == null || options.length === 0) {
-            return file;
-        }
-
-        let fileModified = file;
-
-        for (const option of options) {
-            const customOption = this.#replaceWith(option.key, option.insert, args);
-            fileModified = `${fileModified} ${customOption}`;
-        }
-
-        return fileModified;
-    }
-
-    /**
      * Create value which will replace ref in command
      * @param key {string}
      * @param insert {string}
@@ -106,5 +112,25 @@ export default new class {
     #replaceWith(key, insert, args) {
         const replaceWith = args[key] == null ? '' : args[key];
         return insert.replace('$value', replaceWith);
+    }
+
+    /**
+     * Get all custom options from executions
+     * @param executions {Action[]}
+     * @return {Option[]}
+     */
+    #getOptions(executions) {
+        const options = [];
+        for (const execution of executions) {
+            if (execution.options == null) {
+                continue;
+            }
+
+            for (const option in execution.options) {
+                options.push(execution.options[option]);
+            }
+        }
+
+        return options;
     }
 }
