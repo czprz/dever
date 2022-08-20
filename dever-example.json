@@ -6,6 +6,40 @@
     "example-component",
     "ex"
   ],
+  "sections": [
+    {
+      "key": "env",
+      "title": "Environment",
+      "description": "Environment variables",
+      "properties": {
+        "elevated": true,
+        "name_required": true,
+        "simple_run": true
+      },
+      "actions": [
+        {
+          "name": "run-migration",
+          "optional": true,
+          "up": {
+            "type": "powershell-script",
+            "file": "/development/migrate-up.ps1",
+            "wait": {
+              "when": "before",
+              "time": 5000
+            }
+          },
+          "down": {
+            "type": "powershell-script",
+            "file": "/development/migrate-down.ps1",
+            "wait": {
+              "when": "after",
+              "time": 5000
+            }
+          }
+        }
+      ]
+    }
+  ],
   "install": [
     {
 	  "name": "git",
