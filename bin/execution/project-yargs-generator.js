@@ -1,8 +1,9 @@
 import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
 import hashCheckerDialog from "../common/helper/hash-checker-dialog.js";
 import installExecutor from './install/index.js';
-import environmentExecutor from './environment/index.js';
 import fixExecutor from './fix/index.js';
+
+import executorYargsGenerator from "../new_executor/executor-yargs-generator.js";
 
 "use strict";
 export default new class {
@@ -68,9 +69,11 @@ export default new class {
             .command({
                 command: 'env',
                 desc: 'Development environment organizer',
-                builder: (yargs) => environmentExecutor.getOptions(yargs, project.environment),
+                builder: (yargs) => executorYargsGenerator.options(yargs, project.environment),
                 handler: (argv) => {
-                    hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => environmentExecutor.handler(project.environment, yargs, argv).catch(console.error));
+                    if (argv._.length < 2) {
+                        yargs.showHelp();
+                    }
                 }
             });
     }

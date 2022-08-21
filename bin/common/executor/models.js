@@ -1,4 +1,5 @@
-import {Execute, Runtime} from '../models/dever-json/internal.js';
+import {Runtime} from "../../new_executor/runtime-mapper.js";
+import {Execute} from "../../new_executor/action-mapper.js";
 
 export class Result {
     /**

@@ -1,7 +1,7 @@
 import mssql from '../../../helper/mssql/index.js';
 import validator from '../../../helper/mssql/validator.js';
 
-import {Execute} from '../../../models/dever-json/internal.js';
+import {Execute} from '../../../../new_executor/action-mapper.js';
 import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";
@@ -15,9 +15,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handler for mssql execution
-     * @param execute
-     * @param runtime
-     * @return {Promise<Result>}
      */
     async handle(execute, runtime) {
         switch (execute.sql.option) {
@@ -36,7 +33,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for mssql execution
-     * @return {Result}
      */
     check() {
         return this._success(Operation.DependencyCheck);

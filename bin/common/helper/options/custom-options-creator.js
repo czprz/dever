@@ -1,11 +1,12 @@
-import {Executable} from "../../models/dever-json/internal.js";
+import {Args} from "../../models/common.js";
+import {Execute} from "../../../new_executor/action-mapper.js";
 
 "use strict";
 export default new class {
     /**
      *
      * @param yargs {object}
-     * @param executions {Executable[]}
+     * @param executions {Execute[]}
      * @return {object}
      */
     addToYargs(yargs, executions) {
@@ -33,7 +34,7 @@ export default new class {
     /**
      * @param command {string} Command that is going to receive additional options
      * @param options {Option[]}
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @return {string}
      */
     addToCommand(command, options, args) {
@@ -54,7 +55,7 @@ export default new class {
     /**
      * @param file {string} File path
      * @param options {Option[]}
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @return {string}
      */
     addToFile(file, options, args) {
@@ -74,7 +75,7 @@ export default new class {
 
     /**
      * Validate arguments against options rules
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @param executions {Executable[]}
      * @return { { status: boolean, message: string|null } }
      */
@@ -106,7 +107,7 @@ export default new class {
      * Create value which will replace ref in command
      * @param key {string}
      * @param insert {string}
-     * @param args {EnvArgs}
+     * @param args {Args}
      * @return {string}
      */
     #replaceWith(key, insert, args) {
@@ -116,7 +117,7 @@ export default new class {
 
     /**
      * Get all custom options from executions
-     * @param executions {Action[]}
+     * @param executions {Execute[]}
      * @return {Option[]}
      */
     #getOptions(executions) {

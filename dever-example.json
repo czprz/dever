@@ -9,7 +9,7 @@
   "sections": [
     {
       "key": "env",
-      "title": "Environment",
+      "name": "Environment",
       "description": "Environment variables",
       "properties": {
         "elevated": true,
@@ -38,138 +38,6 @@
           }
         }
       ]
-    }
-  ],
-  "install": [
-    {
-	  "name": "git",
-      "type": "chocolatey",
-      "package": "git",
-      "group": "primary",
-      "after": {
-        "type": "powershell-command",
-        "command": "choco uninstall git"
-      }
-    },
-    {
-      "name": "docker",
-      "type": "powershell-script",
-      "command": "/development/scripts/install-docker.ps1",
-      "group": "primary",
-      "before": {
-        "type": "powershell-command",
-        "command": "choco uninstall docker"
-      }
-    }
-  ],
-  "fix": [
-    {
-      "key": "docker",
-      "type": "powershell-command",
-	  "command": "run this"
-    }
-  ],
-  "environment": [
-    {
-      "name": "run-migration",
-      "start": {
-        "type": "powershell-script",
-        "file": "/development/migrate-up.ps1",
-        "wait": {
-          "when": "before",
-          "time": 5000
-        }
-      },
-      "stop": {
-        "type": "powershell-script",
-        "file": "/development/migrate-down.ps1",
-        "wait": {
-          "when": "after",
-          "time": 5000
-        }
-      }
-    },
-    {
-      "name": "create-database",
-      "start": {
-        "type": "mssql",
-        "sql": {
-          "option": "create-database",
-          "database": "TestDb",
-          "username": "sa",
-          "password": "156test"
-        }
-      },
-      "stop": {
-        "type": "mssql",
-        "sql": {
-          "option": "drop-database",
-          "database": "TestDb",
-          "username": "sa",
-          "password": "156test"
-        }
-      }
-    },
-    {
-      "name": "docker-supported-docker-start",
-      "type": "docker-container",
-      "container": {
-        "name": "mssql",
-        "ports": ["1433:1433"],
-        "variables": [
-          "ACCEPT_EULA=Y",
-          "SA_PASSWORD=156test"
-        ],
-        "image": "mcr.microsoft.com/mssql/server:2019-latest"
-      }
-    },
-    {
-      "name": "run-container",
-      "start": {
-        "type": "powershell-command",
-        "command": "docker run --name mssql -e ACCEPT_EULA=Y -e SA_PASSWORD=156test -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest"
-      },
-      "stop": {
-        "type": "powershell-command",
-        "command": "docker container stop mssql&&docker container rm mssql"
-      }
-    },
-    {
-      "name": "run_command",
-      "start": {
-        "type": "powershell-command",
-        "command": "docker container start $container_name",
-        "options": [
-          {
-            "required": true,
-            "key": "container_name",
-            "alias": "cn",
-            "describe": "docker container name",
-            "insert": "$value",
-            "rule": {
-              "match": "^[0-9A-z-_]+$",
-              "message": "Invalid naming format for docker container"
-            }
-          }
-        ]
-      },
-      "stop": {
-        "type": "powershell-command",
-        "command": "docker container stop $container_name",
-        "options": [
-          {
-            "required": true,
-            "key": "container_name",
-            "alias": "cn",
-            "describe": "docker container name",
-            "insert": "$value",
-            "rule": {
-              "match": "^[0-9A-z-_]+$",
-              "message": "Invalid naming format for docker container"
-            }
-          }
-        ]
-      }
     }
   ]
 }

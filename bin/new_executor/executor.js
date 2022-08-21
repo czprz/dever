@@ -2,9 +2,9 @@ import logger from "../common/helper/logger.js";
 import executor from "../common/executor/index.js";
 import responder from "../common/executor/responder/index.js";
 import {Status} from "../common/executor/models.js";
+import {Runtime} from "./runtime-mapper.js";
 
-import runtimeHelper from "./runtime-mapper.js";
-import actionMapper from "./action-mapper.js";
+import actionMapper, {Execute, Executable} from "./action-mapper.js";
 import validator from "./validator.js";
 import elevatedConfirmer from "./elevated-confirmer.js";
 
@@ -14,12 +14,10 @@ export default new class {
     /**
      * Executes actions
      * @param actions {Action[]}
-     * @param yargs {object}
-     * @param args {Args}
+     * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async run(actions, yargs, args) {
-        const runtime = runtimeHelper.getRuntime(args);
+    async run(actions, runtime) {
         if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
             return;
@@ -67,58 +65,7 @@ export default new class {
 
                 break;
             }
-            default:
-                yargs.showHelp();
         }
-    }
-
-    /**
-     * Generate default or component options
-     * @param yargs {object}
-     * @param actions {Action[]}
-     * @returns {*|Object}
-     */
-    options(yargs, actions) {
-        return yargs
-            .positional('keyword', {
-                describe: 'Keyword for project',
-                type: 'string'
-            })
-            .option('up', {
-                describe: 'Setup project environment',
-            })
-            .option('down', {
-                describe: 'Take down project environment',
-            })
-            .option('up-group', {
-                describe: 'Setup project environment using only items from group',
-            })
-            .option('down-group', {
-                describe: 'Take down project environment using only items from group',
-            })
-            .option('not', {
-                alias: 'n',
-                describe: 'Include name of executions to avoid starting or stopping it'
-            })
-            .option('not-group', {
-                alias: 'ng',
-                describe: 'Include group name of executions to avoid starting or stopping them'
-            })
-            .option('clean', {
-                describe: `Usage '--up --clean' which will do a clean startup`
-            })
-            .option('s', {
-                alias: 'skip',
-                describe: 'Skip confirmation messages'
-            })
-            .option('shc', {
-                alias: 'skip-hash-check',
-                describe: 'Skip hash check when running command'
-            });
-
-        // Todo: Improve description for options
-        // Todo: Add support for listing executions in groups
-        // Todo: Add support for custom options
     }
 
     /**
@@ -127,7 +74,7 @@ export default new class {
      * @param timing {'after'|'before'}
      * @returns {Promise<unknown>}
      */
-    #hasWait(executable, timing) {
+    async #hasWait(executable, timing) {
         if (executable.wait == null) {
             return null;
         }
@@ -139,7 +86,7 @@ export default new class {
 
     /**
      * Executes before or after steps
-     * @param executable {Executable}
+     * @param executable {Execute}
      * @param runtime {Runtime}
      * @return {Promise<void>}
      */

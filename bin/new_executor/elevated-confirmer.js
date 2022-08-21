@@ -1,6 +1,9 @@
 import sudo from "../common/helper/elevated.js";
-import chalk from "chalk";
 import delayer from "../common/helper/delayer.js";
+
+import {Executable} from "./action-mapper.js";
+
+import chalk from "chalk";
 import readline from "readline";
 
 export default new class {
@@ -50,7 +53,7 @@ export default new class {
      */
     #anyElevatedPermissionsRequired(executables) {
         for (const executable of executables) {
-            if (executable.runAsElevated != null && executable.runAsElevated) {
+            if (executable.elevated) {
                 return true;
             }
         }

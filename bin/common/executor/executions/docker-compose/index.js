@@ -1,7 +1,8 @@
 import docker from '../../../helper/docker/index.js';
 import shell from '../../../helper/shell.js';
 
-import {Execute, Runtime} from '../../../models/dever-json/internal.js';
+import {Runtime} from "../../../../new_executor/runtime-mapper.js";
+import {Execute} from "../../../../new_executor/action-mapper.js";
 import {Result, ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';
@@ -20,9 +21,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handler for docker-compose execution
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @return {Result}
      */
     handle(execute, runtime) {
         switch (true) {
@@ -35,7 +33,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for docker-compose execution
-     * @return {Result}
      */
     check() {
         if (!docker.is_docker_running()) {
@@ -87,6 +84,7 @@ export default new class extends ExecutionInterface {
      * @returns {Result}
      */
     #down(execute) {
+        // Todo: missing location
         const filePath = path.join(execute.location, execute.file);
         shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
 

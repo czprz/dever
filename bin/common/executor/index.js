@@ -5,7 +5,8 @@ import powershell_command from "../../common/executor/executions/powershell-comm
 import mssql from "../../common/executor/executions/mssql/index.js";
 import chocolatey from "./executions/chocolatey/index.js";
 
-import {Execute, Runtime} from "../models/dever-json/internal.js";
+import {Runtime} from "../../new_executor/runtime-mapper.js";
+import {Execute} from "../../new_executor/action-mapper.js";
 import {Result, Status} from "./models.js";
 
 export default new class {
@@ -22,11 +23,11 @@ export default new class {
             case "docker-container":
                 return docker_container.handle(execute, runtime);
             case "powershell-script":
-                return await powershell_script.handle(execute, runtime);
+                return powershell_script.handle(execute, runtime);
             case "powershell-command":
-                return await powershell_command.handle(execute, runtime);
+                return powershell_command.handle(execute, runtime);
             case "mssql":
-                return await mssql.handle(execute, runtime);
+                return mssql.handle(execute, runtime);
             case "chocolatey":
                 return chocolatey.handle(execute, runtime);
             default:

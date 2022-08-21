@@ -1,8 +1,7 @@
 import powershell from '../../../helper/powershell.js';
 import customOptions from '../../../helper/options/custom-options-creator.js';
 
-import {Execute, Runtime} from '../../../models/dever-json/internal.js';
-import {ExecutionInterface, Result} from '../../models.js';
+import {ExecutionInterface} from '../../models.js';
 
 import path from 'path';
 
@@ -17,15 +16,12 @@ export default new class extends ExecutionInterface {
     
     /**
      * Handler for powershell-script execution
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @return {Promise<Result>}
      */
     async handle(execute, runtime) {
         try {
             const file = path.join(execute.location, execute.file);
             const fileWithParameters = customOptions.addToFile(file, execute.options, runtime.args);
-            await powershell.executeFileSync(fileWithParameters, execute.runAsElevated);
+            await powershell.executeFileSync(fileWithParameters, execute.elevated);
 
             return this._success(Operation.Executed);
         } catch (e) {
@@ -35,7 +31,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for powershell-script execution
-     * @return {Result}
      */
     check() {
         // Todo: Check if powershell is supported

@@ -1,3 +1,6 @@
+import {Runtime} from "./runtime-mapper.js";
+import {Executable} from "./action-mapper.js";
+
 import chalk from "chalk";
 
 export default new class {
@@ -56,7 +59,7 @@ export default new class {
 
     /**
      * Get all custom options from executions
-     * @param executions {Action[]}
+     * @param executions {Executable[]}
      * @return {Option[]}
      */
     #getOptions(executions) {

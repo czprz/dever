@@ -1,6 +1,6 @@
 import mssql from '../../../common/helper/mssql/index.js';
 
-import {Execute} from "../../models/dever-json/internal.js";
+import {Execute} from "../../../new_executor/action-mapper.js";
 
 "use strict";
 export default new class {
