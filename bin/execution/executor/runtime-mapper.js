@@ -10,7 +10,7 @@ export default new class {
         const upGroup = this.#hasValue(args, 'up-group');
         const downGroup = this.#hasValue(args, 'down-group');
 
-        if (up === down || downGroup === upGroup) {
+        if (up === down && downGroup === upGroup) {
             return {
                 up: up || upGroup,
                 down: down || downGroup
