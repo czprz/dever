@@ -1,4 +1,4 @@
-import executor from "./executor.js";
+import executor from "./index.js";
 import runtimeMapper from "./runtime-mapper.js";
 
 export default new class {
