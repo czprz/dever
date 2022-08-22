@@ -39,10 +39,8 @@ export default new class {
             return false;
         }
 
-        if (runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup)) {
-            return false;
-        }
+        return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
     }
 
     /**
@@ -56,7 +54,7 @@ export default new class {
         return {
             name: action.name,
             group: action.group,
-            optional: action.optional,
+            optional: action.optional ?? false,
             location: action.location,
             elevated: this.#getValue(action, 'runAsElevated', runtime) ?? false,
             type: this.#getValue(action, 'type', runtime),
@@ -80,6 +78,10 @@ export default new class {
      */
     #getWait(action, runtime) {
         const wait = this.#getValue(action, 'wait', runtime);
+        if (wait == null) {
+            return null;
+        }
+
         return {
             when: wait.when,
             seconds: wait.time

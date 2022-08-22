@@ -6,20 +6,20 @@ import chalk from "chalk";
 export default new class {
     /**
      * Validate executions
-     * @param executions {Executable[]}
+     * @param executables {Executable[]}
      * @param runtime {Runtime}
      * @return { { status: boolean, message: string|null } }
      */
-    validate(executions, runtime) {
-        if (executions.length === 0) {
+    validate(executables, runtime) {
+        if (executables.length === 0) {
             return {status: false, message: chalk.redBright('No actions found matching your criteria')};
         }
 
-        if (executions.some(x => x.name == null || x.type == null)) {
+        if (executables.some(x => x.name == null || x.type == null)) {
             return {status: false, message: chalk.redBright('Actions must have a name and type')};
         }
 
-        const result = this.#checkOptions(runtime.args, executions);
+        const result = this.#checkOptions(runtime.args, executables);
         if (!result.status) {
             return result;
         }
