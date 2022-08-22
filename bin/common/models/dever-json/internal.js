@@ -95,50 +95,6 @@ export class Properties {
     simple_run;
 }
 
-export class Action extends Step {
-    /**
-     * @type {string}
-     */
-    name;
-
-    /**
-     * @type {boolean}
-     */
-    optional;
-
-    /**
-     * @type {string | null}
-     */
-    group;
-
-    /**
-     * @type {Step | null}
-     */
-    up;
-
-    /**
-     * @type {Step | null}
-     */
-    down;
-}
-
-export class Step extends Execution {
-    /**
-     * @type {Wait | null}
-     */
-    wait;
-
-    /**
-     * @type {Execution | null}
-     */
-    after;
-
-    /**
-     * @type {Execution | null}
-     */
-    before;
-}
-
 export class Execution {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey')
@@ -187,6 +143,50 @@ export class Execution {
      * @type {Option[] | null}
      */
     options;
+}
+
+export class Step extends Execution {
+    /**
+     * @type {Wait | null}
+     */
+    wait;
+
+    /**
+     * @type {Execution | null}
+     */
+    after;
+
+    /**
+     * @type {Execution | null}
+     */
+    before;
+}
+
+export class Action extends Step {
+    /**
+     * @type {string}
+     */
+    name;
+
+    /**
+     * @type {boolean}
+     */
+    optional;
+
+    /**
+     * @type {string | null}
+     */
+    group;
+
+    /**
+     * @type {Step | null}
+     */
+    up;
+
+    /**
+     * @type {Step | null}
+     */
+    down;
 }
 
 export class Internal {

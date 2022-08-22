@@ -1,7 +1,7 @@
-import logger from "../common/helper/logger.js";
-import executor from "../common/executor/index.js";
-import responder from "../common/executor/responder/index.js";
-import {Status} from "../common/executor/models.js";
+import logger from "../../common/helper/logger.js";
+import executor from "../../common/executor/index.js";
+import responder from "../../common/executor/responder/index.js";
+import {Status} from "../../common/executor/models.js";
 import {Runtime} from "./runtime-mapper.js";
 
 import actionMapper, {Execute, Executable} from "./action-mapper.js";

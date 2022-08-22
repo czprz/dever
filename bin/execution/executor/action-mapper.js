@@ -106,38 +106,6 @@ export default new class {
     }
 }
 
-export class Executable extends Execute {
-    /**
-     * @type {string}
-     */
-    name;
-
-    /**
-     * @type {string}
-     */
-    group;
-
-    /**
-     * @type {boolean}
-     */
-    optional;
-
-    /**
-     * @type {Wait}
-     */
-    wait;
-
-    /**
-     * @type {Execute}
-     */
-    before;
-
-    /**
-     * @type {Execute}
-     */
-    after;
-}
-
 export class Execute {
     /**
      * @type {string}
@@ -183,6 +151,38 @@ export class Execute {
      * @type {Option | null}
      */
     options;
+}
+
+export class Executable extends Execute {
+    /**
+     * @type {string}
+     */
+    name;
+
+    /**
+     * @type {string}
+     */
+    group;
+
+    /**
+     * @type {boolean}
+     */
+    optional;
+
+    /**
+     * @type {Wait}
+     */
+    wait;
+
+    /**
+     * @type {Execute}
+     */
+    before;
+
+    /**
+     * @type {Execute}
+     */
+    after;
 }
 
 /** WAIT **/

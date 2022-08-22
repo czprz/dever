@@ -124,6 +124,32 @@ const itemsSchema = {
     additionalProperties: false
 };
 
+const propertiesSchema = {
+    type: "object",
+    properties: {
+        elevated: {type: "boolean"},
+        name_required: {type: "boolean"},
+        simple_run: {type: "boolean"}
+    },
+    additionalProperties: false
+};
+
+const segmentSchema = {
+    type: "object",
+    properties: {
+        key: {type: "string"},
+        name: {type: "string"},
+        description: {type:"string"},
+        properties: propertiesSchema,
+        actions: {
+            type: "array",
+            items: itemsSchema
+        }
+    },
+    required: ["key", "name", "description", "actions"],
+    additionalProperties: false
+};
+
 export default {
     type: "object",
     properties: {
@@ -152,6 +178,10 @@ export default {
                 },
                 required: ["key", "type"],
             }
+        },
+        segments: {
+            type: "array",
+            items: segmentSchema
         },
         environment: {
             type: "array",

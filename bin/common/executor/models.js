@@ -1,5 +1,5 @@
-import {Runtime} from "../../new_executor/runtime-mapper.js";
-import {Execute} from "../../new_executor/action-mapper.js";
+import {Runtime} from "../../execution/executor/runtime-mapper.js";
+import {Execute} from "../../execution/executor/action-mapper.js";
 
 export class Result {
     /**

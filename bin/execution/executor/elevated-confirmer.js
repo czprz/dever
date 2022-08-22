@@ -1,5 +1,5 @@
-import sudo from "../common/helper/elevated.js";
-import delayer from "../common/helper/delayer.js";
+import sudo from "../../common/helper/elevated.js";
+import delayer from "../../common/helper/delayer.js";
 
 import {Executable} from "./action-mapper.js";
 

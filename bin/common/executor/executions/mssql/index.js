@@ -1,7 +1,7 @@
 import mssql from '../../../helper/mssql/index.js';
 import validator from '../../../helper/mssql/validator.js';
 
-import {Execute} from '../../../../new_executor/action-mapper.js';
+import {Execute} from '../../../../execution/executor/action-mapper.js';
 import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";

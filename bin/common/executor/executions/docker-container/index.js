@@ -1,6 +1,6 @@
 import docker from '../../../helper/docker/index.js';
 
-import {Runtime} from "../../../../new_executor/runtime-mapper.js";
+import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";

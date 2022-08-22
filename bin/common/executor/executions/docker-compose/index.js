@@ -1,8 +1,8 @@
 import docker from '../../../helper/docker/index.js';
 import shell from '../../../helper/shell.js';
 
-import {Runtime} from "../../../../new_executor/runtime-mapper.js";
-import {Execute} from "../../../../new_executor/action-mapper.js";
+import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
+import {Execute} from "../../../../execution/executor/action-mapper.js";
 import {Result, ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';

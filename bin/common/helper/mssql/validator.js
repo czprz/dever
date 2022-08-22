@@ -1,6 +1,6 @@
 import mssql from '../../../common/helper/mssql/index.js';
 
-import {Execute} from "../../../new_executor/action-mapper.js";
+import {Execute} from "../../../execution/executor/action-mapper.js";
 
 "use strict";
 export default new class {

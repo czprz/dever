@@ -5,7 +5,7 @@ import {Operation as PSCommandOperation} from '../executions/powershell-command/
 import {Operation as MSSQLOperation} from '../executions/mssql/index.js';
 import {Operation as ChocolateyOperation} from '../executions/chocolatey/index.js';
 
-import {Executable} from "../../../new_executor/action-mapper.js";
+import {Executable} from "../../../execution/executor/action-mapper.js";
 import {Result, Status} from "../models.js";
 
 import logger from "../../helper/logger.js";
