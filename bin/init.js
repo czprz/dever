@@ -1,7 +1,5 @@
-import powershell from '../../common/helper/powershell.js';
-import projectConfigFacade from "../../configuration/facades/project-config-facade.js";
-import versionChecker from '../../common/helper/version-checker.js';
-import configValidator from '../../common/helper/config-validator.js';
+import powershell from './common/helper/powershell.js';
+import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
 import { fileURLToPath } from 'url';
 import readline from 'readline';
@@ -56,9 +54,8 @@ export default new class {
             this.#verifyAndSavePathToDeverJson(path);
         }
 
-        const configs = projectConfigFacade.getAll();
-
-        this.#informOfUnsupportedProjects(configs);
+        const projects = projectConfigFacade.getAll();
+        this.#informOfUnsupportedProjects(projects);
 
         console.log('Initialization has been completed!');
     }
@@ -88,7 +85,7 @@ export default new class {
      * @return void
      */
     #informOfUnsupportedProjects(projects) {
-        if (!versionChecker.supported(projects) || projects.some(x => configValidator.validate(x))) {
+        if (projects.some(x => !x.supported || !x.validKeywords || !x.validSchema)) {
             console.warn(chalk.yellow('One or more of the found projects are not supported'));
             console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
         }

@@ -1,7 +1,7 @@
 import projectConfigFacade from "../configuration/facades/project-config-facade.js";
 import configValidator from '../common/helper/config-validator.js';
 import localConfigHandler from "../configuration/handlers/local-config-handler.js";
-import init from "./init/index.js";
+import init from "../init.js";
 
 import path from 'path';
 import chalk from 'chalk';
@@ -74,7 +74,7 @@ export default new class {
         console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
 
         for (const project of projects) {
-            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.internalOptions.keywords)}`);
+            console.log(`${chalk.blue(project.name)} - ${chalk.green(project.internal.keywords)}`);
         }
     }
 
