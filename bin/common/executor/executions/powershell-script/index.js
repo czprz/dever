@@ -12,7 +12,7 @@ export default new class extends ExecutionInterface {
      * @type {string}
      * @private
      */
-    _type = 'powershell-command';
+    _type = 'powershell-script';
     
     /**
      * Handler for powershell-script execution

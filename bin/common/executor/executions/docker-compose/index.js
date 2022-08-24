@@ -84,7 +84,6 @@ export default new class extends ExecutionInterface {
      * @returns {Result}
      */
     #down(execute) {
-        // Todo: missing location
         const filePath = path.join(execute.location, execute.file);
         shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
 

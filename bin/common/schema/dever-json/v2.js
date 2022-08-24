@@ -163,22 +163,6 @@ export default {
             type: "array",
             items: itemsSchema
         },
-        fix: {
-            type: "array",
-            items: {
-                type: "object",
-                properties: {
-                    key: {type: "string"},
-                    type: {
-                        type: "string",
-                        pattern: "^(powershell-command|powershell-script)$"
-                    },
-                    command: {type: "string"},
-                    file: {type: "string"}
-                },
-                required: ["key", "type"],
-            }
-        },
         segments: {
             type: "array",
             items: segmentSchema

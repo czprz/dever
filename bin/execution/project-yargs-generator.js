@@ -19,7 +19,7 @@ export default new class {
                 .command({
                     command: segment.key,
                     desc: segment.description,
-                    builder: (yargs) => executorYargsGenerator.options(yargs, segment.actions),
+                    builder: (yargs) => executorYargsGenerator.options(yargs, project.location, segment.actions),
                     handler: (argv) => {
                         if (argv._.length < 2) {
                             yargs.showHelp();

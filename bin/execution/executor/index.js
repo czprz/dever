@@ -14,10 +14,11 @@ export default new class {
     /**
      * Executes actions
      * @param actions {Action[]}
+     * @param location {Location}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async run(actions, runtime) {
+    async run(actions, location, runtime) {
         if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
             return;
@@ -26,7 +27,7 @@ export default new class {
         switch (true) {
             case runtime.up:
             case runtime.down: {
-                const executables = actionMapper.map(actions, runtime);
+                const executables = actionMapper.map(actions, location, runtime);
 
                 logger.create();
 
@@ -80,7 +81,7 @@ export default new class {
         }
 
         if (executable.wait.when === timing) {
-            return new Promise(resolve => setTimeout(resolve, executable.wait.time));
+            return new Promise(resolve => setTimeout(resolve, executable.wait.seconds));
         }
     }
 

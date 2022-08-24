@@ -4,12 +4,13 @@ export default new class {
     /**
      * Maps environment to ensure usage of proper start or stop values
      * @param actions {Action[]}
+     * @param location {Location}
      * @param runtime {Runtime}
      * @returns {Executable[]}
      */
-    map(actions, runtime) {
+    map(actions, location, runtime) {
         const executables = actions.filter(action => this.#filtering(action, runtime))
-            .map(action => this.#mapToExecutable(action, runtime));
+            .map(action => this.#mapToExecutable(action, location, runtime));
 
         if (runtime.down) {
             return executables.reverse();
@@ -46,16 +47,16 @@ export default new class {
     /**
      * Maps action to executable
      * @param action {Action}
+     * @param location {Location}
      * @param runtime {Runtime}
      * @return {Executable}
      */
-    #mapToExecutable(action, runtime) {
-        // Todo: missing location
+    #mapToExecutable(action, location, runtime) {
         return {
             name: action.name,
             group: action.group,
             optional: action.optional ?? false,
-            location: action.location,
+            location: location.partial,
             elevated: this.#getValue(action, 'runAsElevated', runtime) ?? false,
             type: this.#getValue(action, 'type', runtime),
             sql: this.#getValue(action, 'sql', runtime),
