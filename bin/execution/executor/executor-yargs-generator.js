@@ -2,6 +2,7 @@ import executor from "./index.js";
 import runtimeMapper from "./runtime-mapper.js";
 
 import chalk from "chalk";
+import customOptionsCreator from "../../common/helper/options/custom-options-creator.js";
 
 export default new class {
     /**
@@ -12,7 +13,7 @@ export default new class {
      * @returns {*|Object}
      */
     options(yargs, location, actions) {
-        return yargs
+        yargs
             .command({
                 command: 'up [name]',
                 desc: 'Run actions',
@@ -152,7 +153,8 @@ export default new class {
             });
 
         // Todo: Add support for listing executions in groups
-        // Todo: Add support for custom options
+
+        return customOptionsCreator.addToYargs(yargs, actions);
     }
 
     /**
@@ -162,7 +164,7 @@ export default new class {
      * @param argv {Args}
      * @return {Promise<void>}
      */
-    async #execute(actions, location , argv) {
+    async #execute(actions, location, argv) {
         const runtime = runtimeMapper.getRuntime(argv);
         await executor.run(actions, location, runtime);
     }

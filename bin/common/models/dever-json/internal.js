@@ -249,16 +249,22 @@ export class Option {
     describe;
 
     /**
-     * Replace specific area given in value area e.g. "$0" if e.g. command is "docker run $0 nginx"
+     * Include full parameter structure including $0 as pointer for value e.g. '--value= $0'
      * @type {string}
      */
-    insert;
+    param;
 
     /**
      * Condition for which this option is allowed to receive a value
      * @type {OptionRule}
      */
     rule;
+
+    /**
+     * Specify a default value for this option
+     * @type {string|number|boolean|null}
+     */
+    default;
 }
 
 export class OptionRule {

@@ -1,3 +1,4 @@
+import optionsMapper from "../../common/mappers/options-mapper.js";
 import {Runtime} from "./runtime-mapper.js";
 import {Executable} from "./action-mapper.js";
 
@@ -34,7 +35,7 @@ export default new class {
      * @return { { status: boolean, message: string|null } }
      */
     #checkOptions(args, executables) {
-        const options = this.#getOptions(executables);
+        const options = optionsMapper.mapFromExecutable(executables);
 
         for (const optionKey in options) {
             const option = options[optionKey];
@@ -48,6 +49,10 @@ export default new class {
                 return {status: false, message: `Missing option "${option.key}". It's required`};
             }
 
+            if (option.rule == null) {
+                continue;
+            }
+
             const regex = RegExp(`${option.rule.match}`);
             if (!regex.test(value)) {
                 return {status: false, message: option.rule.message};
@@ -55,26 +60,5 @@ export default new class {
         }
 
         return {status: true, message: null};
-    }
-
-    /**
-     * Get all custom options from executions
-     * @param executions {Executable[]}
-     * @return {Option[]}
-     */
-    #getOptions(executions) {
-        // Todo: duplicate in custom-options-creator.js
-        const options = [];
-        for (const execution of executions) {
-            if (execution.options == null) {
-                continue;
-            }
-
-            for (const option in execution.options) {
-                options.push(execution.options[option]);
-            }
-        }
-
-        return options;
     }
 }

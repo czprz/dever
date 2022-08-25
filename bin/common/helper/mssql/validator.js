@@ -60,6 +60,7 @@ export default new class {
     async #hasDatabase(execute, ignore) {
         if (await mssql.databaseExists(execute.sql)) {
             if (!ignore) {
+                // TODO: Move messages to responder
                 console.log(`mssql: '?' :: database already exists`);
             }
 

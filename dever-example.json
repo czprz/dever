@@ -26,6 +26,14 @@
             "wait": {
               "when": "before",
               "time": 5000
+            },
+            "options": {
+              "required": true,
+              "key": "value",
+              "alias": "v",
+              "describe": "test",
+              "param": "--test $0",
+              "default": 5
             }
           },
           "down": {

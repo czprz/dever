@@ -87,6 +87,32 @@ const waitSchema = {
     additionalProperties: false
 };
 
+const optionsSchema = {
+    type: "object",
+    properties: {
+        key: {type: "string"},
+        alias: {type: "string"},
+        describe: {type: "string"},
+        param: {type: "string"},
+        required: {type: "boolean"},
+        default: {
+            anyOf: [
+                {
+                    type: "string"
+                },
+                {
+                    type: "number"
+                },
+                {
+                    type: "boolean"
+                }
+            ]
+        },
+    },
+    required: ["key", "alias", "describe", "param"],
+    additionalProperties: false
+};
+
 const executableSchema = {
     type: "object",
     properties: {
@@ -96,7 +122,11 @@ const executableSchema = {
         command: commandSchema,
         file: fileSchema,
         container: containerSchema,
-        wait: waitSchema
+        wait: waitSchema,
+        options: {
+            type: "array",
+            items: optionsSchema
+        }
     },
     required: ["type"],
     additionalProperties: false
@@ -118,7 +148,11 @@ const itemsSchema = {
         command: commandSchema,
         wait: waitSchema,
         before: executableSchema,
-        after: executableSchema
+        after: executableSchema,
+        options: {
+            type: "array",
+            items: optionsSchema
+        }
     },
     required: ["name"],
     additionalProperties: false
@@ -159,17 +193,9 @@ export default {
             type: "array",
             items: {type: "string"}
         },
-        install: {
-            type: "array",
-            items: itemsSchema
-        },
         segments: {
             type: "array",
             items: segmentSchema
-        },
-        environment: {
-            type: "array",
-            items: itemsSchema
         }
     },
     required: ["version", "name", "keywords"],

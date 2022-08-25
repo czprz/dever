@@ -1,18 +1,19 @@
 import {Args} from "../../models/common.js";
-import {Execute} from "../../../execution/executor/action-mapper.js";
+import {Action, Option} from "../../models/dever-json/internal.js";
+import optionsMapper from "../../mappers/options-mapper.js";
 
 "use strict";
-export default new class {
+export default new class { // TODO: Move 'addToYargs' to it's own file.
     /**
      *
      * @param yargs {object}
-     * @param executions {Execute[]}
+     * @param actions {Action[]}
      * @return {object}
      */
-    addToYargs(yargs, executions) {
+    addToYargs(yargs, actions) {
         const demandedOptions = [];
 
-        const options = this.#getOptions(executions);
+        const options = optionsMapper.mapFromActions(actions)
 
         for (const option of options) {
             if (option.required) {
@@ -22,7 +23,8 @@ export default new class {
             yargs
                 .option(option.key, {
                     alias: option.alias,
-                    describe: option.describe
+                    describe: option.describe,
+                    default: option.default,
                 });
         }
 
@@ -45,8 +47,8 @@ export default new class {
         let modifiedCommand = command;
 
         for (const option of options) {
-            const replaceWith = this.#replaceWith(option.key, option.insert, args);
-            modifiedCommand = modifiedCommand.replace(`$${option.key}`, replaceWith);
+            const replaceWith = this.#replaceWith(option.key, option.param, args);
+            modifiedCommand = `${modifiedCommand} ${replaceWith}`;
         }
 
         return modifiedCommand;
@@ -66,7 +68,7 @@ export default new class {
         let fileModified = file;
 
         for (const option of options) {
-            const customOption = this.#replaceWith(option.key, option.insert, args);
+            const customOption = this.#replaceWith(option.key, option.param, args);
             fileModified = `${fileModified} ${customOption}`;
         }
 
@@ -74,64 +76,14 @@ export default new class {
     }
 
     /**
-     * Validate arguments against options rules
-     * @param args {Args}
-     * @param executions {Executable[]}
-     * @return { { status: boolean, message: string|null } }
-     */
-    validate(args, executions) {
-        const options = this.#getOptions(executions);
-
-        for (const optionKey in options) {
-            const option = options[optionKey];
-            const value = args[option.key];
-
-            if (value == null && !option.required) {
-                continue;
-            }
-
-            if (value == null && option.required) {
-                return {status: false, message: `Missing option "${option.key}". It's required`};
-            }
-
-            const regex = RegExp(`${option.rule.match}`);
-            if (!regex.test(value)) {
-                return {status: false, message: option.rule.message};
-            }
-        }
-
-        return {status: true, message: null};
-    }
-
-    /**
      * Create value which will replace ref in command
      * @param key {string}
-     * @param insert {string}
+     * @param param {string}
      * @param args {Args}
      * @return {string}
      */
-    #replaceWith(key, insert, args) {
+    #replaceWith(key, param, args) {
         const replaceWith = args[key] == null ? '' : args[key];
-        return insert.replace('$value', replaceWith);
-    }
-
-    /**
-     * Get all custom options from executions
-     * @param executions {Execute[]}
-     * @return {Option[]}
-     */
-    #getOptions(executions) {
-        const options = [];
-        for (const execution of executions) {
-            if (execution.options == null) {
-                continue;
-            }
-
-            for (const option in execution.options) {
-                options.push(execution.options[option]);
-            }
-        }
-
-        return options;
+        return param.replace('$0', replaceWith);
     }
 }
