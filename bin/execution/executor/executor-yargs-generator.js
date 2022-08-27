@@ -1,18 +1,19 @@
 import executor from "./index.js";
 import runtimeMapper from "./runtime-mapper.js";
+import customOptionsCreator from "../../common/helper/options/custom-options-creator.js";
+import hashCheckerDialog from "../../common/helper/hash-checker-dialog.js";
 
 import chalk from "chalk";
-import customOptionsCreator from "../../common/helper/options/custom-options-creator.js";
 
 export default new class {
     /**
      * Generate default or component options
      * @param yargs {object}
-     * @param location {Location}
+     * @param project {Project}
      * @param actions {Action[]}
      * @returns {*|Object}
      */
-    options(yargs, location, actions) {
+    options(yargs, project, actions) {
         yargs
             .command({
                 command: 'up [name]',
@@ -46,7 +47,7 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    this.#execute(actions, location, argv).catch(console.error);
+                    this.#execute(actions, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -77,7 +78,7 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    this.#execute(actions, location, argv).catch(console.error);
+                    this.#execute(actions, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -107,7 +108,7 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    this.#execute(actions, location, argv).catch(console.error);
+                    this.#execute(actions, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -133,7 +134,7 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    this.#execute(actions, location, argv).catch(console.error);
+                    this.#execute(actions, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -160,13 +161,15 @@ export default new class {
     /**
      * Execute actions
      * @param actions {Action[]}
-     * @param location {Location}
+     * @param project {Project}
      * @param argv {Args}
      * @return {Promise<void>}
      */
-    async #execute(actions, location, argv) {
-        const runtime = runtimeMapper.getRuntime(argv);
-        await executor.run(actions, location, runtime);
+    async #execute(actions, project, argv) {
+        hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, argv.keyword, async () => {
+            const runtime = runtimeMapper.getRuntime(argv);
+            await executor.run(actions, project.location, runtime);
+        });
     }
 
     /**

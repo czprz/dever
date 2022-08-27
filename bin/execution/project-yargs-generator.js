@@ -11,15 +11,12 @@ export default new class {
      * @return void
      */
     create(keyword, project, yargs) {
-        // Todo: Add hash confirmation
-        // hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, keyword, () => fixExecutor.handler(project, yargs, argv).catch(console.error));
-
         for (const segment of project.segments) {
             yargs
                 .command({
                     command: segment.key,
                     desc: segment.description,
-                    builder: (yargs) => executorYargsGenerator.options(yargs, project.location, segment.actions),
+                    builder: (yargs) => executorYargsGenerator.options(yargs, project, segment.actions),
                     handler: (argv) => {
                         if (argv._.length < 2) {
                             yargs.showHelp();

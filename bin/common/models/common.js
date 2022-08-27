@@ -52,4 +52,10 @@ export class Args {
      * @type {boolean}
      */
     skip;
+
+    /**
+     * Skip hash check
+     * @type {boolean}
+     */
+    skipHashCheck;
 }
