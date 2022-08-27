@@ -70,10 +70,10 @@ export default new class {
 
     /**
      * Check if execution should be run as elevated
-     * @param runAsElevated {boolean}
+     * @param elevated {boolean}
      * @return {Promise<boolean>}
      */
-    async #shouldRunElevated(runAsElevated) {
-        return runAsElevated && !await sudo.isElevated();
+    async #shouldRunElevated(elevated) {
+        return elevated && !await sudo.isElevated();
     }
 }

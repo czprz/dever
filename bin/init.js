@@ -40,8 +40,6 @@ export default new class {
         const __filename = fileURLToPath(import.meta.url);
         const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
 
-        projectConfigFacade.clear();
-
         const raw = await powershell.executeFileSync(file);
         if (raw == null || raw?.length === 0) {
             console.error(chalk.yellow('Could not find any dever supported projects'));
@@ -50,41 +48,54 @@ export default new class {
 
         const paths = raw.trim().split('\n');
 
-        for (const path of paths) {
-            this.#verifyAndSavePathToDeverJson(path);
-        }
-
         const projects = projectConfigFacade.getAll();
-        this.#informOfUnsupportedProjects(projects);
+        this.#removeProjects(projects, paths);
+        this.#addProjects(projects, paths);
 
         console.log('Initialization has been completed!');
+
+        this.#informOfUnsupportedProjects();
     }
 
     /**
-     * Adds location of dever.json to dever internal configuration file
-     * @param filePath {string}
-     * @return void
+     * Removes projects that are not found anymore
+     * @param projects {Project[]}
+     * @param paths {string[]}
      */
-    #verifyAndSavePathToDeverJson(filePath) {
-        const file = filePath.trim();
-
-        if (!file) {
-            return;
+    #removeProjects(projects, paths) {
+        const notFoundProjects = projects.filter(x => !paths.some(y => y === x.location.full));
+        for (const notFoundProject of notFoundProjects) {
+            projectConfigFacade.remove(notFoundProject.id);
         }
+    }
 
-        if ('dever.json' !== path.basename(file)) {
-            return;
+    /**
+     * Add project to .dever configuration file
+     * @param projects {Project[]}
+     * @param paths {string[]}
+     */
+    #addProjects(projects, paths) {
+        const newProjects = paths.filter(x => !projects.some(y => y.location.full === x));
+        for (const newProject of newProjects) {
+            const file = newProject.trim();
+
+            if (!file) {
+                return;
+            }
+
+            if ('dever.json' !== path.basename(file)) {
+                return;
+            }
+
+            projectConfigFacade.add(file);
         }
-
-        projectConfigFacade.add(file);
     }
 
     /**
      * Check if there is any dever.json which has an unsupported version
-     * @param projects {Project[]}
-     * @return void
      */
-    #informOfUnsupportedProjects(projects) {
+    #informOfUnsupportedProjects() {
+        const projects = projectConfigFacade.getAll();
         if (projects.some(x => !x.supported || !x.validKeywords || !x.validSchema)) {
             console.warn(chalk.yellow('One or more of the found projects are not supported'));
             console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));

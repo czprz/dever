@@ -89,17 +89,6 @@ export default new class {
     }
 
     /**
-     * Removes all projects from .dever
-     */
-    clear() {
-        const config = localConfig.get();
-
-        config.projects = [];
-
-        localConfig.write(config);
-    }
-
-    /**
      * Adds project to .dever
      * @param file {string}
      */
@@ -117,20 +106,15 @@ export default new class {
 
     /**
      * Removes project from .dever
-     * @param file {string}
+     * @param id {number}
      */
-    remove(file) {
+    remove(id) {
         const config = localConfig.get();
         if (config == null) {
             return;
         }
 
-        const index = config.projects.indexOf(x => x.path === file);
-        if (index === -1) {
-            return;
-        }
-
-        config.projects.splice(index, 1);
+        config.projects.splice(id, 1);
 
         localConfig.write(config);
     }
@@ -157,9 +141,22 @@ export default new class {
      */
     #fetchProject(project, config, id) {
         const projectConfig = json.read(project.path);
-
         if (projectConfig?.version == null) {
-            return null;
+            return {
+                id: id,
+                lastHash: project.lastHash,
+                skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
+                location: {
+                    full: project.path,
+                    partial: path.dirname(project.path)
+                },
+                supported: false,
+                validSchema: false,
+                validKeywords: false,
+                internal: {
+                    keywords: null
+                }
+            };
         }
 
         return {
@@ -171,7 +168,7 @@ export default new class {
             },
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
-            supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
+            supported: versionChecker.supportedVersion(projectConfig.version),
             validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
             validKeywords: configValidator.validate(projectConfig),
             internal: {
@@ -193,6 +190,10 @@ export default new class {
 
         const countOfKeywords = [];
         for (const project of projects) {
+            if (project.keywords == null) {
+                continue;
+            }
+
             let keywords = project.keywords.map(x => x);
 
             this.#addCustomKeywords(keywords, duplicateKeywords, countOfKeywords);
