@@ -14,7 +14,7 @@ export default new class {
      * @returns {*|Object}
      */
     options(yargs, project, actions) {
-        yargs
+        return yargs
             .command({
                 command: 'up [name]',
                 desc: 'Run actions',
@@ -45,6 +45,8 @@ export default new class {
                             alias: 'shc',
                             describe: 'Skip hash check',
                         });
+
+                    customOptionsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -76,6 +78,8 @@ export default new class {
                             alias: 'shc',
                             describe: 'Skip hash check',
                         });
+
+                    customOptionsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -106,6 +110,8 @@ export default new class {
                             alias: 'shc',
                             describe: 'Skip hash check',
                         });
+
+                    customOptionsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -132,6 +138,8 @@ export default new class {
                             alias: 'shc',
                             describe: 'Skip hash check',
                         });
+
+                    customOptionsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -154,8 +162,6 @@ export default new class {
             });
 
         // Todo: Add support for listing executions in groups
-
-        return customOptionsCreator.addToYargs(yargs, actions);
     }
 
     /**
