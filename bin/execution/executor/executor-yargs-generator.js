@@ -160,8 +160,6 @@ export default new class {
                     this.#list(actions, argv);
                 }
             });
-
-        // Todo: Add support for listing executions in groups
     }
 
     /**
@@ -184,7 +182,11 @@ export default new class {
      * @param argv {object}
      */
     #list(actions, argv) {
-        console.log('Listing all actions found:');
+        if (argv.group == null) {
+            console.log('Listing all actions:');
+        } else {
+            console.log('Listing all actions in group:');
+        }
 
         if (actions == null || actions.length === 0) {
             console.log(chalk.yellow('No actions found'));
