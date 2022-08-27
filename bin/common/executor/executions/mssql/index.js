@@ -1,5 +1,5 @@
 import mssql from '../../../helper/mssql/index.js';
-import validator from '../../../helper/mssql/validator.js';
+import validator, {Operation as ValidatorOperation} from '../../../helper/mssql/validator.js';
 
 import {Execute} from '../../../../execution/executor/action-mapper.js';
 import {ExecutionInterface, Result} from "../../models.js";
@@ -45,8 +45,9 @@ export default new class extends ExecutionInterface {
      */
     async #createDatabase(execute) {
         try {
-            if (!await validator.createDatabase(execute)) {
-                return this._error(Operation.DatabaseAlreadyExists);
+            const result = await validator.createDatabase(execute);
+            if (!result.success) {
+                return this._error(result.operation);
             }
 
             await mssql.createDatabase(execute.sql);
@@ -64,8 +65,9 @@ export default new class extends ExecutionInterface {
      */
     async #createTable(execute) {
         try {
-            if (!await validator.createTable(execute)) {
-                return this._error(Operation.TableAlreadyExists);
+            const result = await validator.createTable(execute);
+            if (!result.success) {
+                return this._error(result.operation);
             }
 
             await mssql.createTable(execute.sql);
@@ -83,8 +85,9 @@ export default new class extends ExecutionInterface {
      */
     async #insert(execute) {
         try {
-            if (!await validator.columns(execute)) {
-                return this._error(Operation.TableOrColumnsNotFound);
+            const result = await validator.columns(execute);
+            if (!result.success) {
+                return this._error(result.operation);
             }
 
             await mssql.insert(execute.sql);
@@ -102,8 +105,9 @@ export default new class extends ExecutionInterface {
      */
     async #dropDatabase(execute) {
         try {
-            if (await validator.dropDatabase(execute)) {
-                return this._error(Operation.DatabaseNotFound);
+            const result = await validator.dropDatabase(execute);
+            if (result.success) {
+                return this._error(result.operation);
             }
 
             await mssql.dropDatabase(execute.sql);
@@ -115,5 +119,17 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({DatabaseCreated: 'database-created', NotDatabaseCreated: 'not-database-created', DatabaseDropped: 'database-dropped', NotDatabaseDropped: 'not-database-dropped', TableCreated: 'table-created', NotTableCreated: 'not-table-created', TableDropped: 'table-dropped', Inserted: 'inserted', NotInserted: 'not-insert', TableOrColumnsNotFound: 'columns-not-found', DatabaseAlreadyExists: 'database-already-exists', DatabaseNotFound: 'database-not-found', TableAlreadyExists: 'table-already-exists', NotSupported: 'not-supported', DependencyCheck: 'dependency-check'});
-
+export const Operation = Object.freeze({
+    ...ValidatorOperation,
+    DatabaseCreated: 'database-created',
+    NotDatabaseCreated: 'not-database-created',
+    DatabaseDropped: 'database-dropped',
+    NotDatabaseDropped: 'not-database-dropped',
+    TableCreated: 'table-created',
+    NotTableCreated: 'not-table-created',
+    TableDropped: 'table-dropped',
+    Inserted: 'inserted',
+    NotInserted: 'not-insert',
+    NotSupported: 'not-supported',
+    DependencyCheck: 'dependency-check'
+});
