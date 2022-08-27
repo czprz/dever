@@ -1,6 +1,6 @@
 import docker from '../../../helper/docker/index.js';
 
-import {Execute, Runtime} from "../../../models/dever-json/internal.js";
+import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {ExecutionInterface, Result} from "../../models.js";
 
 "use strict";
@@ -14,9 +14,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handler for docker-container execution
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @return {Result}
      */
     handle(execute, runtime) {
         switch(true) {
@@ -29,7 +26,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for docker-container execution
-     * @return {Result}
      */
     check() {
         if (!docker.is_docker_running()) {

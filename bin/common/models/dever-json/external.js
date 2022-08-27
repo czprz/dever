@@ -15,47 +15,47 @@ export class Project {
     keywords;
 
     /**
-     * @type {Execution[]}
+     * @type {Segment[]}
      */
-    install;
-
-    /**
-     * @type {Fix[]}
-     */
-    fix;
-
-    /**
-     * @type {Execution[]}
-     */
-    environment;
+    segments;
 }
 
-class Fix {
+export class Segment {
     /**
      * @type {string}
      */
     key;
 
     /**
-     * Define which handler you're using ('powershell-command','powershell-script')
      * @type {string}
      */
-    type;
+    name;
 
     /**
-     * Command which is going to be executed as part of fix. Used with ('powershell-command')
-     * @type {string | null}
+     * @type {string}
      */
-    command;
+    description;
 
     /**
-     * File which is going to be executed as part of fix. Used with ('powershell-script')
-     * @type {string | null}
+     * @type {Properties}
      */
-    file;
+    properties;
+
+    /**
+     * @type {Action[]}
+     */
+    actions;
 }
 
-class Executable {
+export class Properties {
+    elevated;
+
+    name_required;
+
+    simple_run;
+}
+
+export class Execution {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey')
      * @type {string} @required
@@ -91,19 +91,6 @@ class Executable {
      * @type {string | null}
      */
     package;
-}
-
-class ExecutionStep extends Executable {
-    /**
-     * Custom options that will be passed along to dependency
-     * @type {Option[] | null}
-     */
-    options;
-
-    /**
-     * @type {Wait | null}
-     */
-    wait;
 
     /**
      * Informs whether a dependency needs to be run as elevated user
@@ -112,26 +99,39 @@ class ExecutionStep extends Executable {
     runAsElevated;
 
     /**
-     * @type {Executable | null}
+     * Custom options that will be passed along to dependency
+     * @type {Option[] | null}
+     */
+    options;
+}
+
+export class Step extends Execution {
+    /**
+     * @type {Wait | null}
+     */
+    wait;
+
+    /**
+     * @type {Execution | null}
      */
     after;
 
     /**
-     * @type {Executable | null}
+     * @type {Execution | null}
      */
     before;
 }
 
-class Execution extends ExecutionStep {
+export class Action extends Step {
     /**
      * @type {string}
      */
     name;
 
     /**
-     * @type {boolean | null}
+     * @type {boolean}
      */
-    optional = true;
+    optional;
 
     /**
      * @type {string | null}
@@ -139,12 +139,12 @@ class Execution extends ExecutionStep {
     group;
 
     /**
-     * @type {ExecutionStep | null}
+     * @type {Step | null}
      */
     up;
 
     /**
-     * @type {ExecutionStep | null}
+     * @type {Step | null}
      */
     down;
 }

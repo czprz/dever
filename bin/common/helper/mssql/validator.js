@@ -1,6 +1,6 @@
 import mssql from '../../../common/helper/mssql/index.js';
 
-import {Execute} from "../../models/dever-json/internal.js";
+import {Execute} from "../../../execution/executor/action-mapper.js";
 
 "use strict";
 export default new class {
@@ -60,6 +60,7 @@ export default new class {
     async #hasDatabase(execute, ignore) {
         if (await mssql.databaseExists(execute.sql)) {
             if (!ignore) {
+                // TODO: Move messages to responder
                 console.log(`mssql: '?' :: database already exists`);
             }
 

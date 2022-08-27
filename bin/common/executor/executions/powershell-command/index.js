@@ -1,8 +1,7 @@
 import powershell from '../../../helper/powershell.js';
-import customOptions from '../../../helper/options/custom-options-creator.js';
+import customOptions from '../../../helper/options/custom-options-applier.js';
 
-import {Execute, Runtime} from "../../../models/dever-json/internal.js";
-import {ExecutionInterface, Result} from "../../models.js";
+import {ExecutionInterface} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -15,14 +14,11 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handler for powershell-command execution
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @return {Promise<Result>}
      */
     async handle(execute, runtime) {
         try {
             const command = customOptions.addToCommand(execute.command, execute.options, runtime.args);
-            await powershell.executeSync(command, execute.runAsElevated);
+            await powershell.executeSync(command, execute.elevated);
 
             return this._success(Operation.Executed);
         } catch (e) {
@@ -32,10 +28,9 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for powershell-command execution
-     * @return {Result}
      */
     check() {
-        // Todo: Check if powershell is supported
+        // Todo: Check if powershell is available
         return this._success(Operation.DependencyCheck);
     }
 }

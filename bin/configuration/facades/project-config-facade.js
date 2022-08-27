@@ -40,7 +40,7 @@ export default new class {
 
         projects = this.#addsKeywordsToInternalOptions(projects);
 
-        projects = projects.filter(x => x.internalOptions.keywords.includes(keyword));
+        projects = projects.filter(x => x.internal.keywords.includes(keyword));
 
         return projects;
     }
@@ -156,14 +156,12 @@ export default new class {
      * @returns {Project}
      */
     #fetchProject(project, config, id) {
-        const projectConfigRaw = json.read(project.path);
-        const projectConfig = this.#mapProjectConfig(projectConfigRaw);
+        const projectConfig = json.read(project.path);
 
         if (projectConfig?.version == null) {
             return null;
         }
 
-        // Todo: Implement better mapping
         return {
             ...projectConfig,
             id: id,
@@ -174,9 +172,9 @@ export default new class {
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig?.version ?? 0),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfigRaw),
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
             validKeywords: configValidator.validate(projectConfig),
-            internalOptions: {
+            internal: {
                 keywords: null
             }
         }
@@ -199,7 +197,7 @@ export default new class {
 
             this.#addCustomKeywords(keywords, duplicateKeywords, countOfKeywords);
 
-            project.internalOptions.keywords = keywords;
+            project.internal.keywords = keywords;
         }
 
         return projects;
@@ -236,18 +234,5 @@ export default new class {
         countOfKeywords[keyword]++;
 
         return countOfKeywords[keyword];
-    }
-
-    /**
-     * Maps ExternalConfigProject to ensure optional is set
-     * @param project {ExternalConfigProject}
-     * @return {ExternalConfigProject}
-     */
-    #mapProjectConfig(project) {
-        for (const execute of project.environment) {
-            execute.optional = execute.optional ?? false;
-        }
-
-        return project;
     }
 }

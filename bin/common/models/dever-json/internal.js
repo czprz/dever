@@ -1,42 +1,3 @@
-export const Step = Object.freeze({"Before": 0, "After": 1});
-
-export class Runtime {
-    /**
-     * Start option is true when set
-     * @type {boolean}
-     */
-    up;
-
-    /**
-     * Stop option is true when set
-     * @type {boolean}
-     */
-    down;
-
-    /**
-     * List of groups and executions to be included in starting or stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    include;
-
-    /**
-     * List of groups and executions to be excluded when starting and stopping
-     * @type { { executions: string[], groups: string[] } | null }
-     */
-    exclude;
-
-    /**
-     * Is checked if user wants a clean start
-     * @type {boolean | null}
-     */
-    clean;
-
-    /**
-     * @type {any | null}
-     */
-    args;
-}
-
 export class Project {
     /**
      * @type {number}
@@ -59,24 +20,14 @@ export class Project {
     keywords;
 
     /**
-     * @type {Executable[]}
-     */
-    install;
-
-    /**
-     * @type {Fix[]}
-     */
-    fix;
-
-    /**
-     * @type {Executable[]}
-     */
-    environment;
-
-    /**
      * @type {Location}
      */
     location;
+
+    /**
+     * @type {Segment[]}
+     */
+    segments;
 
     /**
      * @type {string}
@@ -104,37 +55,47 @@ export class Project {
     validKeywords;
 
     /**
-     * @type {InternalOptions}
+     * @type {Internal}
      */
-    internalOptions;
+    internal;
 }
 
-export class Fix {
+export class Segment {
     /**
      * @type {string}
      */
     key;
 
     /**
-     * Define which handler you're using ('powershell-command','powershell-script')
      * @type {string}
      */
-    type;
+    name;
 
     /**
-     * Command which is going to be executed as part of fix. Used with ('powershell-command')
-     * @type {string | null}
+     * @type {string}
      */
-    command;
+    description;
 
     /**
-     * File which is going to be executed as part of fix. Used with ('powershell-script')
-     * @type {string | null}
+     * @type {Properties}
      */
-    file;
+    properties;
+
+    /**
+     * @type {Action[]}
+     */
+    actions;
 }
 
-export class Execute {
+export class Properties {
+    elevated;
+
+    name_required;
+
+    simple_run;
+}
+
+export class Execution {
     /**
      * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey')
      * @type {string} @required
@@ -182,40 +143,30 @@ export class Execute {
      * @type {Option[] | null}
      */
     options;
-
-    /**
-     * @type {string}
-     */
-    location;
 }
 
-export class Action extends Execute {
+export class Step extends Execution {
     /**
      * @type {Wait | null}
      */
     wait;
 
     /**
-     * @type {Execute | null}
+     * @type {Execution | null}
      */
     after;
 
     /**
-     * @type {Execute | null}
+     * @type {Execution | null}
      */
     before;
 }
 
-export class Executable extends Action {
+export class Action extends Step {
     /**
      * @type {string}
      */
     name;
-
-    /**
-     * @type {string | null}
-     */
-    group;
 
     /**
      * @type {boolean}
@@ -223,85 +174,22 @@ export class Executable extends Action {
     optional;
 
     /**
-     * @type {Action | null}
+     * @type {string | null}
+     */
+    group;
+
+    /**
+     * @type {Step | null}
      */
     up;
 
     /**
-     * @type {Action | null}
+     * @type {Step | null}
      */
     down;
-
-    /**
-     * @param config {Executable}
-     * @param runtime {Runtime}
-     */
-    constructor(config, runtime) {
-        super();
-
-        this.name = config.name;
-
-        Executable.#map(this, config);
-
-        if (config.up != null) {
-            this.#migrate(config, runtime);
-        }
-    }
-
-    /**
-     *
-     * @param config {Executable}
-     * @param runtime {Runtime}
-     */
-    #migrate(config, runtime) {
-        const selected = runtime.up ? 'up' : 'down';
-
-        if (runtime.up) {
-            this.up = new Action();
-            Executable.#map(this.up, config.up);
-        } else {
-            this.down = new Action();
-            Executable.#map(this.down, config.down);
-        }
-
-        this.#updateStepValues(this[selected] ?? this.up);
-    }
-
-    /**
-     * Set all selected step values
-     * @param executionStep {Execute}
-     * @return void
-     */
-    #updateStepValues(executionStep) {
-        for (const property in executionStep) {
-            if (this.hasOwnProperty(property)) {
-                this[property] = executionStep[property];
-            }
-        }
-    }
-
-    /**
-     * Update the selected step
-     * @param step {Action}
-     * @param config {Executable}
-     * @return void
-     */
-    static #map(step, config) {
-        step.type = config.type;
-        step.sql = config.sql;
-        step.file = config.file;
-        step.command = config.command;
-        step.container = config.container;
-        step.package = config.package;
-        step.options = config.options;
-        step.wait = config.wait;
-        step.runAsElevated = config.runAsElevated;
-        step.before = config.before;
-        step.after = config.after;
-    }
 }
 
-export class InternalOptions {
+export class Internal {
     /**
      * @type {string[]}
      */
@@ -361,16 +249,22 @@ export class Option {
     describe;
 
     /**
-     * Replace specific area given in value area e.g. "$0" if e.g. command is "docker run $0 nginx"
+     * Include full parameter structure including $0 as pointer for value e.g. '--value= $0'
      * @type {string}
      */
-    insert;
+    param;
 
     /**
      * Condition for which this option is allowed to receive a value
      * @type {OptionRule}
      */
     rule;
+
+    /**
+     * Specify a default value for this option
+     * @type {string|number|boolean|null}
+     */
+    default;
 }
 
 export class OptionRule {

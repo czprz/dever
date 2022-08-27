@@ -1,7 +1,8 @@
 import docker from '../../../helper/docker/index.js';
 import shell from '../../../helper/shell.js';
 
-import {Execute, Runtime} from '../../../models/dever-json/internal.js';
+import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
+import {Execute} from "../../../../execution/executor/action-mapper.js";
 import {Result, ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';
@@ -20,9 +21,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handler for docker-compose execution
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @return {Result}
      */
     handle(execute, runtime) {
         switch (true) {
@@ -35,7 +33,6 @@ export default new class extends ExecutionInterface {
 
     /**
      * Check dependencies for docker-compose execution
-     * @return {Result}
      */
     check() {
         if (!docker.is_docker_running()) {

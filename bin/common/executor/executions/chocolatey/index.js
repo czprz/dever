@@ -1,6 +1,8 @@
-import {ExecutionInterface} from "../../models.js";
-import {Execute, Runtime} from '../../../models/dever-json/internal.js';
 import shell from "../../../helper/shell.js";
+
+import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
+import {Execute} from "../../../../execution/executor/action-mapper.js";
+import {ExecutionInterface} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -12,9 +14,7 @@ export default new class extends ExecutionInterface {
     _type = 'chocolatey';
 
     /**
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @returns {Promise<Result> | Result}
+     * Handler for chocolatey execution
      */
     handle(execute, runtime) {
         switch (true) {
@@ -26,7 +26,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * @return {Promise<Result> | Result}
+     * Check if all necessary dependencies are available
      */
     check() {
         try {

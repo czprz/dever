@@ -87,6 +87,32 @@ const waitSchema = {
     additionalProperties: false
 };
 
+const optionsSchema = {
+    type: "object",
+    properties: {
+        key: {type: "string"},
+        alias: {type: "string"},
+        describe: {type: "string"},
+        param: {type: "string"},
+        required: {type: "boolean"},
+        default: {
+            anyOf: [
+                {
+                    type: "string"
+                },
+                {
+                    type: "number"
+                },
+                {
+                    type: "boolean"
+                }
+            ]
+        },
+    },
+    required: ["key", "alias", "describe", "param"],
+    additionalProperties: false
+};
+
 const executableSchema = {
     type: "object",
     properties: {
@@ -96,7 +122,11 @@ const executableSchema = {
         command: commandSchema,
         file: fileSchema,
         container: containerSchema,
-        wait: waitSchema
+        wait: waitSchema,
+        options: {
+            type: "array",
+            items: optionsSchema
+        }
     },
     required: ["type"],
     additionalProperties: false
@@ -118,9 +148,39 @@ const itemsSchema = {
         command: commandSchema,
         wait: waitSchema,
         before: executableSchema,
-        after: executableSchema
+        after: executableSchema,
+        options: {
+            type: "array",
+            items: optionsSchema
+        }
     },
     required: ["name"],
+    additionalProperties: false
+};
+
+const propertiesSchema = {
+    type: "object",
+    properties: {
+        elevated: {type: "boolean"},
+        name_required: {type: "boolean"},
+        simple_run: {type: "boolean"}
+    },
+    additionalProperties: false
+};
+
+const segmentSchema = {
+    type: "object",
+    properties: {
+        key: {type: "string"},
+        name: {type: "string"},
+        description: {type:"string"},
+        properties: propertiesSchema,
+        actions: {
+            type: "array",
+            items: itemsSchema
+        }
+    },
+    required: ["key", "name", "description", "actions"],
     additionalProperties: false
 };
 
@@ -133,29 +193,9 @@ export default {
             type: "array",
             items: {type: "string"}
         },
-        install: {
+        segments: {
             type: "array",
-            items: itemsSchema
-        },
-        fix: {
-            type: "array",
-            items: {
-                type: "object",
-                properties: {
-                    key: {type: "string"},
-                    type: {
-                        type: "string",
-                        pattern: "^(powershell-command|powershell-script)$"
-                    },
-                    command: {type: "string"},
-                    file: {type: "string"}
-                },
-                required: ["key", "type"],
-            }
-        },
-        environment: {
-            type: "array",
-            items: itemsSchema
+            items: segmentSchema
         }
     },
     required: ["version", "name", "keywords"],
