@@ -191,6 +191,7 @@ export default new class {
         const countOfKeywords = [];
         for (const project of projects) {
             if (project.keywords == null) {
+                project.internal.keywords = [];
                 continue;
             }
 
