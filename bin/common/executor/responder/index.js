@@ -149,26 +149,30 @@ export default new class {
                 return new Response(result, `mssql: '${executable.name}' database has been dropped`);
             case MSSQLOperation.NotDatabaseDropped:
                 return new Response(result, `mssql: '${executable.name}' database was not dropped due to errors`);
-            case MSSQLOperation.DatabaseAlreadyExists:
-                return new Response(result, `mssql: '${executable.name}' database already exists`);
-            case MSSQLOperation.DatabaseNotFound:
-                return new Response(result, `mssql: '${executable.name}' database not found`);
             case MSSQLOperation.TableCreated:
                 return new Response(result, `mssql: '${executable.name}' table has been created`);
             case MSSQLOperation.NotTableCreated:
                 return new Response(result, `mssql: '${executable.name}' table was not created due to errors`);
             case MSSQLOperation.TableDropped:
                 return new Response(result, `mssql: '${executable.name}' table has been dropped`);
-            case MSSQLOperation.TableAlreadyExists:
-                return new Response(result, `mssql: '${executable.name}' table already exists`);
             case MSSQLOperation.Inserted:
                 return new Response(result, `mssql: '${executable.name}' data has been inserted`);
             case MSSQLOperation.NotInserted:
                 return new Response(result, `mssql: '${executable.name}' data was not inserted due to errors`);
-            case MSSQLOperation.TableOrColumnsNotFound:
-                return new Response(result, `mssql: '${executable.name}' table or columns not found`);
             case MSSQLOperation.NotSupported:
                 return new Response(result, `mssql: '${executable.name}' sql option is not supported!`);
+            case MSSQLOperation.DependencyCheck:
+                return new Response(result, `MSSQL not running. Please start MSSQL and retry command`);
+            case MSSQLOperation.NoColumns:
+                return new Response(result, `mssql: '${executable.name}' no columns found`);
+            case MSSQLOperation.NoTable:
+                return new Response(result, `mssql: '${executable.name}' no table found`);
+            case MSSQLOperation.NoDatabase:
+                return new Response(result, `mssql: '${executable.name}' no database found`);
+            case MSSQLOperation.DatabaseExists:
+                return new Response(result, `mssql: '${executable.name}' database already exists`);
+            case MSSQLOperation.TableExists:
+                return new Response(result, `mssql: '${executable.name}' table already exists`);
             default:
                 break;
         }

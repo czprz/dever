@@ -1,5 +1,4 @@
 import mssql from '../../../common/helper/mssql/index.js';
-
 import {Execute} from "../../../execution/executor/action-mapper.js";
 
 "use strict";
@@ -7,64 +6,77 @@ export default new class {
     /**
      * Check conditions for dropping database
      * @param execute {Execute}
-     * @return {Promise<boolean>}
+     * @return {Promise<SqlResult>}
      */
     async dropDatabase(execute) {
         return this.#hasDatabaseName(execute) ??
             await this.#hasDatabase(execute, true) ??
-            true;
+            {
+                success: true
+            };
     }
 
     /**
      * Check conditions for creating database
      * @param execute {Execute}
-     * @return {Promise<boolean>}
+     * @return {Promise<SqlResult>}
      */
     async createDatabase(execute) {
         return this.#hasDatabaseName(execute) ??
             await this.#hasDatabase(execute, false) ??
-            true;
+            {
+                success: true
+            };
     }
 
     /**
      * Check conditions for creating table
      * @param execute {Execute}
-     * @return {Promise<boolean>}
+     * @return {Promise<SqlResult>}
      */
     async createTable(execute) {
         return this.#hasDatabaseName(execute) ??
             this.#hasTableName(execute) ??
             this.#hasColumns(execute) ??
             await this.#hasTable(execute) ??
-            true;
+            {
+                success: true
+            };
     }
 
     /**
      * Check conditions for creating columns
      * @param execute {Execute}
-     * @return {Promise<boolean>}
+     * @return {Promise<SqlResult>}
      */
     async columns(execute) {
         return this.#hasDatabaseName(execute) ??
             this.#hasTableName(execute) ??
             this.#hasColumns(execute) ??
-            true;
+            {
+                success: true
+            };
     }
 
     /**
      * Checks if database name already exists
      * @param execute {Execute}
      * @param ignore {boolean}
-     * @returns {Promise<boolean|null>}
+     * @returns {Promise<SqlResult|null>}
      */
     async #hasDatabase(execute, ignore) {
         if (await mssql.databaseExists(execute.sql)) {
             if (!ignore) {
-                // TODO: Move messages to responder
-                console.log(`mssql: '?' :: database already exists`);
+                return {
+                    success: false,
+                    operation: Operation.DatabaseExists
+                }
             }
 
-            return false;
+            return {
+                success: false,
+                operation: Operation.IgnoreDatabase
+            };
         }
 
         return null;
@@ -73,12 +85,14 @@ export default new class {
     /**
      * Checks conditions for creating table
      * @param execution {Execute}
-     * @returns {Promise<boolean|null>}
+     * @returns {Promise<SqlResult|null>}
      */
     async #hasTable(execution) {
         if (await mssql.tableExists(execution.sql)) {
-            console.log(`mssql: '?' :: table already exists`);
-            return false;
+            return {
+                success: false,
+                operation: Operation.TableExists
+            }
         }
 
         return null;
@@ -87,12 +101,14 @@ export default new class {
     /**
      * Checks if database property is set
      * @param executable {Execute}
-     * @returns {boolean|null}
+     * @returns {SqlResult|null}
      */
     #hasDatabaseName(executable) {
         if (executable.sql?.database == null) {
-            console.log(`mssql: '?' could not find database name`);
-            return false;
+            return {
+                success: false,
+                operation: Operation.NoDatabase
+            }
         }
 
         return null;
@@ -101,12 +117,14 @@ export default new class {
     /**
      * Checks if table property is set
      * @param execution {Execute}
-     * @returns {boolean|null}
+     * @returns {SqlResult|null}
      */
     #hasTableName(execution) {
         if (execution.sql?.table == null) {
-            console.log(`mssql: '?' could not find table name`);
-            return false;
+            return {
+                success: false,
+                operation: Operation.NoTable
+            }
         }
 
         return null;
@@ -115,14 +133,30 @@ export default new class {
     /**
      * Checks if column property is set
      * @param executable {Execute}
-     * @returns {boolean|null}
+     * @returns {SqlResult|null}
      */
     #hasColumns(executable) {
         if (executable.sql?.columns == null) {
-            console.log(`mssql: '?' could not find columns`);
-            return false;
+            return {
+                success: false,
+                operation: Operation.NoColumns
+            }
         }
 
         return null;
     }
 }
+
+export class SqlResult {
+    /**
+     * @type {boolean}
+     */
+    success;
+
+    /**
+     * @type {string|null}
+     */
+    operation;
+}
+
+export const Operation = Object.freeze({NoColumns: 'no-columns', NoTable: 'no-table', NoDatabase: 'no-database', TableExists: 'table-exists', DatabaseExists: 'database-exists', IgnoreDatabase: 'ignore-database'});
