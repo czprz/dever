@@ -1,38 +1,8 @@
 import {Args} from "../../models/common.js";
-import {Action, Option} from "../../models/dever-json/internal.js";
-import optionsMapper from "../../mappers/options-mapper.js";
+import {Option} from "../../models/dever-json/internal.js";
 
 "use strict";
-export default new class { // TODO: Move 'addToYargs' to it's own file.
-    /**
-     *
-     * @param yargs {object}
-     * @param actions {Action[]}
-     * @return {object}
-     */
-    addToYargs(yargs, actions) {
-        const demandedOptions = [];
-
-        const options = optionsMapper.mapFromActions(actions)
-
-        for (const option of options) {
-            if (option.required) {
-                demandedOptions.push(option.key);
-            }
-
-            yargs
-                .option(option.key, {
-                    alias: option.alias,
-                    describe: option.describe,
-                    default: option.default,
-                });
-        }
-
-        yargs.demandOption(demandedOptions);
-
-        return yargs;
-    }
-
+export default new class {
     /**
      * @param command {string} Command that is going to receive additional options
      * @param options {Option[]}

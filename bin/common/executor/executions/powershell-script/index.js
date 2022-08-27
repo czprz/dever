@@ -1,5 +1,5 @@
 import powershell from '../../../helper/powershell.js';
-import customOptions from '../../../helper/options/custom-options-creator.js';
+import customOptions from '../../../helper/options/custom-options-applier.js';
 
 import {ExecutionInterface} from '../../models.js';
 

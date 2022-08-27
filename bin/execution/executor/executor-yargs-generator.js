@@ -1,9 +1,9 @@
 import executor from "./index.js";
 import runtimeMapper from "./runtime-mapper.js";
-import customOptionsCreator from "../../common/helper/options/custom-options-creator.js";
 import hashCheckerDialog from "../../common/helper/hash-checker-dialog.js";
 
 import chalk from "chalk";
+import customOptionsYargsCreator from "../../common/helper/options/custom-options-yargs-creator.js";
 
 export default new class {
     /**
@@ -46,7 +46,7 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -79,7 +79,7 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -111,7 +111,7 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
@@ -139,7 +139,7 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, actions)
                 },
                 handler: (argv) => {
                     this.#execute(actions, project, argv).catch(console.error);
