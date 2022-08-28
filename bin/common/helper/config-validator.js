@@ -1,6 +1,6 @@
 import constants from '../constants.js';
 import json from "./json.js";
-import v2 from "../schema/dever-json/v2.js";
+import v1 from "../schema/dever-json/v1.js";
 
 import Ajv from "ajv";
 
@@ -26,9 +26,6 @@ export default new class {
      */
     validateFile(file) {
         try {
-            /**
-             * @type {Project}
-             */
             const config = json.read(file);
             if (config == null) {
                 return {status: false, message: 'could not find any dever.json at location'};
@@ -36,7 +33,7 @@ export default new class {
 
             // Todo: Improve support of multiple dever-json versions by using schema-validator
             const ajv = new Ajv();
-            const validate = ajv.compile(v2);
+            const validate = ajv.compile(v1);
             if (!validate(config)) {
                 return {status: false, schemaErrors: validate.errors};
             }

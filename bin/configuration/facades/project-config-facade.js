@@ -169,7 +169,7 @@ export default new class {
             lastHash: project.lastHash,
             skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
             supported: versionChecker.supportedVersion(projectConfig.version),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig?.version ?? 2, projectConfig),
+            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig.version, projectConfig),
             validKeywords: configValidator.validate(projectConfig),
             internal: {
                 keywords: null

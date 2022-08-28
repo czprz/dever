@@ -1,12 +1,12 @@
 {
-  "version": 3,
+  "version": 1,
   "name": "example-component",
   "keywords": [
     "example",
     "example-component",
     "ex"
   ],
-  "sections": [
+  "segments": [
     {
       "key": "env",
       "name": "Environment",
@@ -18,7 +18,7 @@
       },
       "actions": [
         {
-          "name": "run-migration",
+          "name": "ps-up-and-down-scripts",
           "optional": true,
           "up": {
             "type": "powershell-script",
@@ -27,14 +27,17 @@
               "when": "before",
               "time": 5000
             },
-            "options": {
-              "required": true,
-              "key": "value",
-              "alias": "v",
-              "describe": "test",
-              "param": "--test $0",
-              "default": 5
-            }
+            "options":
+            [
+              {
+                "required": true,
+                "key": "value",
+                "alias": "v",
+                "describe": "test",
+                "param": "--test $0",
+                "default": 5
+              }
+            ]
           },
           "down": {
             "type": "powershell-script",
@@ -42,6 +45,81 @@
             "wait": {
               "when": "after",
               "time": 5000
+            }
+          }
+        },
+        {
+          "name": "ps-command",
+          "type": "powershell-command",
+          "command": "print Hello World",
+          "options": [
+            {
+              "required": true,
+              "key": "ps",
+              "alias": "ps1",
+              "describe": "test",
+              "param": "-n $0",
+              "default": 10
+            }
+          ]
+        },
+        {
+          "name": "docker-supported-docker-start",
+          "group": "docker",
+          "up": {
+            "type": "docker-container",
+            "container": {
+              "name": "mssql",
+              "ports": [
+                "1433:1433"
+              ],
+              "variables": [
+                "ACCEPT_EULA=Y",
+                "SA_PASSWORD=123456789Qwerty"
+              ],
+              "image": "mcr.microsoft.com/mssql/server:2019-latest"
+            },
+            "wait": {
+              "when": "after",
+              "time": 3000
+            }
+          }
+        },
+        {
+          "name": "create-database",
+          "up": {
+            "type": "mssql",
+            "sql": {
+              "username": "sa",
+              "password": "123456789Qwerty",
+              "option": "create-database",
+              "database": "test"
+            }
+          }
+        },
+        {
+          "name": "create-table",
+          "optional": true,
+          "up": {
+            "type": "mssql",
+            "sql": {
+              "username": "sa",
+              "password": "123456789Qwerty",
+              "option": "insert",
+              "database": "test",
+              "table": "test",
+              "columns": [
+                {
+                  "key": "name",
+                  "valueType": "varchar(255)",
+                  "value": "testing?"
+                },
+                {
+                  "key": "Id",
+                  "valueType": "int",
+                  "value": 55
+                }
+              ]
             }
           }
         }

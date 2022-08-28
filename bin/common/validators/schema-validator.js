@@ -1,5 +1,5 @@
-import v2 from "../schema/dever-json/v2.js";
-import v1 from "../schema/dot-dever/v1.js";
+import DeverJsonV1 from "../schema/dever-json/v1.js";
+import DotDeverV1 from "../schema/dot-dever/v1.js";
 
 import Ajv from "ajv";
 
@@ -17,9 +17,9 @@ export default new class {
 
         switch(key) {
             case `${SchemaTypes.DotDever}-1`:
-                return this.#validate(json, v1);
-            case `${SchemaTypes.DeverJson}-2`:
-                return this.#validate(json, v2);
+                return this.#validate(json, DotDeverV1);
+            case `${SchemaTypes.DeverJson}-1`:
+                return this.#validate(json, DeverJsonV1);
             default:
                 return false;
         }

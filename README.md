@@ -14,11 +14,13 @@ git clone https://github.com/czprz/dever.git
 ## Installation
 
 ### Prerequisites
+
 ```
 NodeJS 14.18.1 or higher
 ```
 
 ### Installing
+
 ```
 npm install @czprz/dever -g
 ```
@@ -44,20 +46,25 @@ After you can list all found projects using below command
 dever list
 ```
 
-If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword] in `dever [keyword] env`<br>
+If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword]
+in `dever [keyword] [segment.key]`<br>
 As an example, you might want to run the environment for a project. Then the command would possibly be like this
 
 ```
-dever ec env --start
+dever ec env up
 ```
-**Note:** If any errors occur during an execution. You'll be informed that error messages can be found in a log file at end of the command.
 
-Additional commands are available for environment setup / help therefore it's a good idea to check possible commands like this
+**Note:** If any errors occur during an execution. You'll be informed that error messages can be found in a log file at
+end of the command.
+
+Additional commands are available, therefore it's a good idea to check possible commands.
 
 ```
 dever ec env
 ```
+
 or
+
 ```
 dever ec env --help
 ```
@@ -66,53 +73,48 @@ Or you could also check the list of commands below in the [Available Commands](#
 
 ## Available commands
 
-| Command                                                     | Description                                                                               |
-|-------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| dever                                                       | Shows help context for dever options                                                      |
-| dever init                                                  | Initializes dever by finding all dever.json files on your machine                         |
-| dever list                                                  | Lists all found projects                                                                  |
-| dever list --not-supported                                  | Lists all found not supported projects                                                    |
-| dever config set [key] [value]                              | Sets config key to value provided                                                         |
-| dever config get [key]                                      | Show value of config key                                                                  |
-| dever config list                                           | Show content of dever_config.json                                                         |
-| dever config location                                       | Show location of dever_config.json                                                        |
-| dever validate                                              | Validate any dever.json which is at the same location as the console                      |
-| dever validate -f, --file                                   | Validate any dever.json using a filepath                                                  |
-| dever [keyword] config set [key] [value]                    | Sets config key to value provided                                                         |
-| dever [keyword] config get [key]                            | Show value of config key                                                                  |
-| dever [keyword] config list                                 | Lists available configuration options and their current value                             |
-| dever [keyword] config show                                 | Show project configuration                                                                |
-| dever [keyword] config location                             | Show location of project configuration file                                               |
-| dever [keyword] install                                     | Installs all available packages for specified project keyword if available or shows help  |
-| dever [keyword] install -l, --list                          | List all options under install section in the projects dever.json                         |
-| dever [keyword] install -lgs, --list-groups                 | List of all installation groups under install section in the projects dever.json          |
-| dever [keyword] install -lg, --list-group                   | List of all installs underneath a specific group in the projects dever.json               |
-| dever [keyword] install -g, --group                         | Install all items underneath a specific group in the projects dever.json                  |
-| dever [keyword] install -o, --only                          | Install only specific package                                                             |
-| dever [keyword] install -i, --ignore                        | Ignore confirmations                                                                      |
-| dever [keyword] install -nba, --no-before-after             | Disables running of before and after functionality if defined in project dever.json       |
-| dever [keyword] install --shc --skip-hash-check             | Skips hash checking when attempting to run an install command or option                   |
-| dever [keyword] env                                         | Shows help context for dever env options                                                  |
-| dever [keyword] env --start                                 | Attempts to start environment                                                             |
-| dever [keyword] env --start [name]                          | Attempts to start only specified environment dependencies                                 |
-| dever [keyword] env --start --not [name], -n [name]         | Attempts to start environment dependencies except those mentioned in the --not option     |
-| dever [keyword] env --start --not-group [name], --ng [name] | Attempts to start environment dependencies expect those grouped in the --not-group option |
-| dever [keyword] env --stop                                  | Attempts to stop environment                                                              |
-| dever [keyword] env --stop [name]                           | Attempts to stop only specified environment dependencies                                  |
-| dever [keyword] env --stop --not [name], -n [name]          | Attempts to stop environment dependencies except those mentioned in the --not option      |
-| dever [keyword] env --stop --not-group [name], --ng [name]  | Attempts to stop environment dependencies expect those grouped in the --not-group option  |
-| dever [keyword] env --start --clean                         | Attempts to start environment cleanly e.g. recreating docker containers                   |
-| dever [keyword] env --start --skip                          | Attempts to start environment without any need for confirmations                          |
-| dever [keyword] env --start-group [name]                    | Attempts start grouped environment dependencies                                           |
-| dever [keyword] env --stop-group [name]                     | Attempts to stop grouped environment dependencies                                         |
-| dever [keyword] env --shc --skip-hash-check                 | Skips hash checking when attempting to run an env command or option                       |
-| dever [keyword] fix                                         | Show help context for fix command                                                         |
-| dever [keyword] fix [key]                                   | Execute project fix listed in dever.json                                                  |
-| dever [keyword] fix -l, --list                              | List all available project fixes listed in dever.json                                     |
-| dever [keyword] fix -s, --show                              | Show in the console what the fix will execute                                             |
-| dever [keyword] fix --shc, --skip-hash-check                | Skips hash checking when attempting to run an fix command or option                       |
+| Command                                                      | Description                                                          |
+|--------------------------------------------------------------|----------------------------------------------------------------------|
+| dever                                                        | Shows help context for dever options                                 |
+| dever init                                                   | Initializes dever by finding all dever.json files on your machine    |
+| dever list                                                   | Lists all found projects                                             |
+| dever list --not-supported                                   | Lists all found not supported projects                               |
+| dever config set [key] [value]                               | Sets config key to value provided                                    |
+| dever config get [key]                                       | Show value of config key                                             |
+| dever config list                                            | Show content of dever_config.json                                    |
+| dever config location                                        | Show location of dever_config.json                                   |
+| dever validate                                               | Validate any dever.json which is at the same location as the console |
+| dever validate -f, --file                                    | Validate any dever.json using a filepath                             |
+| dever [keyword] config set [key] [value]                     | Sets config key to value provided                                    |
+| dever [keyword] config get [key]                             | Show value of config key                                             |
+| dever [keyword] config list                                  | Lists available configuration options and their current value        |
+| dever [keyword] config show                                  | Show project configuration                                           |
+| dever [keyword] config location                              | Show location of project configuration file                          |
+| dever [keyword] [segment]                                    | Shows help context for dever env options                             |
+| dever [keyword] [segment] up                                 | Runs all actions                                                     |
+| dever [keyword] [segment] up [name]                          | Runs only specified actions                                          |
+| dever [keyword] [segment] up --not [name], -n [name]         | Runs all actions except those mentioned in the --not or -n option    |
+| dever [keyword] [segment] up --not-group [name], --ng [name] | Runs all actions expect those grouped in the --not-group option      |
+| dever [keyword] [segment] up --clean                         | Runs all actions from scratch                                        |
+| dever [keyword] [segment] up --skip                          | Skips confirmations                                                  |
+| dever [keyword] [segment] up --shc --skip-hash-check         | Skips hash-checks                                                    |
+| dever [keyword] [segment] up-group [name]                    | Runs all actions that belongs to specified group                     |
+| dever [keyword] [segment] up-group --not [name], -n [name]   | Runs all actions except those mentioned in the --not option          |
+| dever [keyword] [segment] up-group --clean                   | Runs all actions from scratch e.g. recreating docker containers      |
+| dever [keyword] [segment] up-group --skip                    | Skips confirmations                                                  |
+| dever [keyword] [segment] up-group --shc --skip-hash-check   | Skips hash-checks                 ter                                |
+| dever [keyword] [segment] down                               | Takes down all actions                                               |
+| dever [keyword] [segment] down [name]                        | Takes down all specified actions                                     |
+| dever [keyword] [segment] down --not [name], -n [name]       | Takes down all actions except those mentioned in the --not option    |
+| dever [keyword] [segment] down-group [name]                  | Takes down all actions that belong to specified group                |
+| dever [keyword] [segment] down-group --not [name], -n [name] | Takes down all actions except those mentioned in the --not option    |
+| dever [keyword] [segment] down-group --skip                  | Skips confirmation                                                   |
+| dever [keyword] [segment] down-group --shc --skip-hash-check | Skips hash-checks                                                    |
+| dever [keyword] [segment] list                               | Lists all available actions                                          |
+| dever [keyword] [segment] list [group]                       | Lists all actions belonging to specified group                       |
 
 ## Running the tests
+
 Currently no tests implemented..
 
 ## Built With
@@ -122,11 +124,13 @@ Currently no tests implemented..
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting a pull request.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting a pull
+request.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [releases on this repository](https://github.com/czprz/dever/releases).
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see
+the [releases on this repository](https://github.com/czprz/dever/releases).
 
 ## Authors
 
