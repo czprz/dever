@@ -27,13 +27,7 @@ export default new class {
         switch (true) {
             case runtime.up:
             case runtime.down: {
-                if (await elevatedConfirmer.warn(runtime.args.skip, segment.properties.elevated)) {
-                    console.error(chalk.redBright('You cannot run this command without elevated permissions'));
-                    return;
-                }
-
-                if (segment.properties.name_required && runtime.args.name == null) {
-                    console.error(chalk.redBright('Your cannot run this command without name argument being defined'));
+                if (await this.PropertyConditionsNotMet(segment, runtime)) {
                     return;
                 }
 
@@ -77,6 +71,26 @@ export default new class {
                 break;
             }
         }
+    }
+
+    /**
+     * Checks if property conditions is met
+     * @param segment {Segment}
+     * @param runtime {Runtime}
+     * @return {Promise<boolean>}
+     */
+    async PropertyConditionsNotMet(segment, runtime) {
+        if (await elevatedConfirmer.warn(runtime.args.skip, segment.properties.elevated)) {
+            console.error(chalk.redBright('You cannot run this command without elevated permissions'));
+            return true;
+        }
+
+        if (segment.properties.name_required && runtime.args.name == null) {
+            console.error(chalk.redBright('Your cannot run this command without name argument being defined'));
+            return true;
+        }
+
+         return false;
     }
 
     /**
