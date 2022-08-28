@@ -1,6 +1,6 @@
 "use strict";
 export default new class {
-    #supportedVersion = 2;
+    #supportedVersion = 1;
 
     /**
      * @param configs {Project|Project[]}
@@ -21,13 +21,5 @@ export default new class {
      */
     supportedVersion(version) {
         return version === this.#supportedVersion;
-    }
-
-    /**
-     * @param configs {Project[]}
-     * @return {Project[]}
-     */
-    getOnlyUnsupported(configs) {
-        return configs.filter(x => x.version !== this.#supportedVersion);
     }
 }
