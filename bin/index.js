@@ -65,14 +65,19 @@ class EntryPoint {
         defaultYargsGenerator.defaultAction(yargsObj);
     }
 
-    static #projectYargs(keyword, config) {
+    /**
+     * Create project yargs
+     * @param keyword {string}
+     * @param project {Project}
+     */
+    static #projectYargs(keyword, project) {
         const yargsObj = yargs(process.argv.slice(3));
         yargsObj
             .scriptName("dever " + keyword)
             .wrap(100)
             .usage('\nUsage: $0 <cmd> [args]');
 
-        projectYargsGenerator.create(keyword, config, yargsObj);
+        projectYargsGenerator.create(keyword, project, yargsObj);
         projectYargsGenerator.defaultAction(yargsObj);
     }
 

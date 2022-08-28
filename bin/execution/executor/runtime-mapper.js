@@ -21,8 +21,8 @@ export default new class {
             up: up || upGroup,
             down: down || downGroup,
             include: {
-                executions: this.#getVariables(args['name']),
-                groups: this.#getVariables(args[`name`])
+                executions: up || down ? this.#getVariables(args['name']) : [],
+                groups: upGroup || downGroup ? this.#getVariables(args[`name`]) : []
             },
             exclude: {
                 executions: this.#getVariables(args.not),

@@ -10,10 +10,10 @@ export default new class {
      * Generate default or component options
      * @param yargs {object}
      * @param project {Project}
-     * @param actions {Action[]}
+     * @param segment {Segment}
      * @returns {*|Object}
      */
-    options(yargs, project, actions) {
+    options(yargs, project, segment) {
         return yargs
             .command({
                 command: 'up [name]',
@@ -46,10 +46,10 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsYargsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, segment.actions)
                 },
                 handler: (argv) => {
-                    this.#execute(actions, project, argv).catch(console.error);
+                    this.#execute(segment, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -79,10 +79,10 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsYargsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, segment.actions)
                 },
                 handler: (argv) => {
-                    this.#execute(actions, project, argv).catch(console.error);
+                    this.#execute(segment, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -111,10 +111,10 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsYargsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, segment.actions)
                 },
                 handler: (argv) => {
-                    this.#execute(actions, project, argv).catch(console.error);
+                    this.#execute(segment, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -139,10 +139,10 @@ export default new class {
                             describe: 'Skip hash check',
                         });
 
-                    customOptionsYargsCreator.addToYargs(yargs, actions)
+                    customOptionsYargsCreator.addToYargs(yargs, segment.actions)
                 },
                 handler: (argv) => {
-                    this.#execute(actions, project, argv).catch(console.error);
+                    this.#execute(segment, project, argv).catch(console.error);
                 }
             })
             .command({
@@ -157,22 +157,22 @@ export default new class {
                         });
                 },
                 handler: (argv) => {
-                    this.#list(actions, argv);
+                    this.#list(segment.actions, argv);
                 }
             });
     }
 
     /**
      * Execute actions
-     * @param actions {Action[]}
+     * @param segment {Segment}
      * @param project {Project}
      * @param argv {Args}
      * @return {Promise<void>}
      */
-    async #execute(actions, project, argv) {
+    async #execute(segment, project, argv) {
         hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, argv.keyword, async () => {
             const runtime = runtimeMapper.getRuntime(argv);
-            await executor.run(actions, project.location, runtime);
+            await executor.run(segment, project.location, runtime);
         });
     }
 

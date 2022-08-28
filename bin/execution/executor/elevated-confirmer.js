@@ -47,6 +47,20 @@ export default new class {
     }
 
     /**
+     * Warn user if segment requires elevated permissions
+     * @param skip {boolean}
+     * @param runAsElevated {boolean}
+     * @return {Promise<boolean>}
+     */
+    async warn(skip, runAsElevated) {
+        if (skip || !runAsElevated) {
+            return false;
+        }
+
+        return !await sudo.isElevated();
+    }
+
+    /**
      * Check if any executables needs to run with elevated permissions
      * @param executables {Executable[]}
      * @return {boolean}
