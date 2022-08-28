@@ -162,8 +162,7 @@ const propertiesSchema = {
     type: "object",
     properties: {
         elevated: {type: "boolean"},
-        name_required: {type: "boolean"},
-        simple_run: {type: "boolean"}
+        name_required: {type: "boolean"}
     },
     additionalProperties: false
 };

@@ -14,10 +14,23 @@ export default new class Logger {
      */
     static #hasLogs = false;
 
+    static #hasInfo = false;
+
+    static #hasWarn = false;
+
+    static #hasError = false;
+
     /**
      * @type {string}
      */
     static #filename;
+
+    hasLogs = {
+        info: () => Logger.#hasInfo,
+        warning: () => Logger.#hasWarn,
+        error: () => Logger.#hasError
+    };
+
 
     /**
      * Prepare for logging
@@ -45,10 +58,6 @@ export default new class Logger {
         return Logger.#filename;
     }
 
-    hasLogs() {
-        return Logger.#hasLogs;
-    }
-
     /**
      * Log info level
      * @param message {string}
@@ -61,6 +70,7 @@ export default new class Logger {
 
         Logger.#logger.log('info', message);
         Logger.#hasLogs = true;
+        Logger.#hasInfo = true;
     }
 
     /**
@@ -75,6 +85,7 @@ export default new class Logger {
 
         Logger.#logger.log('warning', message);
         Logger.#hasLogs = true;
+        Logger.#hasWarn = true;
     }
 
     /**
@@ -91,6 +102,7 @@ export default new class Logger {
         Logger.#logger.log('error', message, error);
 
         Logger.#hasLogs = true;
+        Logger.#hasError = true;
     }
 
     static #setFilename() {

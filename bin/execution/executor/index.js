@@ -13,12 +13,12 @@ import chalk from "chalk";
 export default new class {
     /**
      * Executes actions
-     * @param actions {Action[]}
+     * @param segment {Segment}
      * @param location {Location}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async run(actions, location, runtime) {
+    async run(segment, location, runtime) {
         if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
             return;
@@ -27,7 +27,17 @@ export default new class {
         switch (true) {
             case runtime.up:
             case runtime.down: {
-                const executables = actionMapper.map(actions, location, runtime);
+                if (await elevatedConfirmer.warn(runtime.args.skip, segment.properties.elevated)) {
+                    console.error(chalk.redBright('You cannot run this command without elevated permissions'));
+                    return;
+                }
+
+                if (segment.properties.name_required && runtime.args.name == null) {
+                    console.error(chalk.redBright('Your cannot run this command without name argument being defined'));
+                    return;
+                }
+
+                const executables = actionMapper.map(segment.actions, location, runtime);
 
                 logger.create();
 
@@ -60,7 +70,7 @@ export default new class {
 
                 logger.destroy();
 
-                if (logger.hasLogs()) {
+                if (logger.hasLogs.error()) {
                     console.log(chalk.yellow(`One or more actions ended with errors. Please check the log for more detail. ${logger.getLogFile()}`));
                 }
 
