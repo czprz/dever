@@ -46,30 +46,24 @@ After you can list all found projects using below command
 dever list
 ```
 
-If the project you're interested in starting a local environment for is available. Use any of the keywords as [keyword]
+When interacting with segments. Use any of the keywords together with the segment key.
 in `dever [keyword] [segment.key]`<br>
-As an example, you might want to run the environment for a project. Then the command would possibly be like this
+This'll show you all available commands and options for the segment.
+
+e.g.
+
+```
+dever ec env
+```
+
+Running segments can be done with the command below.
 
 ```
 dever ec env up
 ```
 
 **Note:** If any errors occur during an execution. You'll be informed that error messages can be found in a log file at
-end of the command.
-
-Additional commands are available, therefore it's a good idea to check possible commands.
-
-```
-dever ec env
-```
-
-or
-
-```
-dever ec env --help
-```
-
-Or you could also check the list of commands below in the [Available Commands](#available-commands)
+end of the execution.
 
 ## Available commands
 
@@ -90,7 +84,7 @@ Or you could also check the list of commands below in the [Available Commands](#
 | dever [keyword] config list                                  | Lists available configuration options and their current value        |
 | dever [keyword] config show                                  | Show project configuration                                           |
 | dever [keyword] config location                              | Show location of project configuration file                          |
-| dever [keyword] [segment]                                    | Shows help context for dever env options                             |
+| dever [keyword] [segment]                                    | Shows help context for dever segment options                         |
 | dever [keyword] [segment] up                                 | Runs all actions                                                     |
 | dever [keyword] [segment] up [name]                          | Runs only specified actions                                          |
 | dever [keyword] [segment] up --not [name], -n [name]         | Runs all actions except those mentioned in the --not or -n option    |
