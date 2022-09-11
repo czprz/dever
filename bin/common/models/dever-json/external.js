@@ -48,11 +48,15 @@ export class Segment {
 }
 
 export class Properties {
+    /**
+     * @type {boolean}
+     */
     elevated;
 
+    /**
+     * @type {boolean}
+     */
     name_required;
-
-    simple_run;
 }
 
 export class Execution {
@@ -163,7 +167,7 @@ class Wait {
     time; // in milliseconds
 }
 
-class Option {
+export class Option {
     /**
      * Check if dependency is allowed to execute without option
      * @type {boolean}
@@ -193,13 +197,19 @@ class Option {
      * Replace specific area given in value area e.g. "$0" if e.g. command is "docker run $0 nginx"
      * @type {string}
      */
-    insert;
+    param;
 
     /**
      * Condition for which this option is allowed to receive a value
      * @type {OptionRule}
      */
     rule;
+
+    /**
+     * Specify a default value for this option
+     * @type {string|number|boolean|null}
+     */
+    default;
 }
 
 class OptionRule {

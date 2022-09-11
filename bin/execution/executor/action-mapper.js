@@ -97,11 +97,11 @@ export default new class {
      * @return {*}
      */
     #getValue(action, key, runtime) {
-        if (action.hasOwnProperty('up') && runtime.up) {
+        if (action.up != null && runtime.up) {
             return action.up[key];
         }
 
-        if (action.hasOwnProperty('down') && runtime.down) {
+        if (action.down != null && runtime.down) {
             return action.down[key];
         }
 

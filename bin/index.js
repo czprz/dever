@@ -25,7 +25,7 @@ class EntryPoint {
 
         const keyword = this.#argv[0];
         const projects = projectConfigFacade.get(keyword)?.filter(x => x.validKeywords && x.supported && x.validSchema);
-        if (projects == null || projects.length === 0) {
+        if (projects.length === 0) {
             this.#argv = [];
             console.error(`Project could not be found. Please check if keyword is spelled correctly or run 'dever init'`);
             return;
