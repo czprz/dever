@@ -95,6 +95,7 @@ const optionsSchema = {
         describe: {type: "string"},
         param: {type: "string"},
         required: {type: "boolean"},
+        // Todo: rule missing
         default: {
             anyOf: [
                 {

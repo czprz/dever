@@ -1,16 +1,12 @@
-import schemaValidator, {SchemaTypes} from "../../common/validators/schema-validator.js";
-import versionChecker from "../../common/helper/version-checker.js";
-import configValidator from "../../common/helper/config-validator.js";
 import json from "../../common/helper/json.js";
 import localConfig from "../local-config.js";
+import projectConfigMapper from "./project-config-mapper.js";
 
 import {Project} from "../../common/models/dever-json/internal.js";
 // noinspection ES6UnusedImports
 import {Config as ExternalConfig, Project as ExternalProject} from "../../common/models/dot-dever/external.js";
 // noinspection ES6UnusedImports
 import {Project as ExternalConfigProject} from "../../common/models/dever-json/external.js";
-
-import path from "path";
 
 "use strict";
 export default new class {
@@ -35,7 +31,7 @@ export default new class {
     get(keyword) {
         let projects = this.#getProjects()?.filter(x => x != null);
         if (projects == null || projects.length === 0) {
-            return null;
+            return [];
         }
 
         projects = this.#addsKeywordsToInternalOptions(projects);
@@ -52,7 +48,7 @@ export default new class {
     getAll() {
         let projects = this.#getProjects()?.filter(x => x != null);
         if (projects == null || projects.length === 0) {
-            return null;
+            return [];
         }
 
         projects = this.#addsKeywordsToInternalOptions(projects);
@@ -141,40 +137,12 @@ export default new class {
      */
     #fetchProject(project, config, id) {
         const projectConfig = json.read(project.path);
-        if (projectConfig?.version == null) {
-            return {
-                id: id,
-                lastHash: project.lastHash,
-                skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
-                location: {
-                    full: project.path,
-                    partial: path.dirname(project.path)
-                },
-                supported: false,
-                validSchema: false,
-                validKeywords: false,
-                internal: {
-                    keywords: null
-                }
-            };
-        }
-
-        return {
-            ...projectConfig,
-            id: id,
-            location: {
-                full: project.path,
-                partial: path.dirname(project.path)
-            },
+        return projectConfigMapper.map(id, {
+            path: project.path,
             lastHash: project.lastHash,
-            skipHashCheck: config.skipAllHashChecks || project.skipHashCheck || false,
-            supported: versionChecker.supportedVersion(projectConfig.version),
-            validSchema: schemaValidator.validate(SchemaTypes.DeverJson, projectConfig.version, projectConfig),
-            validKeywords: configValidator.validate(projectConfig),
-            internal: {
-                keywords: null
-            }
-        }
+            skipHashCheck: project.skipHashCheck,
+            skipAllHashChecks: config.skipAllHashChecks
+        }, projectConfig);
     }
 
     /**
