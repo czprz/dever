@@ -95,6 +95,15 @@ const optionsSchema = {
         describe: {type: "string"},
         param: {type: "string"},
         required: {type: "boolean"},
+        rule: {
+            type: "object",
+            properties: {
+                match: {type: "string"},
+                message: {type: "string"}
+            },
+            required: ["match", "message"],
+            additionalProperties: false
+        },
         default: {
             anyOf: [
                 {

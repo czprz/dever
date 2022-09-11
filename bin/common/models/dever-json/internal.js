@@ -88,11 +88,15 @@ export class Segment {
 }
 
 export class Properties {
+    /**
+     * @type {boolean}
+     */
     elevated;
 
+    /**
+     * @type {boolean}
+     */
     name_required;
-
-    simple_run;
 }
 
 export class Execution {
