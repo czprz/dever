@@ -95,7 +95,15 @@ const optionsSchema = {
         describe: {type: "string"},
         param: {type: "string"},
         required: {type: "boolean"},
-        // Todo: rule missing
+        rule: {
+            type: "object",
+            properties: {
+                match: {type: "string"},
+                message: {type: "string"}
+            },
+            required: ["match", "message"],
+            additionalProperties: false
+        },
         default: {
             anyOf: [
                 {
