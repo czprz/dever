@@ -68,7 +68,7 @@ export default new class {
                 description: x.description,
                 properties: {
                     elevated: x.properties?.elevated ?? false,
-                    name_required: x.properties?.elevated ?? false
+                    name_required: x.properties?.name_required ?? false
                 },
                 actions: this.#mapActions(x.actions)
             }
