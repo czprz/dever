@@ -92,6 +92,10 @@ export default new class {
                 return new Response(result, `docker-container: '${executable.name}' not found`);
             case DConOperation.NotRunning:
                 return new Response(result, `docker-container: '${executable.name}' is not running`);
+            case DConOperation.CouldNotCreateOrStart:
+                return new Response(result, `docker-container: '${executable.name}' could not be created or started`);
+            case DConOperation.CouldNotStop:
+                return new Response(result, `docker-container: '${executable.name}' could not be stopped`);
             case DConOperation.DependencyCheck:
                 return new Response(result, `Docker engine not running. Please start docker and retry command`);
             default:
