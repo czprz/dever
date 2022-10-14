@@ -16,7 +16,7 @@ export default new class extends ExecutionInterface {
      * Handler for docker-container execution
      */
     handle(execute, runtime) {
-        switch(true) {
+        switch (true) {
             case runtime.up:
                 return this.#up(execute.container, runtime);
             case runtime.down:
@@ -42,22 +42,26 @@ export default new class extends ExecutionInterface {
      * @returns {Result}
      */
     #up(container, runtime) {
-        const state = docker.container.getRunState(container.name);
-        switch (state) {
-            case docker.states.NotRunning: {
-                if (this.#recreate(container, runtime.clean)) {
-                    return this._success(Operation.Recreated);
+        try {
+            const state = docker.container.getRunState(container.name);
+            switch (state) {
+                case docker.states.NotRunning: {
+                    if (this.#recreate(container, runtime.clean)) {
+                        return this._success(Operation.Recreated);
+                    }
+
+                    docker.container.start(container.name);
+
+                    return this._success(Operation.Started);
                 }
-
-                docker.container.start(container.name);
-
-                return this._success(Operation.Started);
+                case docker.states.Running:
+                    return this._success(Operation.AlreadyRunning);
+                case docker.states.NotFound:
+                    docker.container.create(container);
+                    return this._success(Operation.Created);
             }
-            case docker.states.Running:
-                return this._success(Operation.AlreadyRunning);
-            case docker.states.NotFound:
-                docker.container.create(container);
-                return this._success(Operation.Created);
+        } catch (e) {
+            return this._error(Operation.CouldNotCreateOrStart, e);
         }
     }
 
@@ -67,15 +71,19 @@ export default new class extends ExecutionInterface {
      * @return {Result}
      */
     #down(container) {
-        const state = docker.container.getRunState(container.name);
-        switch (state) {
-            case docker.states.Running:
-                docker.container.stop(container.name);
-                return this._success(Operation.Stopped);
-            case docker.states.NotFound:
-                return this._success(Operation.NotFound);
-            case docker.states.NotRunning:
-                return this._success(Operation.NotRunning);
+        try {
+            const state = docker.container.getRunState(container.name);
+            switch (state) {
+                case docker.states.Running:
+                    docker.container.stop(container.name);
+                    return this._success(Operation.Stopped);
+                case docker.states.NotFound:
+                    return this._success(Operation.NotFound);
+                case docker.states.NotRunning:
+                    return this._success(Operation.NotRunning);
+            }
+        } catch (e) {
+            return this._error(Operation.CouldNotStop, e);
         }
     }
 
@@ -96,4 +104,15 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running', 'DependencyCheck': 'dependency-check'});
+export const Operation = Object.freeze({
+    'Started': 'started',
+    'Stopped': 'stopped',
+    'Created': 'created',
+    'Recreated': 'recreated',
+    'AlreadyRunning': 'already-running',
+    'NotFound': 'not-found',
+    'NotRunning': 'not-running',
+    'DependencyCheck': 'dependency-check',
+    'CouldNotCreateOrStart': 'could-not-create-or-start',
+    'CouldNotStop': 'could-not-stop'
+});
