@@ -14,18 +14,6 @@ export default new class extends ExecutionInterface {
     _type = 'chocolatey';
 
     /**
-     * Handler for chocolatey execution
-     */
-    handle(execute, runtime) {
-        switch (true) {
-            case runtime.up:
-                return this.#up(execute, runtime);
-            case runtime.down:
-                return this.#down(execute);
-        }
-    }
-
-    /**
      * Check if all necessary dependencies are available
      */
     check() {
@@ -38,10 +26,24 @@ export default new class extends ExecutionInterface {
     }
 
     /**
+     * Executes chocolatey
+     */
+    async _execute(execute, runtime) {
+        switch (true) {
+            case runtime.up:
+                this.#up(execute, runtime);
+                break;
+            case runtime.down:
+                this.#down(execute);
+                break;
+        }
+    }
+
+    /**
      * Run chocolatey
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {Result}
+     * @returns {ExecutionLog}
      */
     #up(execute, runtime) {
         try {

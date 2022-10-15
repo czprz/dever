@@ -3,7 +3,7 @@ import shell from '../../../helper/shell.js';
 
 import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../../../execution/executor/action-mapper.js";
-import {Result, ExecutionInterface} from "../../models.js";
+import {ExecutionLog, ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -20,33 +20,35 @@ export default new class extends ExecutionInterface {
     _type = 'docker-compose';
 
     /**
-     * Handler for docker-compose execution
-     */
-    handle(execute, runtime) {
-        switch (true) {
-            case runtime.up:
-                return this.#up(execute, runtime);
-            case runtime.down:
-                return this.#down(execute);
-        }
-    }
-
-    /**
      * Check dependencies for docker-compose execution
      */
     check() {
         if (!docker.is_docker_running()) {
-            return this._error(Operation.DependencyCheck);
+            return this._error(Operation.DependencyCheck, null, true);
         }
 
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes docker-compose
+     */
+    async _execute(execute, runtime) {
+        switch (true) {
+            case runtime.up:
+                this.#up(execute, runtime);
+                break;
+            case runtime.down:
+                this.#down(execute);
+                break;
+        }
     }
 
     /**
      * Start docker-compose
      * @param execute {Execute} FilePath to docker-compose
      * @param runtime {Runtime}
-     * @returns {Result}
+     * @returns {ExecutionLog}
      */
     #up(execute, runtime) {
         const state = this.#run_state();
@@ -81,7 +83,7 @@ export default new class extends ExecutionInterface {
     /**
      * Stop docker-compose
      * @param execute {Execute} FilePath to docker-compose
-     * @returns {Result}
+     * @returns {ExecutionLog}
      */
     #down(execute) {
         const filePath = path.join(execute.location, execute.file);

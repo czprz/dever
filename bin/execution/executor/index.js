@@ -1,7 +1,5 @@
 import logger from "../../common/helper/logger.js";
 import executor from "../../common/executor/index.js";
-import responder from "../../common/executor/responder/index.js";
-import {Status} from "../../common/executor/models.js";
 import {Runtime} from "./runtime-mapper.js";
 
 import actionMapper, {Execute, Executable} from "./action-mapper.js";
@@ -9,6 +7,9 @@ import validator from "./validator.js";
 import elevatedConfirmer from "./elevated-confirmer.js";
 
 import chalk from "chalk";
+import {lastValueFrom} from "rxjs";
+import responder from "../../common/executor/responder/index.js";
+import {Status} from "../../common/executor/models.js";
 
 export default new class {
     /**
@@ -43,7 +44,7 @@ export default new class {
 
                 const checkResult = await executor.dependencyCheck(executables);
                 if (checkResult.status === Status.Error) {
-                    responder.respond(checkResult, null);
+                    // responder.respond(checkResult, null);
                     return;
                 }
 
@@ -55,8 +56,13 @@ export default new class {
                     await this.#hasWait(executable, 'before');
                     await this.#executeStep(executable.before, runtime);
 
-                    const result = await executor.execute(executable, runtime);
-                    responder.respond(result, executable);
+                    const executionLog$ = executor.getLogger(executable);
+                    executionLog$.subscribe(x => responder.respond(x, executable));
+
+                    executor.execute(executable, runtime);
+
+                    // noinspection JSCheckFunctionSignatures
+                    await lastValueFrom(executionLog$);
 
                     await this.#executeStep(executable.after, runtime);
                     await this.#hasWait(executable, 'after');
@@ -86,7 +92,7 @@ export default new class {
         }
 
         if (segment.properties.name_required && runtime.args.name == null) {
-            console.error(chalk.redBright('Your cannot run this command without name argument being defined'));
+            console.error(chalk.redBright('You cannot run this command without name argument being defined'));
             return true;
         }
 
@@ -105,21 +111,22 @@ export default new class {
         }
 
         if (executable.wait.when === timing) {
+            logger.debug(`Waiting for ${executable.wait.seconds} milliseconds before next action`);
             return new Promise(resolve => setTimeout(resolve, executable.wait.seconds));
         }
     }
 
     /**
      * Executes before or after steps
-     * @param executable {Execute}
+     * @param execute {Execute}
      * @param runtime {Runtime}
      * @return {Promise<void>}
      */
-    async #executeStep(executable, runtime) {
-        if (executable == null) {
+    async #executeStep(execute, runtime) {
+        if (execute == null) {
             return;
         }
-
-        await executor.execute(executable, runtime);
+        // TODO: Does not block execution
+        await executor.execute(execute, runtime);
     }
 }

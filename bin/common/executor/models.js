@@ -1,27 +1,43 @@
 import {Runtime} from "../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../execution/executor/action-mapper.js";
+import {ReplaySubject} from "rxjs";
+import logger from "../helper/logger.js";
+import chalk from "chalk";
 
-export class Result {
+export class Informer {
     /**
-     * @type {Status}
+     * Outputs response to the console
+     * @param type {'warning', 'error', 'success'}
+     * @param message {string}
+     * @param error {Error | null}
+     * @internal
      */
-    status;
+    _inform(type, message, error = null) {
+        switch (type) {
+            case 'success':
+                logger.info(message);
+                break;
+            case 'error':
+                logger.error(message, error);
+                break;
+            case 'warning':
+                logger.warn(message);
+                break;
+            default:
+                throw new Error(`Unknown response type: ${type}`);
+        }
+    }
 
-    /**
-     * @type {string}
-     */
-    operation;
+    _inform_partial(message, end = false, error = false) {
+        process.stdout.write(error ? chalk.redBright(message) : message);
 
-    /**
-     * @type {string}
-     */
-    type;
+        if (end) {
+            process.stdout.write('\r\n');
+        }
+    }
+}
 
-    /**
-     * @type {exception | null}
-     */
-    error;
-
+export class ExecutionLog {
     /**
      * @param status {Status}
      * @param operation {string}
@@ -45,55 +61,118 @@ export class ExecutionInterface {
     _type = null;
 
     /**
+     * Execution log
+     * @type {ReplaySubject<ExecutionLog>}
+     * @internal
+     */
+    #logger = new ReplaySubject(1);
+
+    /**
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {Promise<Result> | Result}
+     * @returns {ReplaySubject<ExecutionLog>}
      */
     handle(execute, runtime) {
-        throw new Error('ExecutorInterface.handle() is not implemented');
+        this._execute(execute, runtime);
     }
 
     /**
-     * @return {Promise<Result> | Result}
+     * @return {Promise<ExecutionLog> | ExecutionLog}
      */
     check() {
         throw new Error('ExecutorInterface.check() is not implemented');
     }
 
     /**
-     * Create success response
+     * Get execution logs
+     * @return {ReplaySubject<ExecutionLog>}
+     */
+    getLogger() {
+        return this.#logger;
+    }
+
+    /**
+     * Execute command
+     * @param execute {Execute}
+     * @param runtime {Runtime}
+     * @private
+     */
+    async _execute(execute, runtime) {
+        throw new Error('ExecutorInterface._execute() is not implemented');
+    }
+
+    _disable_log() {
+        this.#logger = null;
+    }
+
+    _enable_log() {
+        this.#logger = new ReplaySubject(1);
+    }
+
+    /**
+     * Create started response
      * @param operation {string}
-     * @return {Result}
+     * @returns {ExecutionLog}
      * @internal
      */
-    _success(operation) {
+    _started(operation) {
         if (this._type == null) {
             throw new Error('ExecutorInterface._type is not set');
         }
 
-        return new Result(Status.Success, operation, this._type);
+        return this.#log(new ExecutionLog(Status.Started, operation, this._type));
+    }
+
+    /**
+     * Create progress response
+     * @param operation {string}
+     * @returns {ExecutionLog}
+     * @internal
+     */
+    _progress(operation) {
+        if (this._type == null) {
+            throw new Error('ExecutorInterface._type is not set');
+        }
+
+        return this.#log(new ExecutionLog(Status.Progress, operation, this._type));
+    }
+
+    /**
+     * Create success response
+     * @param operation {string}
+     * @param disable_log {boolean}
+     * @return {ExecutionLog}
+     * @internal
+     */
+    _success(operation, disable_log = false) {
+        if (this._type == null) {
+            throw new Error('ExecutorInterface._type is not set');
+        }
+
+        return this.#log(new ExecutionLog(Status.Success, operation, this._type), disable_log);
     }
 
     /**
      * Create error response
      * @param operation {string}
      * @param error {exception | null}
-     * @return {Result}
+     * @param disable_log {boolean}
+     * @return {ExecutionLog}
      * @internal
      */
-    _error(operation, error = null) {
+    _error(operation, error = null, disable_log = false) {
         if (this._type == null) {
             throw new Error('ExecutorInterface._type is not set');
         }
 
-        return new Result(Status.Error, operation, this._type, error);
+        return this.#log(new ExecutionLog(Status.Error, operation, this._type, error), disable_log);
     }
 
     /**
      * Create warning response
      * @param operation {string}
      * @param error {exception | null}
-     * @return {Result}
+     * @return {ExecutionLog}
      * @internal
      */
     _warning(operation, error) {
@@ -101,9 +180,28 @@ export class ExecutionInterface {
             throw new Error('ExecutorInterface._type is not set');
         }
 
-        return new Result(Status.Warning, operation, this._type, error);
+        return this.#log(new ExecutionLog(Status.Warning, operation, this._type, error));
+    }
+
+    /**
+     * Log state
+     * @param log {ExecutionLog}
+     * @param disable_log {boolean}
+     * @return ExecutionLog
+     * @private
+     */
+    #log(log, disable_log = false) {
+        if (!disable_log && this.#logger instanceof ReplaySubject) {
+            this.#logger.next(log);
+
+            if (log.status === Status.Error || log.status === Status.Success) {
+                this.#logger.complete();
+            }
+        }
+
+        return log;
     }
 }
 
 
-export const Status = Object.freeze({'Success': 0, 'Error': 1, 'Warning': 2});
+export const Status = Object.freeze({'Success': 0, 'Error': 1, 'Warning': 2, 'Started': 3, 'Progress': 4});

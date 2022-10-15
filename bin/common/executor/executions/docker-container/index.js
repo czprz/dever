@@ -1,7 +1,7 @@
 import docker from '../../../helper/docker/index.js';
 
 import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
-import {ExecutionInterface, Result} from "../../models.js";
+import {ExecutionInterface} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -13,69 +13,83 @@ export default new class extends ExecutionInterface {
     _type = 'docker-container';
 
     /**
-     * Handler for docker-container execution
-     */
-    handle(execute, runtime) {
-        switch(true) {
-            case runtime.up:
-                return this.#up(execute.container, runtime);
-            case runtime.down:
-                return this.#down(execute.container);
-        }
-    }
-
-    /**
      * Check dependencies for docker-container execution
      */
     check() {
         if (!docker.is_docker_running()) {
-            return this._error(Operation.DependencyCheck);
+            return this._error(Operation.DependencyCheck, null, true);
         }
 
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes command
+     */
+    async _execute(execute, runtime) {
+        switch (true) {
+            case runtime.up:
+                this.#up(execute.container, runtime);
+                break;
+            case runtime.down:
+                this.#down(execute.container);
+                break;
+        }
     }
 
     /**
      * Start docker container
      * @param container {Container}
      * @param runtime {Runtime}
-     * @returns {Result}
      */
     #up(container, runtime) {
         const state = docker.container.getRunState(container.name);
         switch (state) {
             case docker.states.NotRunning: {
                 if (this.#recreate(container, runtime.clean)) {
-                    return this._success(Operation.Recreated);
+                    this._success(Operation.Recreated);
                 }
+
+                this._started(Operation.Starting);
 
                 docker.container.start(container.name);
 
-                return this._success(Operation.Started);
+                this._success(Operation.Started);
+
+                break;
             }
             case docker.states.Running:
-                return this._success(Operation.AlreadyRunning);
-            case docker.states.NotFound:
+                this._success(Operation.AlreadyRunning);
+                break;
+            case docker.states.NotFound: {
+                this._started(Operation.Creating);
                 docker.container.create(container);
-                return this._success(Operation.Created);
+
+                this._success(Operation.Created);
+
+                break;
+            }
         }
     }
 
     /**
      * Stop docker container
      * @param container {Container}
-     * @return {Result}
      */
     #down(container) {
         const state = docker.container.getRunState(container.name);
         switch (state) {
             case docker.states.Running:
+                this._started(Operation.Stopping);
                 docker.container.stop(container.name);
-                return this._success(Operation.Stopped);
+                this._success(Operation.Stopped);
+                break;
             case docker.states.NotFound:
-                return this._success(Operation.NotFound);
+                this._success(Operation.NotFound);
+                break;
             case docker.states.NotRunning:
-                return this._success(Operation.NotRunning);
+                this._success(Operation.NotRunning);
+                break;
         }
     }
 
@@ -89,6 +103,8 @@ export default new class extends ExecutionInterface {
             return false;
         }
 
+        this._started(Operation.Recreating);
+
         docker.container.remove(container.name);
         docker.container.create(container);
 
@@ -96,4 +112,17 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'NotFound': 'not-found', 'NotRunning': 'not-running', 'DependencyCheck': 'dependency-check'});
+export const Operation = Object.freeze({
+    'Starting': 'starting',
+    'Started': 'started',
+    'Stopping': 'stopping',
+    'Stopped': 'stopped',
+    'Recreating': 'recreating',
+    'Recreated': 'recreated',
+    'Creating': 'creating',
+    'Created': 'created',
+    'AlreadyRunning': 'already-running',
+    'NotFound': 'not-found',
+    'NotRunning': 'not-running',
+    'DependencyCheck': 'dependency-check'
+});

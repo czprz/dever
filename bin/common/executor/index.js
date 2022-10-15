@@ -7,29 +7,58 @@ import chocolatey from "./executions/chocolatey/index.js";
 
 import {Runtime} from "../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../execution/executor/action-mapper.js";
-import {Result, Status} from "./models.js";
+import {ExecutionLog, Status} from "./models.js";
 
 export default new class {
     /**
      * Handles handlers for each environment dependency
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {Promise<Result>}
      */
-    async execute(execute, runtime) {
+    execute(execute, runtime) {
         switch (execute.type) {
             case "docker-compose":
-                return docker_compose.handle(execute, runtime);
+                docker_compose.handle(execute, runtime);
+                break;
             case "docker-container":
-                return docker_container.handle(execute, runtime);
+                docker_container.handle(execute, runtime);
+                break;
             case "powershell-script":
-                return powershell_script.handle(execute, runtime);
+                powershell_script.handle(execute, runtime);
+                break;
             case "powershell-command":
-                return powershell_command.handle(execute, runtime);
+                powershell_command.handle(execute, runtime);
+                break;
             case "mssql":
-                return mssql.handle(execute, runtime);
+                mssql.handle(execute, runtime);
+                break;
             case "chocolatey":
-                return chocolatey.handle(execute, runtime);
+                chocolatey.handle(execute, runtime);
+                break;
+            default:
+                throw new Error(`'${execute.type}' type is not supported`);
+        }
+    }
+
+    /**
+     * Handles handlers for each environment dependency
+     * @param execute {Execute}
+     * @return Observable<ExecutionLog>
+     */
+    getLogger(execute) {
+        switch (execute.type) {
+            case "docker-compose":
+                return docker_compose.getLogger();
+            case "docker-container":
+                return docker_container.getLogger();
+            case "powershell-script":
+                return powershell_script.getLogger();
+            case "powershell-command":
+                return powershell_command.getLogger();
+            case "mssql":
+                return mssql.getLogger();
+            case "chocolatey":
+                return chocolatey.getLogger();
             default:
                 throw new Error(`'${execute.type}' type is not supported`);
         }
@@ -38,7 +67,7 @@ export default new class {
     /**
      * Check if all necessary dependencies are available
      * @param executes {Execute[]}
-     * @return {Promise<Result>}
+     * @return {Promise<ExecutionLog>}
      */
     async dependencyCheck(executes) {
         let result;
@@ -72,6 +101,6 @@ export default new class {
             }
         }
 
-        return new Result(Status.Success, "dependency-check", "dependency-check");
+        return new ExecutionLog(Status.Success, "dependency-check", "dependency-check");
     }
 }

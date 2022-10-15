@@ -2,7 +2,7 @@ import mssql from '../../../helper/mssql/index.js';
 import validator, {Operation as ValidatorOperation} from '../../../helper/mssql/validator.js';
 
 import {Execute} from '../../../../execution/executor/action-mapper.js';
-import {ExecutionInterface, Result} from "../../models.js";
+import {ExecutionInterface, ExecutionLog} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -14,34 +14,39 @@ export default new class extends ExecutionInterface {
     _type = 'mssql';
 
     /**
-     * Handler for mssql execution
-     */
-    async handle(execute, runtime) {
-        switch (execute.sql.option) {
-            case "create-database":
-                return await this.#createDatabase(execute);
-            case "drop-database":
-                return await this.#dropDatabase(execute);
-            case "create-table":
-                return await this.#createTable(execute);
-            case "insert":
-                return await this.#insert(execute);
-            default:
-                return this._error(Operation.NotSupported);
-        }
-    }
-
-    /**
      * Check dependencies for mssql execution
      */
     check() {
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes sql
+     */
+    async _execute(execute, runtime) {
+        switch (execute.sql.option) {
+            case "create-database":
+                await this.#createDatabase(execute);
+                break;
+            case "drop-database":
+                await this.#dropDatabase(execute);
+                break;
+            case "create-table":
+                await this.#createTable(execute);
+                break;
+            case "insert":
+                await this.#insert(execute);
+                break;
+            default:
+                this._error(Operation.NotSupported);
+                break;
+        }
     }
 
     /**
      * Create database
      * @param execute {Execute}
-     * @returns {Promise<Result>}
+     * @returns {Promise<ExecutionLog>}
      */
     async #createDatabase(execute) {
         try {
@@ -61,7 +66,7 @@ export default new class extends ExecutionInterface {
     /**
      * Create table
      * @param execute {Execute}
-     * @returns {Promise<Result>}
+     * @returns {Promise<ExecutionLog>}
      */
     async #createTable(execute) {
         try {
@@ -81,7 +86,7 @@ export default new class extends ExecutionInterface {
     /**
      * Checks and runs 'insert into' once or multiple times depending on whether it's a string or array
      * @param execute {Execute}
-     * @returns {Promise<Result>}
+     * @returns {Promise<ExecutionLog>}
      */
     async #insert(execute) {
         try {
@@ -101,7 +106,7 @@ export default new class extends ExecutionInterface {
     /**
      * Drops database
      * @param execute {Execute}
-     * @return {Promise<Result>}
+     * @return {Promise<ExecutionLog>}
      */
     async #dropDatabase(execute) {
         try {

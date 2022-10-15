@@ -13,25 +13,25 @@ export default new class extends ExecutionInterface {
     _type = 'powershell-command';
 
     /**
-     * Handler for powershell-command execution
-     */
-    async handle(execute, runtime) {
-        try {
-            const command = customOptions.addToCommand(execute.command, execute.options, runtime.args);
-            await powershell.executeSync(command, execute.elevated);
-
-            return this._success(Operation.Executed);
-        } catch (e) {
-            return this._error(Operation.NotExecuted, e);
-        }
-    }
-
-    /**
      * Check dependencies for powershell-command execution
      */
     check() {
         // Todo: Check if powershell is available
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes powershell command
+     */
+    async _execute(execute, runtime) {
+        try {
+            const command = customOptions.addToCommand(execute.command, execute.options, runtime.args);
+            await powershell.executeSync(command, execute.elevated);
+
+            this._success(Operation.Executed);
+        } catch (e) {
+            this._error(Operation.NotExecuted, e);
+        }
     }
 }
 
