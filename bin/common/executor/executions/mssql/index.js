@@ -2,7 +2,7 @@ import mssql from '../../../helper/mssql/index.js';
 import validator, {Operation as ValidatorOperation} from '../../../helper/mssql/validator.js';
 
 import {Execute} from '../../../../execution/executor/action-mapper.js';
-import {ExecutionInterface, ExecutionLog} from "../../models.js";
+import {ExecutionInterface} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -56,6 +56,7 @@ export default new class extends ExecutionInterface {
             const result = await validator.createDatabase(execute);
             if (!result.success) {
                 this._error(result.operation);
+                return;
             }
 
             await mssql.createDatabase(execute.sql);
@@ -69,7 +70,6 @@ export default new class extends ExecutionInterface {
     /**
      * Create table
      * @param execute {Execute}
-     * @returns {Promise<ExecutionLog>}
      */
     async #createTable(execute) {
         try {
@@ -77,21 +77,21 @@ export default new class extends ExecutionInterface {
 
             const result = await validator.createTable(execute);
             if (!result.success) {
-                return this._error(result.operation);
+                this._error(result.operation);
+                return;
             }
 
             await mssql.createTable(execute.sql);
 
-            return this._success(Operation.TableCreated);
+            this._success(Operation.TableCreated);
         } catch (e) {
-            return this._error(Operation.NotTableCreated, e);
+            this._error(Operation.NotTableCreated, e);
         }
     }
 
     /**
      * Checks and runs 'insert into' once or multiple times depending on whether it's a string or array
      * @param execute {Execute}
-     * @returns {Promise<ExecutionLog>}
      */
     async #insert(execute) {
         try {
@@ -99,21 +99,21 @@ export default new class extends ExecutionInterface {
 
             const result = await validator.columns(execute);
             if (!result.success) {
-                return this._error(result.operation);
+                this._error(result.operation);
+                return;
             }
 
             await mssql.insert(execute.sql);
 
-            return this._success(Operation.Inserted);
+            this._success(Operation.Inserted);
         } catch (e) {
-            return this._error(Operation.NotInserted, e);
+            this._error(Operation.NotInserted, e);
         }
     }
 
     /**
      * Drops database
      * @param execute {Execute}
-     * @return {Promise<ExecutionLog>}
      */
     async #dropDatabase(execute) {
         try {
@@ -121,14 +121,15 @@ export default new class extends ExecutionInterface {
 
             const result = await validator.dropDatabase(execute);
             if (result.success) {
-                return this._error(result.operation);
+                this._error(result.operation);
+                return;
             }
 
             await mssql.dropDatabase(execute.sql);
 
-            return this._success(Operation.DatabaseDropped);
+            this._success(Operation.DatabaseDropped);
         } catch (e) {
-            return this._error(Operation.NotDatabaseDropped, e);
+            this._error(Operation.NotDatabaseDropped, e);
         }
     }
 }

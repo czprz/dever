@@ -1,6 +1,6 @@
 import {Runtime} from "../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../execution/executor/action-mapper.js";
-import {ReplaySubject} from "rxjs";
+import {Subject} from "rxjs";
 import logger from "../helper/logger.js";
 import chalk from "chalk";
 
@@ -52,6 +52,12 @@ export class ExecutionLog {
     }
 }
 
+export const State = Object.freeze({
+    Started: 'started',
+    Progressing: 'progressing',
+    Finished: 'finished',
+});
+
 export class ExecutionInterface {
     /**
      * Execution type
@@ -62,18 +68,17 @@ export class ExecutionInterface {
 
     /**
      * Execution log
-     * @type {ReplaySubject<ExecutionLog>}
+     * @type {Subject<ExecutionLog>}
      * @internal
      */
-    #logger = new ReplaySubject(1);
+    #logger = new Subject();
 
     /**
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {ReplaySubject<ExecutionLog>}
      */
-    handle(execute, runtime) {
-        this._execute(execute, runtime);
+    async handle(execute, runtime) {
+        await this._execute(execute, runtime);
     }
 
     /**
@@ -85,7 +90,7 @@ export class ExecutionInterface {
 
     /**
      * Get execution logs
-     * @return {ReplaySubject<ExecutionLog>}
+     * @return {Subject<ExecutionLog>}
      */
     getLogger() {
         return this.#logger;
@@ -99,14 +104,6 @@ export class ExecutionInterface {
      */
     async _execute(execute, runtime) {
         throw new Error('ExecutorInterface._execute() is not implemented');
-    }
-
-    _disable_log() {
-        this.#logger = null;
-    }
-
-    _enable_log() {
-        this.#logger = new ReplaySubject(1);
     }
 
     /**
@@ -191,12 +188,8 @@ export class ExecutionInterface {
      * @private
      */
     #log(log, disable_log = false) {
-        if (!disable_log && this.#logger instanceof ReplaySubject) {
+        if (!disable_log && this.#logger instanceof Subject) {
             this.#logger.next(log);
-
-            if (log.status === Status.Error || log.status === Status.Success) {
-                this.#logger.complete();
-            }
         }
 
         return log;

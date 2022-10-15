@@ -37,7 +37,7 @@ export default new class extends Informer {
                 this._inform_partial('done', true);
                 break;
             case Operation.Inserting:
-                this._inform_partial(`mssql: '${name}' table is being inserted... `);
+                this._inform_partial(`mssql: '${name}' data is being inserted... `);
                 break;
             case Operation.Inserted:
                 this._inform_partial('done', true);
@@ -52,13 +52,13 @@ export default new class extends Informer {
                 this._inform('error', `MSSQL not running. Please start MSSQL and retry command`);
                 break;
             case Operation.NoColumns:
-                this._inform('error', `mssql: '${name}' no columns found`);
+                this._inform_partial('failed. No columns found', true, true);
                 break;
             case Operation.NoTable:
-                this._inform('error', `mssql: '${name}' no table found`);
+                this._inform_partial('failed. No table found', true, true);
                 break;
             case Operation.NoDatabase:
-                this._inform('error', `mssql: '${name}' no database found`);
+                this._inform_partial('failed. No database found', true, true);
                 break;
             case Operation.DatabaseExists:
                 this._inform_partial(`failed. Database already exists`, true, true);

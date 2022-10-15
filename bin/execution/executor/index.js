@@ -1,5 +1,5 @@
 import logger from "../../common/helper/logger.js";
-import executor from "../../common/executor/index.js";
+import executorHandler from "../../common/executor/index.js";
 import {Runtime} from "./runtime-mapper.js";
 
 import actionMapper, {Execute, Executable} from "./action-mapper.js";
@@ -7,7 +7,7 @@ import validator from "./validator.js";
 import elevatedConfirmer from "./elevated-confirmer.js";
 
 import chalk from "chalk";
-import {lastValueFrom} from "rxjs";
+import {Subject, takeUntil} from "rxjs";
 import responder from "../../common/executor/responder/index.js";
 import {Status} from "../../common/executor/models.js";
 
@@ -42,7 +42,7 @@ export default new class {
                     return;
                 }
 
-                const checkResult = await executor.dependencyCheck(executables);
+                const checkResult = await executorHandler.dependencyCheck(executables);
                 if (checkResult.status === Status.Error) {
                     responder.respond(checkResult, null);
                     return;
@@ -56,13 +56,17 @@ export default new class {
                     await this.#hasWait(executable, 'before');
                     await this.#executeStep(executable.before, runtime);
 
-                    const executionLog$ = executor.getLogger(executable);
-                    executionLog$.subscribe(x => responder.respond(x, executable));
+                    const subscribeUntil = new Subject();
 
-                    executor.execute(executable, runtime);
+                    const executor = executorHandler.get(executable.type);
 
-                    // noinspection JSCheckFunctionSignatures
-                    await lastValueFrom(executionLog$);
+                    const executionLog$ = executor.getLogger();
+                    executionLog$.pipe(takeUntil(subscribeUntil)).subscribe(x => responder.respond(x, executable));
+
+                    await executor.handle(executable, runtime);
+
+                    subscribeUntil.next(null);
+                    subscribeUntil.complete();
 
                     await this.#executeStep(executable.after, runtime);
                     await this.#hasWait(executable, 'after');
@@ -126,7 +130,8 @@ export default new class {
         if (execute == null) {
             return;
         }
-        // TODO: Does not block execution
-        await executor.execute(execute, runtime);
+
+        const executor = executorHandler.get(execute.type);
+        await executor.handle(execute, runtime);
     }
 }
