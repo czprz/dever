@@ -44,7 +44,7 @@ export default new class {
 
                 const checkResult = await executor.dependencyCheck(executables);
                 if (checkResult.status === Status.Error) {
-                    // responder.respond(checkResult, null);
+                    responder.respond(checkResult, null);
                     return;
                 }
 

@@ -1,5 +1,5 @@
 import {Operation} from "../../executions/mssql/index.js";
-import {Informer} from "../../models.js";
+import {Informer, Status} from "../../models.js";
 
 export default new class extends Informer {
     /**
@@ -9,32 +9,41 @@ export default new class extends Informer {
      */
     inform(log, name) {
         switch (log.operation) {
+            case Operation.DatabaseCreating:
+                this._inform_partial(`mssql: '${name}' database is being created... `);
+                break;
             case Operation.DatabaseCreated:
-                this._inform('success', `mssql: '${name}' database has been created`);
+                this._inform_partial('done', true);
                 break;
             case Operation.NotDatabaseCreated:
-                this._inform('error', `mssql: '${name}' database was not created due to errors`);
+                this._inform_partial('failed', true, true);
+                break;
+            case Operation.DatabaseDropping:
+                this._inform_partial(`mssql: '${name}' database is being dropped... `);
                 break;
             case Operation.DatabaseDropped:
-                this._inform('success', `mssql: '${name}' database has been dropped`);
+                this._inform_partial('done', true);
                 break;
             case Operation.NotDatabaseDropped:
-                this._inform('error', `mssql: '${name}' database was not dropped due to errors`);
+                this._inform_partial('failed', true, true);
                 break;
             case Operation.TableCreated:
-                this._inform('success', `mssql: '${name}' table has been created`);
+                this._inform_partial(`mssql: '${name}' table is being created... `);
                 break;
             case Operation.NotTableCreated:
-                this._inform('error', `mssql: '${name}' table was not created due to errors`);
+                this._inform_partial('failed', true, true);
                 break;
             case Operation.TableDropped:
-                this._inform('success', `mssql: '${name}' table has been dropped`);
+                this._inform_partial('done', true);
+                break;
+            case Operation.Inserting:
+                this._inform_partial(`mssql: '${name}' table is being inserted... `);
                 break;
             case Operation.Inserted:
-                this._inform('success', `mssql: '${name}' data has been inserted`);
+                this._inform_partial('done', true);
                 break;
             case Operation.NotInserted:
-                this._inform('error', `mssql: '${name}' data was not inserted due to errors`);
+                this._inform_partial('failed', true, true);
                 break;
             case Operation.NotSupported:
                 this._inform('error', `mssql: '${name}' operation is not supported`);
@@ -52,10 +61,10 @@ export default new class extends Informer {
                 this._inform('error', `mssql: '${name}' no database found`);
                 break;
             case Operation.DatabaseExists:
-                this._inform('error', `mssql: '${name}' database already exists`);
+                this._inform_partial(`failed. Database already exists`, true, true);
                 break;
             case Operation.TableExists:
-                this._inform('error', `mssql: '${name}' table already exists`);
+                this._inform_partial(`failed. Table already exists`, true, true);
                 break;
             default:
                 break;

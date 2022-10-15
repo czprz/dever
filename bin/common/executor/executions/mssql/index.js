@@ -46,20 +46,23 @@ export default new class extends ExecutionInterface {
     /**
      * Create database
      * @param execute {Execute}
-     * @returns {Promise<ExecutionLog>}
+     * @returns {Promise<void>}
      */
     async #createDatabase(execute) {
         try {
+            this._started(Operation.DatabaseCreating);
+
+
             const result = await validator.createDatabase(execute);
             if (!result.success) {
-                return this._error(result.operation);
+                this._error(result.operation);
             }
 
             await mssql.createDatabase(execute.sql);
 
-            return this._success(Operation.DatabaseCreated);
+            this._success(Operation.DatabaseCreated);
         } catch (e) {
-            return this._error(Operation.NotDatabaseCreated, e);
+            this._error(Operation.NotDatabaseCreated, e);
         }
     }
 
@@ -70,6 +73,8 @@ export default new class extends ExecutionInterface {
      */
     async #createTable(execute) {
         try {
+            this._started(Operation.TableCreating);
+
             const result = await validator.createTable(execute);
             if (!result.success) {
                 return this._error(result.operation);
@@ -90,6 +95,8 @@ export default new class extends ExecutionInterface {
      */
     async #insert(execute) {
         try {
+            this._started(Operation.Inserting);
+
             const result = await validator.columns(execute);
             if (!result.success) {
                 return this._error(result.operation);
@@ -110,6 +117,8 @@ export default new class extends ExecutionInterface {
      */
     async #dropDatabase(execute) {
         try {
+            this._started(Operation.DatabaseDropping);
+
             const result = await validator.dropDatabase(execute);
             if (result.success) {
                 return this._error(result.operation);
@@ -126,13 +135,18 @@ export default new class extends ExecutionInterface {
 
 export const Operation = Object.freeze({
     ...ValidatorOperation,
+    DatabaseCreating: 'database-creating',
     DatabaseCreated: 'database-created',
     NotDatabaseCreated: 'not-database-created',
+    DatabaseDropping: 'database-dropping',
     DatabaseDropped: 'database-dropped',
     NotDatabaseDropped: 'not-database-dropped',
+    TableCreating: 'table-creating',
     TableCreated: 'table-created',
     NotTableCreated: 'not-table-created',
+    TableDropping: 'table-dropping',
     TableDropped: 'table-dropped',
+    Inserting: 'inserting',
     Inserted: 'inserted',
     NotInserted: 'not-insert',
     NotSupported: 'not-supported',
