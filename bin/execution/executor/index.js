@@ -115,7 +115,7 @@ export default new class {
         }
 
         if (executable.wait.when === timing) {
-            logger.debug(`Waiting for ${executable.wait.seconds} milliseconds before next action`);
+            logger.info(chalk.yellowBright(`Waiting for ${executable.wait.seconds} milliseconds before next action`));
             return new Promise(resolve => setTimeout(resolve, executable.wait.seconds));
         }
     }

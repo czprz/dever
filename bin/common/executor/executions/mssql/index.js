@@ -52,7 +52,6 @@ export default new class extends ExecutionInterface {
         try {
             this._started(Operation.DatabaseCreating);
 
-
             const result = await validator.createDatabase(execute);
             if (!result.success) {
                 this._error(result.operation);

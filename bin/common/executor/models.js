@@ -52,12 +52,6 @@ export class ExecutionLog {
     }
 }
 
-export const State = Object.freeze({
-    Started: 'started',
-    Progressing: 'progressing',
-    Finished: 'finished',
-});
-
 export class ExecutionInterface {
     /**
      * Execution type

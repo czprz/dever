@@ -47,23 +47,34 @@ export default new class extends ExecutionInterface {
      */
     #up(execute, runtime) {
         try {
+            this._started(Operation.Installing);
             shell.executeSync(`choco install ${execute.package} -y`);
 
-            return this._success(Operation.Install);
+            this._success(Operation.Installed);
         } catch (error) {
-            return this._error(Operation.NotInstall, error);
+            this._error(Operation.NotInstall, error);
         }
     }
 
     #down(execute) {
         try {
+            this._started(Operation.Uninstalling);
+
             shell.executeSync(`choco uninstall ${execute.package} -y`);
 
-            return this._success(Operation.Uninstall);
+            this._success(Operation.Uninstall);
         } catch (error) {
-            return this._error(Operation.NotUninstall, error);
+            this._error(Operation.NotUninstall, error);
         }
     }
 }
 
-export const Operation = Object.freeze({Install: 'install', NotInstall: 'not-install', Uninstall: 'uninstall', NotUninstall: 'not-uninstall', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({
+    Installing: 'installing',
+    Installed: 'installed',
+    NotInstall: 'not-install',
+    Uninstalling: 'uninstalling',
+    Uninstall: 'uninstall',
+    NotUninstall: 'not-uninstall',
+    DependencyCheck: 'dependency-check'
+});
