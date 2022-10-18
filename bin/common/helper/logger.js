@@ -109,12 +109,15 @@ export default new class Logger {
      * Log error level
      * @param message {string}
      * @param error {Error=} null
+     * @param hide {boolean=} false
      * @return void
      */
-    error(message, error = null) {
+    error(message, error = null, hide = false) {
         Logger.#throwIfLoggerIsNotInstantiated();
 
-        console.error(message);
+        if (!hide) {
+            console.error(message);
+        }
 
         Logger.#logger.log('error', message, error);
 

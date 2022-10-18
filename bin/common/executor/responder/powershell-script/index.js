@@ -9,11 +9,14 @@ export default new class extends Informer {
      */
     inform(log, name) {
         switch (log.operation) {
+            case Operation.Executing:
+                this._inform_partial(`powershell-script: '${name}' is being executed... `, log);
+                break;
             case Operation.Executed:
-                this._inform('success', `powershell-script: '${name}' has been executed`);
+                this._inform_partial('done', log);
                 break;
             case Operation.NotExecuted:
-                this._inform('error', `powershell-script: '${name}' has been executed with errors`);
+                this._inform_partial('failed', log);
                 break;
             default:
                 break;

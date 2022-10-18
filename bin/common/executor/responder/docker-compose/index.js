@@ -9,17 +9,32 @@ export default new class extends Informer {
      */
     inform(log, name) {
         switch (log.operation) {
+            case Operation.Creating:
+                this._inform_partial(`docker-compose: '${name}' is being created... `, log);
+                break;
             case Operation.Created:
-                this._inform('success', `docker-compose: '${name}' has been created and started`);
+                this._inform_partial('done', log);
+                break;
+            case Operation.Starting:
+                this._inform_partial(`docker-compose: '${name}' is being started... `, log);
                 break;
             case Operation.Started:
-                this._inform('success', `docker-compose: '${name}' has been started`);
+                this._inform_partial('done', log);
+                break;
+            case Operation.Stopping:
+                this._inform_partial(`docker-compose: '${name}' is being stopped... `, log);
                 break;
             case Operation.Stopped:
-                this._inform('success', `docker-compose: '${name}' has been stopped`);
+                this._inform_partial('done', log);
+                break;
+            case Operation.NotStopped:
+                this._inform_partial('failed', log);
+                break;
+            case Operation.Recreating:
+                this._inform_partial(`docker-compose: '${name}' is being recreated... `, log);
                 break;
             case Operation.Recreated:
-                this._inform('success', `docker-compose: '${name}' has been recreated`);
+                this._inform_partial('done', log);
                 break;
             case Operation.AlreadyRunning:
                 this._inform('success', `docker-compose: '${name}' is already running`);

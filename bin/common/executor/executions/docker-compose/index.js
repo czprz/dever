@@ -48,7 +48,6 @@ export default new class extends ExecutionInterface {
      * Start docker-compose
      * @param execute {Execute} FilePath to docker-compose
      * @param runtime {Runtime}
-     * @returns {ExecutionLog}
      */
     #up(execute, runtime) {
         const state = this.#run_state();
@@ -56,26 +55,34 @@ export default new class extends ExecutionInterface {
         switch (state) {
             case states.NotRunning: {
                 if (this.#recreate(execute.location, execute.file, runtime.clean)) {
-                    return this._success(Operation.Recreated);
+                    this._success(Operation.Recreated);
+                    return;
                 }
+
+                this._started(Operation.Starting);
 
                 const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
 
-                return this._success(Operation.Started);
+                this._success(Operation.Started);
+                break;
             }
             case states.Running: {
                 if (this.#recreate(execute.location, execute.file, runtime.clean)) {
-                    return this._success(Operation.Recreated);
+                    this._success(Operation.Recreated);
+                    return;
                 }
 
-                return this._success(Operation.AlreadyRunning);
+                this._success(Operation.AlreadyRunning);
+                break;
             }
             case states.NotFound: {
+                this._started(Operation.Creating);
                 const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
 
-                return this._success(Operation.Started);
+                this._success(Operation.Created);
+                break;
             }
         }
     }
@@ -83,13 +90,18 @@ export default new class extends ExecutionInterface {
     /**
      * Stop docker-compose
      * @param execute {Execute} FilePath to docker-compose
-     * @returns {ExecutionLog}
      */
     #down(execute) {
-        const filePath = path.join(execute.location, execute.file);
-        shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
+        try {
+            this._started(Operation.Stopping);
 
-        return this._success(Operation.Stopped);
+            const filePath = path.join(execute.location, execute.file);
+            shell.executeSync(`docker-compose --file "${filePath}" --project-name dever down`);
+
+            this._success(Operation.Stopped);
+        } catch (e) {
+            this._error(Operation.NotStopped, e);
+        }
     }
 
     /**
@@ -102,6 +114,8 @@ export default new class extends ExecutionInterface {
         if (!clean) {
             return false;
         }
+
+        this._started(Operation.Recreating);
 
         const filePath = path.join(location, file);
         shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d --force-recreate`);
@@ -131,4 +145,16 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({'Started': 'started', 'Stopped': 'stopped', 'Created': 'created', 'Recreated': 'recreated', 'AlreadyRunning': 'already-running', 'DependencyCheck': 'dependency-check'});
+export const Operation = Object.freeze({
+    'Starting': 'starting',
+    'Started': 'started',
+    'Stopping': 'stopping',
+    'Stopped': 'stopped',
+    'NotStopped': 'not-stopped',
+    'Creating': 'creating',
+    'Created': 'created',
+    'Recreating': 'recreating',
+    'Recreated': 'recreated',
+    'AlreadyRunning': 'already-running',
+    'DependencyCheck': 'dependency-check'
+});

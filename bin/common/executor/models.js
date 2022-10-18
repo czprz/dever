@@ -28,10 +28,31 @@ export class Informer {
         }
     }
 
-    _inform_partial(message, end = false, error = false) {
-        process.stdout.write(error ? chalk.redBright(message) : message);
+    /**
+     * Log success message to the console
+     * @param message {string}
+     * @param log {ExecutionLog}
+     * @internal
+     */
+    _inform_partial(message, log) {
+        if (log.status === Status.Started) {
+            process.stdout.write(message);
+        }
 
-        if (end) {
+        if (log.status === Status.Error) {
+            logger.error(message, log.error, true);
+            process.stdout.write(chalk.redBright(message));
+        }
+
+        if (log.status === Status.Success) {
+            process.stdout.write(chalk.greenBright(message));
+        }
+
+        if (log.status === Status.Warning) {
+            process.stdout.write(chalk.yellowBright(message));
+        }
+
+        if (log.status === Status.Error || log.status === Status.Success || log.status === Status.Warning) {
             process.stdout.write('\r\n');
         }
     }
@@ -42,13 +63,14 @@ export class ExecutionLog {
      * @param status {Status}
      * @param operation {string}
      * @param type {string}
-     * @param error {exception | null}
+     * @param error {Error | null}
      */
     constructor(status, operation, type, error = null) {
         this.status = status;
         this.operation = operation;
         this.type = type;
         this.error = error;
+        // TODO: Need more information about which action was executed
     }
 }
 

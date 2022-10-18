@@ -1,4 +1,4 @@
-import {Operation} from "../../executions/docker-container/index.js";
+import {Operation} from "../../executions/powershell-command/index.js";
 import {Informer} from "../../models.js";
 
 export default new class extends Informer {
@@ -9,11 +9,14 @@ export default new class extends Informer {
      */
     inform(log, name) {
         switch (log.operation) {
+            case Operation.Executing:
+                this._inform_partial(`powershell-command: '${name}' is being executed... `, log);
+                break;
             case Operation.Executed:
-                this._inform('success', `powershell-command: '${name}' has been executed`);
+                this._inform_partial('done', log);
                 break;
             case Operation.NotExecuted:
-                this._inform('error', `powershell-command: '${name}' has been executed with errors`);
+                this._inform_partial('failed', log);
                 break;
             default:
                 break;

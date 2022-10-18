@@ -10,22 +10,22 @@ export default new class extends Informer {
     inform(log, name) {
         switch (log.operation) {
             case Operation.Installing:
-                this._inform_partial(`chocolatey: '${name}' is being installed... `);
+                this._inform_partial(`chocolatey: '${name}' is being installed... `, log);
                 break;
             case Operation.Installed:
-                this._inform_partial('done', true, false);
+                this._inform_partial('done', log);
                 break;
             case Operation.NotInstall:
-                this._inform_partial('failed', true, true);
+                this._inform_partial('failed', log);
                 break;
             case Operation.Uninstalling:
-                this._inform_partial(`chocolatey: '${name}' is being uninstalled... `);
+                this._inform_partial(`chocolatey: '${name}' is being uninstalled... `, log);
                 break;
             case Operation.Uninstall:
-                this._inform_partial('done', true, false);
+                this._inform_partial('done', log);
                 break;
             case Operation.NotUninstall:
-                this._inform_partial('failed', true, true);
+                this._inform_partial('failed', log);
                 break;
             case Operation.DependencyCheck:
                 this._inform('error', `Chocolatey not installed. Please install chocolatey and retry command`);
