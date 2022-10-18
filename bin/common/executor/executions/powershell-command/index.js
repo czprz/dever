@@ -25,7 +25,7 @@ export default new class extends ExecutionInterface {
      */
     async _execute(execute, runtime) {
         try {
-            this._started(Operation.Before);
+            this._started(Operation.Executing);
 
             const command = customOptions.addToCommand(execute.command, execute.options, runtime.args);
             await powershell.executeSync(command, execute.elevated);
@@ -37,4 +37,4 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({Before: 'before', Executed: 'executed', NotExecuted: 'not-executed',  DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', NotExecuted: 'not-executed',  DependencyCheck: 'dependency-check'});

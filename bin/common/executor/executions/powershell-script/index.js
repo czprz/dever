@@ -27,7 +27,7 @@ export default new class extends ExecutionInterface {
      */
     async _execute(execute, runtime) {
         try {
-            this._started(Operation.Before);
+            this._started(Operation.Executing);
 
             const file = path.join(execute.location, execute.file);
             const fileWithParameters = customOptions.addToFile(file, execute.options, runtime.args);
@@ -40,4 +40,4 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({Before: 'before', Executed: 'executed', NotExecuted: 'not-executed', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', NotExecuted: 'not-executed', DependencyCheck: 'dependency-check'});
