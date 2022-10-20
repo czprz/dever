@@ -8,8 +8,6 @@ export default new class extends Informer {
      * @param name {string}
      */
     inform(log, name) {
-        const message = log.status === Status.Error ? `failed` : `done`;
-
         switch (log.operation) {
             case Operation.Creating:
                 this._inform_partial(`docker-container: '${name}' is being created... `, log);
@@ -27,7 +25,7 @@ export default new class extends Informer {
             case Operation.Stopped:
             case Operation.Created:
             case Operation.Recreated:
-                this._inform_partial(message, log);
+                this._inform_partial(log.status === Status.Error ? `failed` : `done`, log);
                 break;
             case Operation.AlreadyRunning:
                 this._inform('success', `docker-container: '${name}' is already running`);

@@ -26,7 +26,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Executes chocolatey
+     * Executes chocolatey command
      */
     async _execute(execute, runtime) {
         switch (true) {
@@ -40,14 +40,14 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Run chocolatey
+     * Installs chocolatey package
      * @param execute {Execute}
      * @param runtime {Runtime}
-     * @returns {ExecutionLog}
      */
     #up(execute, runtime) {
         try {
             this._started(Operation.Installing);
+
             shell.executeSync(`choco install ${execute.package} -y`);
 
             this._success(Operation.Installed);
@@ -56,15 +56,19 @@ export default new class extends ExecutionInterface {
         }
     }
 
+    /**
+     * Uninstalls chocolatey package
+     * @param execute {Execute}
+     */
     #down(execute) {
         try {
             this._started(Operation.Uninstalling);
 
             shell.executeSync(`choco uninstall ${execute.package} -y`);
 
-            this._success(Operation.Uninstall);
+            this._success(Operation.Uninstalled);
         } catch (error) {
-            this._error(Operation.NotUninstall, error);
+            this._error(Operation.NotUninstalled, error);
         }
     }
 }
@@ -74,7 +78,7 @@ export const Operation = Object.freeze({
     Installed: 'installed',
     NotInstall: 'not-install',
     Uninstalling: 'uninstalling',
-    Uninstall: 'uninstall',
-    NotUninstall: 'not-uninstall',
+    Uninstalled: 'uninstalled',
+    NotUninstalled: 'not-uninstall',
     DependencyCheck: 'dependency-check'
 });

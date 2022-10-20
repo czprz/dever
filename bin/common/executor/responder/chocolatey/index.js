@@ -21,10 +21,10 @@ export default new class extends Informer {
             case Operation.Uninstalling:
                 this._inform_partial(`chocolatey: '${name}' is being uninstalled... `, log);
                 break;
-            case Operation.Uninstall:
+            case Operation.Uninstalled:
                 this._inform_partial('done', log);
                 break;
-            case Operation.NotUninstall:
+            case Operation.NotUninstalled:
                 this._inform_partial('failed', log);
                 break;
             case Operation.DependencyCheck:

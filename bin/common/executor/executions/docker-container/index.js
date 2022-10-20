@@ -24,7 +24,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Executes command
+     * Executes docker-container command
      */
     async _execute(execute, runtime) {
         switch (true) {
@@ -51,11 +51,8 @@ export default new class extends ExecutionInterface {
                 }
 
                 this._started(Operation.Starting);
-
                 docker.container.start(container.name);
-
                 this._success(Operation.Started);
-
                 break;
             }
             case docker.states.Running:
@@ -64,9 +61,7 @@ export default new class extends ExecutionInterface {
             case docker.states.NotFound: {
                 this._started(Operation.Creating);
                 docker.container.create(container);
-
                 this._success(Operation.Created);
-
                 break;
             }
         }

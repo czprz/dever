@@ -21,7 +21,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Executes sql
+     * Executes mssql command
      */
     async _execute(execute, runtime) {
         switch (execute.sql.option) {
@@ -46,7 +46,6 @@ export default new class extends ExecutionInterface {
     /**
      * Create database
      * @param execute {Execute}
-     * @returns {Promise<void>}
      */
     async #createDatabase(execute) {
         try {

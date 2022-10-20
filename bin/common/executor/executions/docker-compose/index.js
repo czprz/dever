@@ -3,7 +3,7 @@ import shell from '../../../helper/shell.js';
 
 import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../../../execution/executor/action-mapper.js";
-import {ExecutionLog, ExecutionInterface} from "../../models.js";
+import {ExecutionInterface} from "../../models.js";
 
 import {execSync} from 'child_process';
 import path from 'path';
@@ -31,7 +31,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Executes docker-compose
+     * Executes docker-compose command
      */
     async _execute(execute, runtime) {
         switch (true) {
@@ -46,7 +46,7 @@ export default new class extends ExecutionInterface {
 
     /**
      * Start docker-compose
-     * @param execute {Execute} FilePath to docker-compose
+     * @param execute {Execute}
      * @param runtime {Runtime}
      */
     #up(execute, runtime) {
@@ -78,6 +78,7 @@ export default new class extends ExecutionInterface {
             }
             case states.NotFound: {
                 this._started(Operation.Creating);
+
                 const filePath = path.join(execute.location, execute.file);
                 shell.executeSync(`docker-compose --file "${filePath}" --project-name dever up -d`);
 
@@ -89,7 +90,7 @@ export default new class extends ExecutionInterface {
 
     /**
      * Stop docker-compose
-     * @param execute {Execute} FilePath to docker-compose
+     * @param execute {Execute}
      */
     #down(execute) {
         try {
@@ -106,9 +107,9 @@ export default new class extends ExecutionInterface {
 
     /**
      * Handles recreating of docker-compose
-     * @param location {string} Project location
-     * @param file {string} FilePath of docker-compose.yml
-     * @param clean {boolean} Indicate whether it should docker-compose should be recreated
+     * @param location {string}
+     * @param file {string}
+     * @param clean {boolean}
      */
     #recreate(location, file, clean) {
         if (!clean) {
