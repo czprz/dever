@@ -197,6 +197,15 @@ export default new class {
     }
 
     /**
+     * Drop table
+     * @param query {DbQuery}
+     * @return {Promise<void>}
+     */
+    async dropTable(query) {
+        await sql.query(`DROP TABLE ${query.database}.dbo.${query.table}`);
+    }
+
+    /**
      *
      * @param query {DbQuery}
      * @return {string}

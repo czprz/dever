@@ -1,5 +1,5 @@
 import {Operation} from "../../executions/mssql/index.js";
-import {Informer} from "../../models.js";
+import {Informer, Status} from "../../models.js";
 
 export default new class extends Informer {
     /**
@@ -12,38 +12,21 @@ export default new class extends Informer {
             case Operation.DatabaseCreating:
                 this._inform_partial(`mssql: '${name}' database is being created... `, log);
                 break;
-            case Operation.DatabaseCreated:
-                this._inform_partial('done', log);
-                break;
-            case Operation.NotDatabaseCreated:
-                this._inform_partial('failed', log);
-                break;
             case Operation.DatabaseDropping:
                 this._inform_partial(`mssql: '${name}' database is being dropped... `, log);
                 break;
-            case Operation.DatabaseDropped:
-                this._inform_partial('done', log);
-                break;
-            case Operation.NotDatabaseDropped:
-                this._inform_partial('failed', log);
-                break;
-            case Operation.TableCreated:
+            case Operation.TableCreating:
                 this._inform_partial(`mssql: '${name}' table is being created... `, log);
-                break;
-            case Operation.NotTableCreated:
-                this._inform_partial('failed', log);
-                break;
-            case Operation.TableDropped:
-                this._inform_partial('done', log);
                 break;
             case Operation.Inserting:
                 this._inform_partial(`mssql: '${name}' data is being inserted... `, log);
                 break;
+            case Operation.DatabaseCreated:
+            case Operation.DatabaseDropped:
+            case Operation.TableCreated:
+            case Operation.TableDropped:
             case Operation.Inserted:
-                this._inform_partial('done', log);
-                break;
-            case Operation.NotInserted:
-                this._inform_partial('failed', log);
+                this._inform_partial(log.status === Status.Success ? 'done' : 'failed', log);
                 break;
             case Operation.NotSupported:
                 this._inform('error', `mssql: '${name}' operation is not supported`);

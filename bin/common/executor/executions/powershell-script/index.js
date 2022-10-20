@@ -35,9 +35,9 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.Executed);
         } catch (e) {
-            this._error(Operation.NotExecuted, e);
+            this._error(Operation.Executed, e);
         }
     }
 }
 
-export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', NotExecuted: 'not-executed', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', DependencyCheck: 'dependency-check'});

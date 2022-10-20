@@ -34,6 +34,9 @@ export default new class extends ExecutionInterface {
             case "create-table":
                 await this.#createTable(execute);
                 break;
+            case "drop-table":
+                await this.#dropTable(execute);
+                break;
             case "insert":
                 await this.#insert(execute);
                 break;
@@ -61,7 +64,7 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.DatabaseCreated);
         } catch (e) {
-            this._error(Operation.NotDatabaseCreated, e);
+            this._error(Operation.DatabaseCreated, e);
         }
     }
 
@@ -83,7 +86,7 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.TableCreated);
         } catch (e) {
-            this._error(Operation.NotTableCreated, e);
+            this._error(Operation.TableCreated, e);
         }
     }
 
@@ -105,7 +108,7 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.Inserted);
         } catch (e) {
-            this._error(Operation.NotInserted, e);
+            this._error(Operation.Inserted, e);
         }
     }
 
@@ -127,7 +130,25 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.DatabaseDropped);
         } catch (e) {
-            this._error(Operation.NotDatabaseDropped, e);
+            this._error(Operation.DatabaseDropped, e);
+        }
+    }
+
+    async #dropTable(execute) {
+        try {
+            this._started(Operation.TableDropping);
+
+            const result = await validator.dropTable(execute);
+            if (!result.success) {
+                this._error(result.operation);
+                return;
+            }
+
+            await mssql.dropTable(execute.sql);
+
+            this._success(Operation.TableDropped);
+        } catch (e) {
+            this._error(Operation.TableDropped, e);
         }
     }
 }
@@ -136,18 +157,14 @@ export const Operation = Object.freeze({
     ...ValidatorOperation,
     DatabaseCreating: 'database-creating',
     DatabaseCreated: 'database-created',
-    NotDatabaseCreated: 'not-database-created',
     DatabaseDropping: 'database-dropping',
     DatabaseDropped: 'database-dropped',
-    NotDatabaseDropped: 'not-database-dropped',
     TableCreating: 'table-creating',
     TableCreated: 'table-created',
-    NotTableCreated: 'not-table-created',
     TableDropping: 'table-dropping',
     TableDropped: 'table-dropped',
     Inserting: 'inserting',
     Inserted: 'inserted',
-    NotInserted: 'not-insert',
     NotSupported: 'not-supported',
     DependencyCheck: 'dependency-check'
 });

@@ -1,5 +1,5 @@
 import {Operation} from "../../executions/powershell-script/index.js";
-import {Informer} from "../../models.js";
+import {Informer, Status} from "../../models.js";
 
 export default new class extends Informer {
     /**
@@ -13,10 +13,7 @@ export default new class extends Informer {
                 this._inform_partial(`powershell-script: '${name}' is being executed... `, log);
                 break;
             case Operation.Executed:
-                this._inform_partial('done', log);
-                break;
-            case Operation.NotExecuted:
-                this._inform_partial('failed', log);
+                this._inform_partial(log.status === Status.Success ? 'done' : 'failed', log);
                 break;
             default:
                 break;

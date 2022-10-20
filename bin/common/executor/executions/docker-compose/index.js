@@ -101,7 +101,7 @@ export default new class extends ExecutionInterface {
 
             this._success(Operation.Stopped);
         } catch (e) {
-            this._error(Operation.NotStopped, e);
+            this._error(Operation.Stopped, e);
         }
     }
 
@@ -151,7 +151,6 @@ export const Operation = Object.freeze({
     'Started': 'started',
     'Stopping': 'stopping',
     'Stopped': 'stopped',
-    'NotStopped': 'not-stopped',
     'Creating': 'creating',
     'Created': 'created',
     'Recreating': 'recreating',

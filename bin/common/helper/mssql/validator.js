@@ -45,6 +45,19 @@ export default new class {
     }
 
     /**
+     * Check if database and table exists
+     * @param execute {Execute}
+     * @return {Promise<SqlResult>}
+     */
+    async dropTable(execute) {
+        return this.#hasDatabaseName(execute) ??
+            this.#hasTableName(execute) ??
+            {
+                success: true
+            }
+    }
+
+    /**
      * Check conditions for creating columns
      * @param execute {Execute}
      * @return {Promise<SqlResult>}

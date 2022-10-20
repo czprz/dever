@@ -1,5 +1,5 @@
 import {Operation} from "../../executions/docker-compose/index.js";
-import {Informer} from "../../models.js";
+import {Informer, Status} from "../../models.js";
 
 export default new class extends Informer {
     /**
@@ -12,29 +12,20 @@ export default new class extends Informer {
             case Operation.Creating:
                 this._inform_partial(`docker-compose: '${name}' is being created... `, log);
                 break;
-            case Operation.Created:
-                this._inform_partial('done', log);
-                break;
             case Operation.Starting:
                 this._inform_partial(`docker-compose: '${name}' is being started... `, log);
-                break;
-            case Operation.Started:
-                this._inform_partial('done', log);
                 break;
             case Operation.Stopping:
                 this._inform_partial(`docker-compose: '${name}' is being stopped... `, log);
                 break;
-            case Operation.Stopped:
-                this._inform_partial('done', log);
-                break;
-            case Operation.NotStopped:
-                this._inform_partial('failed', log);
-                break;
             case Operation.Recreating:
                 this._inform_partial(`docker-compose: '${name}' is being recreated... `, log);
                 break;
+            case Operation.Created:
+            case Operation.Started:
+            case Operation.Stopped:
             case Operation.Recreated:
-                this._inform_partial('done', log);
+                this._inform_partial(log.status === Status.Success ? 'done' : 'failed', log);
                 break;
             case Operation.AlreadyRunning:
                 this._inform('success', `docker-compose: '${name}' is already running`);
