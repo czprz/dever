@@ -88,7 +88,7 @@ export default new class extends ExecutionInterface {
                 }
             }
         } catch (e) {
-            return this._error(Operation.CouldNotCreateOrStart, e);
+            this._error(Operation.CouldNotCreateOrStart, e);
         }
     }
 

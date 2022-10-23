@@ -25,6 +25,8 @@ export default new class extends Informer {
             case Operation.Stopped:
             case Operation.Created:
             case Operation.Recreated:
+            case Operation.CouldNotCreateOrStart:
+            case Operation.CouldNotStop:
                 this._inform_partial(log.status === Status.Error ? `failed` : `done`, log);
                 break;
             case Operation.AlreadyRunning:
