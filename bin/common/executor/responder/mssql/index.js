@@ -18,6 +18,9 @@ export default new class extends Informer {
             case Operation.TableCreating:
                 this._inform_partial(`mssql: '${name}' table is being created... `, log);
                 break;
+            case Operation.TableDropping:
+                this._inform_partial(`mssql: '${name}' table is being dropped... `, log);
+                break;
             case Operation.Inserting:
                 this._inform_partial(`mssql: '${name}' data is being inserted... `, log);
                 break;
