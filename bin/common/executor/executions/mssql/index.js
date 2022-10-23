@@ -1,5 +1,5 @@
 import mssql from '../../../helper/mssql/index.js';
-import validator, {Operation as ValidatorOperation} from '../../../helper/mssql/validator.js';
+import validator, {Operation as ValidatorOperation, Condition} from '../../../helper/mssql/validator.js';
 
 import {Execute} from '../../../../execution/executor/action-mapper.js';
 import {ExecutionInterface} from "../../models.js";
@@ -55,8 +55,8 @@ export default new class extends ExecutionInterface {
             this._started(Operation.DatabaseCreating);
 
             const result = await validator.createDatabase(execute);
-            if (!result.success) {
-                this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
                 return;
             }
 
@@ -77,8 +77,8 @@ export default new class extends ExecutionInterface {
             this._started(Operation.TableCreating);
 
             const result = await validator.createTable(execute);
-            if (!result.success) {
-                this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
                 return;
             }
 
@@ -99,8 +99,8 @@ export default new class extends ExecutionInterface {
             this._started(Operation.Inserting);
 
             const result = await validator.columns(execute);
-            if (!result.success) {
-                this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
                 return;
             }
 
@@ -121,8 +121,8 @@ export default new class extends ExecutionInterface {
             this._started(Operation.DatabaseDropping);
 
             const result = await validator.dropDatabase(execute);
-            if (result.success) {
-                this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
                 return;
             }
 
@@ -139,8 +139,8 @@ export default new class extends ExecutionInterface {
             this._started(Operation.TableDropping);
 
             const result = await validator.dropTable(execute);
-            if (!result.success) {
-                this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
                 return;
             }
 

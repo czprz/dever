@@ -53,7 +53,7 @@ export class Informer {
         }
 
         if (log.status === Status.Warning) {
-            process.stdout.write(chalk.yellowBright(message));
+            process.stdout.write(chalk.yellow(message));
         }
 
         if (log.status === Status.Error || log.status === Status.Success || log.status === Status.Warning) {
@@ -75,7 +75,6 @@ export class ExecutionLog {
         this.operation = operation;
         this.type = type;
         this.error = error;
-        // TODO: Need more information about which action was executed
     }
 }
 
@@ -173,7 +172,7 @@ export class ExecutionInterface {
     /**
      * Create error response
      * @param operation {string}
-     * @param error {exception | null}
+     * @param error {Error | null}
      * @param disable_log {boolean}
      * @return {ExecutionLog}
      * @internal
@@ -189,16 +188,42 @@ export class ExecutionInterface {
     /**
      * Create warning response
      * @param operation {string}
-     * @param error {exception | null}
+     * @param error {Error | null}
      * @return {ExecutionLog}
      * @internal
      */
-    _warning(operation, error) {
+    _warning(operation, error= null) {
         if (this._type == null) {
             throw new Error('ExecutorInterface._type is not set');
         }
 
         return this.#log(new ExecutionLog(Status.Warning, operation, this._type, error));
+    }
+
+    /**
+     * Controlled logging
+     * @param status {Status}
+     * @param operation {string}
+     * @param error {Error | null}
+     * @param disable_log {boolean}
+     * @return {ExecutionLog}
+     * @internal
+     */
+    _log(status, operation, error = null, disable_log = false) {
+        switch (status) {
+            case Status.Started:
+                return this._started(operation);
+            case Status.Progress:
+                return this._progress(operation);
+            case Status.Success:
+                return this._success(operation, disable_log);
+            case Status.Error:
+                return this._error(operation, error, disable_log);
+            case Status.Warning:
+                return this._warning(operation, error);
+            default:
+                throw new Error(`Unknown status: ${status}`);
+        }
     }
 
     /**
