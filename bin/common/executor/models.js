@@ -5,6 +5,8 @@ import logger from "../helper/logger.js";
 import chalk from "chalk";
 
 export class Informer {
+    #logMessage = '';
+
     /**
      * Outputs response to the console
      * @param type {'warning', 'error', 'success'}
@@ -35,12 +37,14 @@ export class Informer {
      * @internal
      */
     _inform_partial(message, log) {
+        this.#logMessage += message;
+
         if (log.status === Status.Started) {
             process.stdout.write(message);
         }
 
         if (log.status === Status.Error) {
-            logger.error(message, log.error, true);
+            logger.error(this.#logMessage, log.error, true);
             process.stdout.write(chalk.redBright(message));
         }
 
@@ -53,6 +57,7 @@ export class Informer {
         }
 
         if (log.status === Status.Error || log.status === Status.Success || log.status === Status.Warning) {
+            this.#logMessage = '';
             process.stdout.write('\r\n');
         }
     }
