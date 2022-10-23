@@ -5,40 +5,38 @@ import powershell_command from "../../common/executor/executions/powershell-comm
 import mssql from "../../common/executor/executions/mssql/index.js";
 import chocolatey from "./executions/chocolatey/index.js";
 
-import {Runtime} from "../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../execution/executor/action-mapper.js";
-import {Result, Status} from "./models.js";
+import {ExecutionLog, Status} from "./models.js";
 
 export default new class {
     /**
-     * Handles handlers for each environment dependency
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @returns {Promise<Result>}
+     * Get executor
+     * @param type {string}
+     * @return {ExecutionInterface}
      */
-    async execute(execute, runtime) {
-        switch (execute.type) {
+    get(type) {
+        switch (type) {
             case "docker-compose":
-                return docker_compose.handle(execute, runtime);
+                return docker_compose
             case "docker-container":
-                return docker_container.handle(execute, runtime);
+                return docker_container;
             case "powershell-script":
-                return powershell_script.handle(execute, runtime);
+                return powershell_script;
             case "powershell-command":
-                return powershell_command.handle(execute, runtime);
+                return powershell_command;
             case "mssql":
-                return mssql.handle(execute, runtime);
+                return mssql
             case "chocolatey":
-                return chocolatey.handle(execute, runtime);
+                return chocolatey;
             default:
-                throw new Error(`'${execute.type}' type is not supported`);
+                throw new Error(`'${type}' type is not supported`);
         }
     }
 
     /**
      * Check if all necessary dependencies are available
      * @param executes {Execute[]}
-     * @return {Promise<Result>}
+     * @return {Promise<ExecutionLog>}
      */
     async dependencyCheck(executes) {
         let result;
@@ -72,6 +70,6 @@ export default new class {
             }
         }
 
-        return new Result(Status.Success, "dependency-check", "dependency-check");
+        return new ExecutionLog(Status.Success, "dependency-check", "dependency-check");
     }
 }

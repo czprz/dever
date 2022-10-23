@@ -1,5 +1,6 @@
 import mssql from '../../../common/helper/mssql/index.js';
 import {Execute} from "../../../execution/executor/action-mapper.js";
+import {Status} from "../../executor/models.js";
 
 "use strict";
 export default new class {
@@ -11,9 +12,7 @@ export default new class {
     async dropDatabase(execute) {
         return this.#hasDatabaseName(execute) ??
             await this.#hasDatabase(execute, true) ??
-            {
-                success: true
-            };
+            new SqlResult(Condition.Success);
     }
 
     /**
@@ -24,9 +23,7 @@ export default new class {
     async createDatabase(execute) {
         return this.#hasDatabaseName(execute) ??
             await this.#hasDatabase(execute, false) ??
-            {
-                success: true
-            };
+            new SqlResult(Condition.Success);
     }
 
     /**
@@ -39,9 +36,18 @@ export default new class {
             this.#hasTableName(execute) ??
             this.#hasColumns(execute) ??
             await this.#hasTable(execute) ??
-            {
-                success: true
-            };
+            new SqlResult(Condition.Success);
+    }
+
+    /**
+     * Check if database and table exists
+     * @param execute {Execute}
+     * @return {Promise<SqlResult>}
+     */
+    async dropTable(execute) {
+        return this.#hasDatabaseName(execute) ??
+            this.#hasTableName(execute) ??
+            new SqlResult(Condition.Success);
     }
 
     /**
@@ -53,9 +59,7 @@ export default new class {
         return this.#hasDatabaseName(execute) ??
             this.#hasTableName(execute) ??
             this.#hasColumns(execute) ??
-            {
-                success: true
-            };
+            new SqlResult(Condition.Success);
     }
 
     /**
@@ -67,16 +71,10 @@ export default new class {
     async #hasDatabase(execute, ignore) {
         if (await mssql.databaseExists(execute.sql)) {
             if (!ignore) {
-                return {
-                    success: false,
-                    operation: Operation.DatabaseExists
-                }
+                return new SqlResult(Condition.Warning, Operation.DatabaseExists);
             }
 
-            return {
-                success: false,
-                operation: Operation.IgnoreDatabase
-            };
+            return new SqlResult(Condition.Success, Operation.IgnoreDatabase);
         }
 
         return null;
@@ -89,10 +87,7 @@ export default new class {
      */
     async #hasTable(execution) {
         if (await mssql.tableExists(execution.sql)) {
-            return {
-                success: false,
-                operation: Operation.TableExists
-            }
+            return new SqlResult(Condition.Warning, Operation.TableExists);
         }
 
         return null;
@@ -105,10 +100,7 @@ export default new class {
      */
     #hasDatabaseName(executable) {
         if (executable.sql?.database == null) {
-            return {
-                success: false,
-                operation: Operation.NoDatabase
-            }
+            return new SqlResult(Condition.Error, Operation.NoDatabase);
         }
 
         return null;
@@ -121,10 +113,7 @@ export default new class {
      */
     #hasTableName(execution) {
         if (execution.sql?.table == null) {
-            return {
-                success: false,
-                operation: Operation.NoTable
-            }
+            return new SqlResult(Condition.Error, Operation.NoTable);
         }
 
         return null;
@@ -137,10 +126,8 @@ export default new class {
      */
     #hasColumns(executable) {
         if (executable.sql?.columns == null) {
-            return {
-                success: false,
-                operation: Operation.NoColumns
-            }
+            return new SqlResult(Condition.Error, Operation.NoColumns);
+
         }
 
         return null;
@@ -149,14 +136,38 @@ export default new class {
 
 export class SqlResult {
     /**
-     * @type {boolean}
+     * @type {number}
      */
-    success;
+    condition;
 
     /**
      * @type {string|null}
      */
     operation;
+
+    constructor(condition, operation = null) {
+        this.condition = condition;
+        this.operation = operation;
+    }
+
+    /**
+     * Get status from condition
+     * @return {Status}
+     */
+    getStatus() {
+        switch (this.condition) {
+            case Condition.Success:
+                return Status.Success;
+            case Condition.Warning:
+                return Status.Warning;
+            case Condition.Error:
+                return Status.Error;
+            default:
+                throw new Error('Unknown condition');
+        }
+    }
 }
+
+export const Condition = Object.freeze({Success: 0, Warning: 1, Error: 2});
 
 export const Operation = Object.freeze({NoColumns: 'no-columns', NoTable: 'no-table', NoDatabase: 'no-database', TableExists: 'table-exists', DatabaseExists: 'database-exists', IgnoreDatabase: 'ignore-database'});

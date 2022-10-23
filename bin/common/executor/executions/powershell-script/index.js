@@ -13,29 +13,31 @@ export default new class extends ExecutionInterface {
      * @private
      */
     _type = 'powershell-script';
-    
-    /**
-     * Handler for powershell-script execution
-     */
-    async handle(execute, runtime) {
-        try {
-            const file = path.join(execute.location, execute.file);
-            const fileWithParameters = customOptions.addToFile(file, execute.options, runtime.args);
-            await powershell.executeFileSync(fileWithParameters, execute.elevated);
-
-            return this._success(Operation.Executed);
-        } catch (e) {
-            return this._error(Operation.NotExecuted, e);
-        }
-    }
 
     /**
      * Check dependencies for powershell-script execution
      */
     check() {
         // Todo: Check if powershell is supported
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes powershell script
+     */
+    async _execute(execute, runtime) {
+        try {
+            this._started(Operation.Executing);
+
+            const file = path.join(execute.location, execute.file);
+            const fileWithParameters = customOptions.addToFile(file, execute.options, runtime.args);
+            await powershell.executeFileSync(fileWithParameters, execute.elevated);
+
+            this._success(Operation.Executed);
+        } catch (e) {
+            this._error(Operation.Executed, e);
+        }
     }
 }
 
-export const Operation = Object.freeze({Executed: 'executed', NotExecuted: 'not-executed', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', DependencyCheck: 'dependency-check'});

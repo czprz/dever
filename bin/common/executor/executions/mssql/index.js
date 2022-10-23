@@ -1,8 +1,8 @@
 import mssql from '../../../helper/mssql/index.js';
-import validator, {Operation as ValidatorOperation} from '../../../helper/mssql/validator.js';
+import validator, {Operation as ValidatorOperation, Condition} from '../../../helper/mssql/validator.js';
 
 import {Execute} from '../../../../execution/executor/action-mapper.js';
-import {ExecutionInterface, Result} from "../../models.js";
+import {ExecutionInterface} from "../../models.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -14,122 +14,157 @@ export default new class extends ExecutionInterface {
     _type = 'mssql';
 
     /**
-     * Handler for mssql execution
-     */
-    async handle(execute, runtime) {
-        switch (execute.sql.option) {
-            case "create-database":
-                return await this.#createDatabase(execute);
-            case "drop-database":
-                return await this.#dropDatabase(execute);
-            case "create-table":
-                return await this.#createTable(execute);
-            case "insert":
-                return await this.#insert(execute);
-            default:
-                return this._error(Operation.NotSupported);
-        }
-    }
-
-    /**
      * Check dependencies for mssql execution
      */
     check() {
-        return this._success(Operation.DependencyCheck);
+        return this._success(Operation.DependencyCheck, true);
+    }
+
+    /**
+     * Executes mssql command
+     */
+    async _execute(execute, runtime) {
+        switch (execute.sql.option) {
+            case "create-database":
+                await this.#createDatabase(execute);
+                break;
+            case "drop-database":
+                await this.#dropDatabase(execute);
+                break;
+            case "create-table":
+                await this.#createTable(execute);
+                break;
+            case "drop-table":
+                await this.#dropTable(execute);
+                break;
+            case "insert":
+                await this.#insert(execute);
+                break;
+            default:
+                this._error(Operation.NotSupported);
+                break;
+        }
     }
 
     /**
      * Create database
      * @param execute {Execute}
-     * @returns {Promise<Result>}
      */
     async #createDatabase(execute) {
         try {
+            this._started(Operation.DatabaseCreating);
+
             const result = await validator.createDatabase(execute);
-            if (!result.success) {
-                return this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
+                return;
             }
 
             await mssql.createDatabase(execute.sql);
 
-            return this._success(Operation.DatabaseCreated);
+            this._success(Operation.DatabaseCreated);
         } catch (e) {
-            return this._error(Operation.NotDatabaseCreated, e);
+            this._error(Operation.DatabaseCreated, e);
         }
     }
 
     /**
      * Create table
      * @param execute {Execute}
-     * @returns {Promise<Result>}
      */
     async #createTable(execute) {
         try {
+            this._started(Operation.TableCreating);
+
             const result = await validator.createTable(execute);
-            if (!result.success) {
-                return this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
+                return;
             }
 
             await mssql.createTable(execute.sql);
 
-            return this._success(Operation.TableCreated);
+            this._success(Operation.TableCreated);
         } catch (e) {
-            return this._error(Operation.NotTableCreated, e);
+            this._error(Operation.TableCreated, e);
         }
     }
 
     /**
      * Checks and runs 'insert into' once or multiple times depending on whether it's a string or array
      * @param execute {Execute}
-     * @returns {Promise<Result>}
      */
     async #insert(execute) {
         try {
+            this._started(Operation.Inserting);
+
             const result = await validator.columns(execute);
-            if (!result.success) {
-                return this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
+                return;
             }
 
             await mssql.insert(execute.sql);
 
-            return this._success(Operation.Inserted);
+            this._success(Operation.Inserted);
         } catch (e) {
-            return this._error(Operation.NotInserted, e);
+            this._error(Operation.Inserted, e);
         }
     }
 
     /**
      * Drops database
      * @param execute {Execute}
-     * @return {Promise<Result>}
      */
     async #dropDatabase(execute) {
         try {
+            this._started(Operation.DatabaseDropping);
+
             const result = await validator.dropDatabase(execute);
-            if (result.success) {
-                return this._error(result.operation);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
+                return;
             }
 
             await mssql.dropDatabase(execute.sql);
 
-            return this._success(Operation.DatabaseDropped);
+            this._success(Operation.DatabaseDropped);
         } catch (e) {
-            return this._error(Operation.NotDatabaseDropped, e);
+            this._error(Operation.DatabaseDropped, e);
+        }
+    }
+
+    async #dropTable(execute) {
+        try {
+            this._started(Operation.TableDropping);
+
+            const result = await validator.dropTable(execute);
+            if (result.condition !== Condition.Success) {
+                this._log(result.getStatus(), result.operation);
+                return;
+            }
+
+            await mssql.dropTable(execute.sql);
+
+            this._success(Operation.TableDropped);
+        } catch (e) {
+            this._error(Operation.TableDropped, e);
         }
     }
 }
 
 export const Operation = Object.freeze({
     ...ValidatorOperation,
+    DatabaseCreating: 'database-creating',
     DatabaseCreated: 'database-created',
-    NotDatabaseCreated: 'not-database-created',
+    DatabaseDropping: 'database-dropping',
     DatabaseDropped: 'database-dropped',
-    NotDatabaseDropped: 'not-database-dropped',
+    TableCreating: 'table-creating',
     TableCreated: 'table-created',
-    NotTableCreated: 'not-table-created',
+    TableDropping: 'table-dropping',
     TableDropped: 'table-dropped',
+    Inserting: 'inserting',
     Inserted: 'inserted',
-    NotInserted: 'not-insert',
     NotSupported: 'not-supported',
     DependencyCheck: 'dependency-check'
 });

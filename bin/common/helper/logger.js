@@ -18,6 +18,8 @@ export default new class Logger {
 
     static #hasWarn = false;
 
+    static #hasDebug = false;
+
     static #hasError = false;
 
     /**
@@ -27,6 +29,7 @@ export default new class Logger {
 
     hasLogs = {
         info: () => Logger.#hasInfo,
+        debug: () => Logger.#hasDebug,
         warning: () => Logger.#hasWarn,
         error: () => Logger.#hasError
     };
@@ -73,6 +76,20 @@ export default new class Logger {
         Logger.#hasInfo = true;
     }
 
+    debug(message) {
+        if (!process.env.DEBUG) {
+            return;
+        }
+
+        Logger.#throwIfLoggerIsNotInstantiated();
+
+        console.debug(message);
+
+        Logger.#logger.log('debug', message);
+        Logger.#hasLogs = true;
+        Logger.#hasDebug = true;
+    }
+
     /**
      * Log warning level
      * @param message {string}
@@ -92,12 +109,15 @@ export default new class Logger {
      * Log error level
      * @param message {string}
      * @param error {Error=} null
+     * @param hide {boolean=} false
      * @return void
      */
-    error(message, error = null) {
+    error(message, error = null, hide = false) {
         Logger.#throwIfLoggerIsNotInstantiated();
 
-        console.error(message);
+        if (!hide) {
+            console.error(message);
+        }
 
         Logger.#logger.log('error', message, error);
 

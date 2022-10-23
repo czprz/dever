@@ -114,6 +114,7 @@ export default new class {
             container: execution.container,
             package: execution.package,
             runAsElevated: execution.runAsElevated ?? false,
+            wait: execution.wait,
             options: this.#mapOptions(execution.options)
         }
     }

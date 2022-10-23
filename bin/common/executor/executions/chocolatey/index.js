@@ -14,18 +14,6 @@ export default new class extends ExecutionInterface {
     _type = 'chocolatey';
 
     /**
-     * Handler for chocolatey execution
-     */
-    handle(execute, runtime) {
-        switch (true) {
-            case runtime.up:
-                return this.#up(execute, runtime);
-            case runtime.down:
-                return this.#down(execute);
-        }
-    }
-
-    /**
      * Check if all necessary dependencies are available
      */
     check() {
@@ -38,30 +26,57 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Run chocolatey
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @returns {Result}
+     * Executes chocolatey command
      */
-    #up(execute, runtime) {
-        try {
-            shell.executeSync(`choco install ${execute.package} -y`);
-
-            return this._success(Operation.Install);
-        } catch (error) {
-            return this._error(Operation.NotInstall, error);
+    async _execute(execute, runtime) {
+        switch (true) {
+            case runtime.up:
+                this.#up(execute, runtime);
+                break;
+            case runtime.down:
+                this.#down(execute);
+                break;
         }
     }
 
+    /**
+     * Installs chocolatey package
+     * @param execute {Execute}
+     * @param runtime {Runtime}
+     */
+    #up(execute, runtime) {
+        try {
+            this._started(Operation.Installing);
+
+            shell.executeSync(`choco install ${execute.package} -y`);
+
+            this._success(Operation.Installed);
+        } catch (error) {
+            this._error(Operation.Installed, error);
+        }
+    }
+
+    /**
+     * Uninstalls chocolatey package
+     * @param execute {Execute}
+     */
     #down(execute) {
         try {
+            this._started(Operation.Uninstalling);
+
             shell.executeSync(`choco uninstall ${execute.package} -y`);
 
-            return this._success(Operation.Uninstall);
+            this._success(Operation.Uninstalled);
         } catch (error) {
-            return this._error(Operation.NotUninstall, error);
+            this._error(Operation.Uninstalled, error);
         }
     }
 }
 
-export const Operation = Object.freeze({Install: 'install', NotInstall: 'not-install', Uninstall: 'uninstall', NotUninstall: 'not-uninstall', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({
+    Installing: 'installing',
+    Installed: 'installed',
+    Uninstalling: 'uninstalling',
+    Uninstalled: 'uninstalled',
+    DependencyCheck: 'dependency-check'
+});
