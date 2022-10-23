@@ -42,9 +42,9 @@ export default new class {
                     return;
                 }
 
-                const checkResult = await executorHandler.dependencyCheck(executables);
-                if (checkResult.status === Status.Error) {
-                    responder.respond(checkResult, null);
+                const dependencyCheck = await executorHandler.dependencyCheck(executables);
+                if (dependencyCheck.status === Status.Error) {
+                    responder.respond(dependencyCheck, null);
                     return;
                 }
 

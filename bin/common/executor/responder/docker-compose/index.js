@@ -31,7 +31,7 @@ export default new class extends Informer {
                 this._inform('success', `docker-compose: '${name}' is already running`);
                 break;
             case Operation.DependencyCheck:
-                this._inform('error', `docker-compose: '${name}' is not running`);
+                this._inform('error', `Docker engine not running. Please start docker and retry command`);
                 break;
             default:
                 break;
