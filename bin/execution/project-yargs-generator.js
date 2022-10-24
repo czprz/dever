@@ -1,6 +1,8 @@
 import projectConfigHandler from "../configuration/handlers/project-config-handler.js";
 import executorYargsGenerator from "./executor/executor-yargs-generator.js";
 
+import chalk from "chalk";
+
 "use strict";
 export default new class {
     /**
@@ -13,6 +15,12 @@ export default new class {
     create(keyword, project, yargs) {
         for (const segment of project.segments) {
             yargs
+                .command('$0', 'Show help', () => {}, () => {
+                    if (yargs.argv._.length > 0) {
+                        console.log(chalk.redBright('Invalid command or option'));
+                        yargs.showHelp();
+                    }
+                })
                 .command({
                     command: segment.key,
                     desc: segment.description,
