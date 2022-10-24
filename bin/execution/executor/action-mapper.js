@@ -101,6 +101,10 @@ export default new class {
             return action.up[key];
         }
 
+        if (action.up != null && action.down == null && runtime.down) {
+            return action.up[key];
+        }
+
         if (action.down != null && runtime.down) {
             return action.down[key];
         }
