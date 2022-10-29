@@ -7,6 +7,13 @@ export default new class {
     create() {
         return new Delayer();
     }
+
+    delay(ms, callback) {
+        return new Promise(resolve => setTimeout(() => {
+            callback();
+            resolve();
+        }, ms));
+    }
 }
 
 class Delayer {

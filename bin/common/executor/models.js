@@ -9,13 +9,16 @@ export class Informer {
 
     /**
      * Outputs response to the console
-     * @param type {'warning', 'error', 'success'}
+     * @param type {'warning', 'error', 'success', 'info'}
      * @param message {string}
      * @param error {Error | null}
      * @internal
      */
     _inform(type, message, error = null) {
         switch (type) {
+            case 'info':
+                logger.info(message);
+                break;
             case 'success':
                 logger.info(message);
                 break;
@@ -102,6 +105,13 @@ export class ExecutionInterface {
     }
 
     /**
+     * @return {Promise<ExecutionLog>}
+     */
+    async install() {
+        return await this._install();
+    }
+
+    /**
      * @return {Promise<ExecutionLog> | ExecutionLog}
      */
     check() {
@@ -124,6 +134,15 @@ export class ExecutionInterface {
      */
     async _execute(execute, runtime) {
         throw new Error('ExecutorInterface._execute() is not implemented');
+    }
+
+    /**
+     * Install dependency
+     * @return {Promise<ExecutionLog>}
+     * @private
+     */
+    async _install() {
+        throw new Error('ExecutorInterface._install() is not implemented');
     }
 
     /**
