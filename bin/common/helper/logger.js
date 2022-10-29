@@ -100,7 +100,7 @@ export default new class Logger {
 
         console.warn(message);
 
-        Logger.#logger.log('warning', message);
+        Logger.#logger.log('warn', message);
         Logger.#hasLogs = true;
         Logger.#hasWarn = true;
     }

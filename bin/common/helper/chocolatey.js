@@ -1,33 +1,62 @@
 import powershell from "./powershell.js";
 import sudo from "./elevated.js";
-import delayer from "./delayer.js";
 import readline from "readline";
+import {Subject} from "rxjs";
 
 export default new class {
+    logger = new Subject();
+
+    /**
+     *
+     * @return {Promise<void>}
+     */
     async install() {
-        if (await sudo.isElevated()) {
-            return false;
+        if (!await sudo.isElevated()) {
+            this.logger.next(new State('NotElevated'));
+            this.logger.complete();
+
+            return;
         }
 
-        const timer = delayer.create();
-
         const rl = readline.createInterface(process.stdin, process.stdout);
-        await rl.question('Are you sure you want to install Chocolatey? [yes]/no:', async (answer) => {
+        rl.question('Are you sure you want to install Chocolatey? [yes]/no:', (answer) => {
             if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
                 try {
+                    this.logger.next(new State('Started'));
                     powershell.executeSync('Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString(\'https://community.chocolatey.org/install.ps1\'))')
-                    timer.done(true);
+                    this.logger.next(new State('Success'));
                 } catch (e) {
-                    // TODO: Figure out how to pass exception for logging
-                    timer.done(false);
+                    this.logger.next(new State('Error', e));
                 }
             } else {
-                timer.done(false);
+                this.logger.next(new State('Skipped'));
             }
+
+            this.logger.complete();
 
             rl.close();
         });
+    }
+}
 
-        return timer.delay(36000000, false);
+export class State {
+    /**
+     * @type {'Started'|'Skipped'|'NotElevated'|'Success'|'Error'}
+     */
+    state;
+
+    /**
+     * @type {Error|null}
+     */
+    error;
+
+    /**
+     *
+     * @param state {'Started'|'Skipped'|'NotElevated'|'Success'|'Error'}
+     * @param error {Error|null}
+     */
+    constructor(state, error = null) {
+        this.state = state;
+        this.error = error;
     }
 }

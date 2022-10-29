@@ -4,6 +4,7 @@ import chocolatey from "../../../helper/chocolatey.js";
 import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../../../execution/executor/action-mapper.js";
 import {ExecutionInterface} from "../../models.js";
+import {lastValueFrom} from "rxjs";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -26,21 +27,32 @@ export default new class extends ExecutionInterface {
         }
     }
 
-    /**
-     * Install chocolatey
-     * return {Promise<ExecutionLog>}
-     */
     async _install() {
-        try {
-            this._started(Operation.DependencyInstallStarted);
-
-            if (await chocolatey.install()) {
-                return this._success(Operation.DependencyInstallFinished);
+        const install$ = chocolatey.logger;
+        const lastValueFromInstall$ = lastValueFrom(install$)
+        install$.subscribe(x => {
+            switch (x.state) {
+                case 'Started':
+                    this._started(Operation.DependencyInstallStarted);
+                    break;
             }
+        });
 
-            return this._error(Operation.DependencyInstallFinished);
-        } catch (error) {
-            return this._error(Operation.DependencyInstallFinished, error);
+        await chocolatey.install();
+
+        const lastValue = await lastValueFromInstall$;
+
+        switch (lastValue.state) {
+            case 'Success':
+                return this._success(Operation.DependencyInstallFinished);
+            case 'Error':
+                return this._error(Operation.DependencyInstallFinished, lastValue.error);
+            case 'NotElevated':
+                return this._warning(Operation.DependencyInstallNotElevated);
+            case 'Skipped':
+                return this._warning(Operation.DependencyInstallSkipped);
+            default:
+                return this._error(Operation.DependencyInstallFinished, new Error(`Unknown state: ${lastValue.state}`));
         }
     }
 
@@ -97,7 +109,9 @@ export const Operation = Object.freeze({
     Installed: 'installed',
     Uninstalling: 'uninstalling',
     Uninstalled: 'uninstalled',
+    DependencyInstallNotElevated: 'dependency-install-not-elevated',
     DependencyInstallStarted: 'dependency-install-started',
+    DependencyInstallSkipped: 'dependency-install-skipped',
     DependencyInstallFinished: 'dependency-install-finished',
     DependencyCheck: 'dependency-check'
 });

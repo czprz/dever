@@ -108,7 +108,7 @@ export class ExecutionInterface {
      * @return {Promise<ExecutionLog>}
      */
     async install() {
-        await this._install();
+        return await this._install();
     }
 
     /**

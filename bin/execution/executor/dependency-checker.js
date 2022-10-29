@@ -2,6 +2,7 @@ import executorHandler from "../../common/executor/index.js";
 import {Status} from "../../common/executor/models.js";
 import responder from "../../common/executor/responder/index.js";
 import chocolatey from "../../common/helper/chocolatey.js";
+import {Subject, takeUntil} from "rxjs";
 
 export default new class {
     /**
@@ -19,18 +20,29 @@ export default new class {
             }
 
             if (this.hasInstaller(executionLog)) {
-                const result = await executor.install()
-                if (result.status === Status.Error) {
-                    responder.respond(executionLog, null);
-                    return false;
+                const subscribeUntil = new Subject();
+
+                const executionLog$ = executor.getLogger();
+                executionLog$.pipe(takeUntil(subscribeUntil)).subscribe(x => responder.respond(x, null));
+
+                const result = await executor.install();
+
+                subscribeUntil.next(null);
+                subscribeUntil.complete();
+
+                if (result.status === Status.Success) {
+                    continue;
                 }
 
-                return true;
+                responder.respond(executionLog, null);
+                return false;
             }
 
             responder.respond(executionLog, null);
             return false;
         }
+
+        return true;
     }
 
     /**
