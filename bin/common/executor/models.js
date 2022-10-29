@@ -9,13 +9,16 @@ export class Informer {
 
     /**
      * Outputs response to the console
-     * @param type {'warning', 'error', 'success'}
+     * @param type {'warning', 'error', 'success', 'info'}
      * @param message {string}
      * @param error {Error | null}
      * @internal
      */
     _inform(type, message, error = null) {
         switch (type) {
+            case 'info':
+                logger.info(message);
+                break;
             case 'success':
                 logger.info(message);
                 break;
