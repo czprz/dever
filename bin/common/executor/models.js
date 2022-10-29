@@ -105,6 +105,13 @@ export class ExecutionInterface {
     }
 
     /**
+     * @return {Promise<ExecutionLog>}
+     */
+    async install() {
+        await this._install();
+    }
+
+    /**
      * @return {Promise<ExecutionLog> | ExecutionLog}
      */
     check() {
@@ -127,6 +134,15 @@ export class ExecutionInterface {
      */
     async _execute(execute, runtime) {
         throw new Error('ExecutorInterface._execute() is not implemented');
+    }
+
+    /**
+     * Install dependency
+     * @return {Promise<ExecutionLog>}
+     * @private
+     */
+    async _install() {
+        throw new Error('ExecutorInterface._install() is not implemented');
     }
 
     /**

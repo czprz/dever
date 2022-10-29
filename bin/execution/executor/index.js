@@ -5,11 +5,11 @@ import {Runtime} from "./runtime-mapper.js";
 import actionMapper, {Execute, Executable} from "./action-mapper.js";
 import validator from "./validator.js";
 import elevatedConfirmer from "./elevated-confirmer.js";
+import dependencyChecker from "./dependency-checker.js";
 
 import chalk from "chalk";
 import {Subject, takeUntil} from "rxjs";
 import responder from "../../common/executor/responder/index.js";
-import {Status} from "../../common/executor/models.js";
 
 export default new class {
     /**
@@ -42,9 +42,7 @@ export default new class {
                     return;
                 }
 
-                const dependencyCheck = await executorHandler.dependencyCheck(executables);
-                if (dependencyCheck.status === Status.Error) {
-                    responder.respond(dependencyCheck, null);
+                if (!await dependencyChecker.check(executables)) {
                     return;
                 }
 

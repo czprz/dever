@@ -1,4 +1,5 @@
 import shell from "../../../helper/shell.js";
+import chocolatey from "../../../helper/chocolatey.js";
 
 import {Runtime} from "../../../../execution/executor/runtime-mapper.js";
 import {Execute} from "../../../../execution/executor/action-mapper.js";
@@ -22,6 +23,24 @@ export default new class extends ExecutionInterface {
             return this._success(Operation.DependencyCheck);
         } catch (e) {
             return this._error(Operation.DependencyCheck);
+        }
+    }
+
+    /**
+     * Install chocolatey
+     * return {Promise<ExecutionLog>}
+     */
+    async _install() {
+        try {
+            this._started(Operation.DependencyInstallStarted);
+
+            if (await chocolatey.install()) {
+                return this._success(Operation.DependencyInstallFinished);
+            }
+
+            return this._error(Operation.DependencyInstallFinished);
+        } catch (error) {
+            return this._error(Operation.DependencyInstallFinished, error);
         }
     }
 
@@ -78,5 +97,7 @@ export const Operation = Object.freeze({
     Installed: 'installed',
     Uninstalling: 'uninstalling',
     Uninstalled: 'uninstalled',
+    DependencyInstallStarted: 'dependency-install-started',
+    DependencyInstallFinished: 'dependency-install-finished',
     DependencyCheck: 'dependency-check'
 });
