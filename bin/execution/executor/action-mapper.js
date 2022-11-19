@@ -1,4 +1,5 @@
 import {Runtime} from "./runtime-mapper.js";
+import {Action} from "../../common/models/dever-json/internal.js";
 
 export default new class {
     /**
@@ -37,7 +38,6 @@ export default new class {
         }
 
         if (!notIncluded && !notIncludedGroup && action.optional && runtime.args?.name !== lowerCaseName) {
-            console.log('hit')
             return false;
         }
 

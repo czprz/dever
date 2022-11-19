@@ -180,7 +180,17 @@ export class Action extends Step {
     /**
      * @type {boolean}
      */
+    runOnce;
+
+    /**
+     * @type {boolean}
+     */
     hasRun;
+
+    /**
+     * @type {string}
+     */
+    lashHash;
 
     /**
      * @type {string | null}
