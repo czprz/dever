@@ -23,7 +23,7 @@ import {
 export default new class {
     /**
      * @param id {number}
-     * @param config {{path: string, lastHash: string, skipHashCheck: boolean, skipAllHashChecks: boolean}}
+     * @param config {{path: string, lastHash: string, skipHashCheck: boolean, skipAllHashChecks: boolean, hasRunActions: HasRunAction[]}}
      * @param external {ExProject}
      * @returns {InProject}
      */
@@ -43,7 +43,7 @@ export default new class {
                 full: config.path,
                 partial: path.dirname(config.path)
             },
-            segments: this.#mapSegments(external.segments),
+            segments: this.#mapSegments(external.segments, config.hasRunActions),
             lastHash: config.lastHash,
             skipHashCheck: config.skipAllHashChecks || config.skipHashCheck || false,
             supported: versionChecker.supportedVersion(external.version),
@@ -58,9 +58,10 @@ export default new class {
     /**
      *
      * @param segments {ExSegment[]}
+     * @param hasRunActions {HasRunAction[]}
      * @returns {InSegment[]}
      */
-    #mapSegments(segments) {
+    #mapSegments(segments, hasRunActions) {
         return segments?.map(x => {
             return {
                 key: x.key,
@@ -70,7 +71,7 @@ export default new class {
                     elevated: x.properties?.elevated ?? false,
                     name_required: x.properties?.name_required ?? false
                 },
-                actions: this.#mapActions(x.actions)
+                actions: this.#mapActions(x.actions, hasRunActions)
             }
         });
     }
@@ -78,14 +79,19 @@ export default new class {
     /**
      *
      * @param actions {ExAction[]}
+     * @param hasRunActions {HasRunAction[]}
      * @return {InAction[]}
      */
-    #mapActions(actions) {
+    #mapActions(actions, hasRunActions) {
+
         return actions?.map(x => {
             return {
                 ...this.#mapExecution(x),
                 name: x.name,
                 optional: x.optional ?? false,
+                runOnce: x.runOnce ?? false,
+                hasRun: hasRunActions?.find(y => y.name === x.name)?.hasRun ?? false,
+                lastHash: hasRunActions?.find(y => y.name === x.name)?.lastHash ?? null,
                 group: x.group,
                 up: this.#mapExecution(x.up),
                 down: this.#mapExecution(x.down),

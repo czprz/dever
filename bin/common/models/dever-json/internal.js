@@ -178,6 +178,11 @@ export class Action extends Step {
     optional;
 
     /**
+     * @type {boolean}
+     */
+    hasRun;
+
+    /**
      * @type {string | null}
      */
     group;

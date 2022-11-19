@@ -29,4 +29,38 @@ export class Project {
      * @type {boolean}
      */
     skipHashCheck;
+
+    /**
+     * Skip all run once actions if nothing has changed
+     * @type {HasRunAction[]}
+     */
+    hasRunActions;
+}
+
+export class HasRunAction {
+    /**
+     * @type {string}
+     */
+    name;
+
+    /**
+     * @type {boolean}
+     */
+    hasRun;
+
+    /**
+     * @type {string}
+     */
+    lastHash;
+
+    /**
+     * @param name {string}
+     * @param hasRun {boolean}
+     * @param lastHash {string}
+     */
+    constructor(name, hasRun, lastHash) {
+        this.name = name;
+        this.hasRun = hasRun;
+        this.lastHash = lastHash;
+    }
 }

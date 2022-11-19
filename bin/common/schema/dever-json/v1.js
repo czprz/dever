@@ -148,6 +148,7 @@ const itemsSchema = {
         type: typeSchema,
         group: {type: "string"},
         optional: {type: "boolean"},
+        runOnce: {type: "boolean"},
         up: executableSchema,
         down: executableSchema,
         package: packageSchema,

@@ -172,7 +172,7 @@ export default new class {
     async #execute(segment, project, argv) {
         hashCheckerDialog.confirm(argv.skipHashCheck ?? false, project, argv.keyword, async () => {
             const runtime = runtimeMapper.getRuntime(argv);
-            await executor.run(segment, project.location, runtime);
+            await executor.run(segment, project, runtime);
         });
     }
 
