@@ -188,12 +188,12 @@ export class Executable extends Execute {
     /**
      * @type {boolean}
      */
-    hasRun = false;
+    hasRun;
 
     /**
      * @type {string | null}
      */
-    lastHash = null;
+    lastHash;
 
     /**
      * @type {Wait}
