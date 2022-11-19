@@ -23,6 +23,10 @@ export default new class {
      * @param log {ExecutionLog}
      */
     update(project, executable, log) {
+        if (!executable.runOnce) {
+            return;
+        }
+
         if (log.status !== Status.Success) {
             return;
         }
