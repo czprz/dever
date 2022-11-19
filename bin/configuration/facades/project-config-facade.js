@@ -94,7 +94,8 @@ export default new class {
         config.projects.push({
             path: file,
             lastHash: null,
-            skipHashCheck: false
+            skipHashCheck: false,
+            hasRunActions: [],
         });
 
         localConfig.write(config);
@@ -141,7 +142,8 @@ export default new class {
             path: project.path,
             lastHash: project.lastHash,
             skipHashCheck: project.skipHashCheck,
-            skipAllHashChecks: config.skipAllHashChecks
+            skipAllHashChecks: config.skipAllHashChecks,
+            hasRunActions: project.hasRunActions,
         }, projectConfig);
     }
 

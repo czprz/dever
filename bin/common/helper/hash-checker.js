@@ -1,7 +1,6 @@
-
-import crypto from 'crypto';
 import fs from "fs";
 import projectConfigFacade from "../../configuration/facades/project-config-facade.js";
+import hasher from "../helper/hasher.js";
 
 export default new class {
     /**
@@ -38,6 +37,6 @@ export default new class {
      */
     #getHash(file) {
         const text = fs.readFileSync(file, 'utf8');
-        return crypto.createHash('sha256').update(text).digest('hex');
+        return hasher.hash(text);
     }
 }

@@ -1,4 +1,5 @@
 import {Runtime} from "./runtime-mapper.js";
+import {Action} from "../../common/models/dever-json/internal.js";
 
 export default new class {
     /**
@@ -36,7 +37,7 @@ export default new class {
             return false;
         }
 
-        if (!notIncluded && !notIncludedGroup && action.optional) {
+        if (!notIncluded && !notIncludedGroup && action.optional && runtime.args?.name !== lowerCaseName) {
             return false;
         }
 
@@ -56,6 +57,9 @@ export default new class {
             name: action.name,
             group: action.group,
             optional: action.optional ?? false,
+            runOnce: action.runOnce ?? false,
+            hasRun: action.hasRun ?? false,
+            lastHash: action.lastHash ?? null,
             location: location.partial,
             elevated: this.#getValue(action, 'runAsElevated', runtime) ?? false,
             type: this.#getValue(action, 'type', runtime),
@@ -175,6 +179,21 @@ export class Executable extends Execute {
      * @type {boolean}
      */
     optional;
+
+    /**
+     * @type {boolean}
+     */
+    runOnce;
+
+    /**
+     * @type {boolean}
+     */
+    hasRun;
+
+    /**
+     * @type {string | null}
+     */
+    lastHash;
 
     /**
      * @type {Wait}

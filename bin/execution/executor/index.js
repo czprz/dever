@@ -10,16 +10,17 @@ import dependencyChecker from "./dependency-checker.js";
 import chalk from "chalk";
 import {Subject, takeUntil} from "rxjs";
 import responder from "../../common/executor/responder/index.js";
+import runOnceChecker from "./run-once-checker.js";
 
 export default new class {
     /**
      * Executes actions
      * @param segment {Segment}
-     * @param location {Location}
+     * @param project {Project}
      * @param runtime {Runtime}
      * @returns {Promise<void>}
      */
-    async run(segment, location, runtime) {
+    async run(segment, project, runtime) {
         if (runtime.up && runtime.down) {
             console.error(chalk.redBright('You cannot defined both --up and --down in the same command'));
             return;
@@ -32,7 +33,7 @@ export default new class {
                     return;
                 }
 
-                const executables = actionMapper.map(segment.actions, location, runtime);
+                const executables = actionMapper.map(segment.actions, project.location, runtime);
 
                 logger.create();
 
@@ -51,6 +52,10 @@ export default new class {
                 }
 
                 for (const executable of executables) {
+                    if (runOnceChecker.shouldSkip(executable, runtime)) {
+                        continue;
+                    }
+
                     await this.#hasWait(executable, 'before');
                     await this.#executeStep(executable.before, runtime);
 
@@ -59,7 +64,10 @@ export default new class {
                     const executor = executorHandler.get(executable.type);
 
                     const executionLog$ = executor.getLogger();
-                    executionLog$.pipe(takeUntil(subscribeUntil)).subscribe(x => responder.respond(x, executable));
+                    executionLog$.pipe(takeUntil(subscribeUntil)).subscribe(log => {
+                        runOnceChecker.update(project, executable, log);
+                        responder.respond(log, executable);
+                    });
 
                     await executor.handle(executable, runtime);
 

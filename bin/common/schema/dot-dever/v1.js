@@ -8,7 +8,18 @@ export default {
                 properties: {
                     path: {type: "string"},
                     lastHash: {type: ["string", "null"]},
-                    skipHashCheck: {type: "boolean"}
+                    skipHashCheck: {type: "boolean"},
+                    hasRunActions: {
+                        type: ["array", "null"],
+                        items: {
+                            type: "object",
+                            properties: {
+                                name: {type: "string"},
+                                hasRun: {type: "boolean"},
+                                lastHash: {type: ["string"]}
+                            }
+                        }
+                    },
                 },
                 required: ["path", "lastHash", "skipHashCheck"],
                 additionalProperties: false
