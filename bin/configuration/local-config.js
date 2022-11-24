@@ -23,19 +23,16 @@ export default new class {
      * @returns {Config}
      */
     get() {
-        const config = json.read(this.#filePath) ?? {projects: [], skipAllHashChecks: false};
-        // Todo: Temporary fix. Need to figure out a better way of handling upgrades of .dever
-        // noinspection JSUnresolvedVariable
-        if (config.components != null) {
-            return {projects: [], skipAllHashChecks: false};
-        }
-
+        const config = json.read(this.#filePath);
         const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
         if (!result) {
             throw new Error('.dever failed parsing. Please verify structure of the config file');
         }
 
-        return config;
+        return {
+            projects: config?.projects?.map(this.#projectMap) ?? [],
+            skipAllHashChecks: config?.skipAllHashChecks ?? false
+        };
     }
 
     /**
@@ -52,5 +49,14 @@ export default new class {
      */
     getFilePath() {
         return this.#filePath;
+    }
+
+    #projectMap(project) {
+        return {
+            path: project.path,
+            lastHash: project?.lastHash,
+            skipHashCheck: project?.skipHashCheck ?? false,
+            hasRunActions: project?.hasRunActions ?? []
+        }
     }
 }
