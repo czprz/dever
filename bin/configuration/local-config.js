@@ -24,6 +24,13 @@ export default new class {
      */
     get() {
         const config = json.read(this.#filePath);
+        if (Object.keys(config).length === 0) {
+            return {
+                projects: [],
+                skipAllHashChecks: false
+            };
+        }
+
         const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
         if (!result) {
             throw new Error('.dever failed parsing. Please verify structure of the config file');
