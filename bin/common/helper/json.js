@@ -14,10 +14,10 @@ export default new class {
         } catch (e) {
             switch (e.code) {
                 case "ENOENT":
-                    return null;
+                    return {};
                 default:
                     console.error(chalk.redBright(`Could not parse '${file}' due to json formatting.`));
-                // Todo: Add exception to log file
+                    return {};
             }
         }
     }
