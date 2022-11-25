@@ -12,6 +12,7 @@ export default new class {
             const rawData = fs.readFileSync(file, {encoding: 'utf8'});
             return this.#decode(rawData);
         } catch (e) {
+            // Todo: Add exception to log file
             switch (e.code) {
                 case "ENOENT":
                     return {};
