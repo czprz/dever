@@ -1,6 +1,8 @@
 import readline from "readline";
 import os from "os";
+import fs from "fs";
 import path from "path";
+import chalk from "chalk";
 
 import json from "./common/helper/json.js";
 
@@ -23,10 +25,16 @@ export default new class {
     async init(_path) {
         _path = typeof _path === 'string' && 'dever.json' !== path.basename(_path) ? path.join(_path, 'dever.json') : _path;
         const projectPath = _path ?? this.#filePath;
+        const dir = path.dirname(projectPath);
+
+        if (!fs.existsSync(dir)) {
+            this.#folderDoesNotExist(dir);
+            return;
+        }
 
         const config = json.read(projectPath);
         if (Object.keys(config).length > 0) {
-            this.#warn(projectPath);
+            this.#deverAlreadyExists(projectPath);
             return;
         }
 
@@ -34,14 +42,14 @@ export default new class {
         await rl.question(`Are you sure that you want to add dever support to project? (${projectPath}) [yes]/no:`, async (answer) => {
             const lcAnswer = answer.toLowerCase();
             if (lcAnswer === 'y' || lcAnswer === 'yes') {
-                this.#add(projectPath);
+                this.#addDeverToProject(projectPath);
             }
 
             rl.close();
         });
     }
 
-    #add(path) {
+    #addDeverToProject(path) {
         json.write(path, {
             version: 1,
             name: "example-project-dever",
@@ -142,7 +150,11 @@ export default new class {
         });
     }
 
-    #warn(path) {
-        console.log(`dever is already initialized: ${path}. To reinitialize, please delete dever.json`);
+    #deverAlreadyExists(path) {
+        console.log(chalk.yellow(`dever is already initialized: ${path}. To reinitialize, please delete dever.json`));
+    }
+
+    #folderDoesNotExist(dir) {
+        console.error(chalk.redBright(`Project folder does not exist: ${dir}`));
     }
 }
