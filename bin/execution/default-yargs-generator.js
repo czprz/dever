@@ -5,6 +5,7 @@ import init from "../init.js";
 
 import path from 'path';
 import chalk from 'chalk';
+import scanner from "../scanner.js";
 
 "use strict";
 export default new class {
@@ -17,9 +18,23 @@ export default new class {
         yargs
             .command({
                 command: 'init',
-                desc: 'Initializes dever and searches for dever.json files',
+                desc: 'Add dever support to your project',
+                builder: (yargs) => {
+                    yargs
+                        .option('p', {
+                            alias: 'path',
+                            describe: 'Path to project that you want to add dever support'
+                        });
+                },
+                handler: (argv) => {
+                    init.init(argv.path).catch(console.error);
+                }
+            })
+            .command({
+                command: 'scan',
+                desc: 'Scans for dever.json files',
                 handler: () => {
-                    init.init().catch(console.error);
+                    scanner.scan().catch(console.error);
                 }
             })
             .command({
