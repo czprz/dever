@@ -34,10 +34,7 @@ export default new class {
         await rl.question(`Are you sure that you want to add dever support to project? (${projectPath}) [yes]/no:`, async (answer) => {
             const lcAnswer = answer.toLowerCase();
             if (lcAnswer === 'y' || lcAnswer === 'yes') {
-                const config = json.read(this.#filePath);
-                if (Object.keys(config).length === 0) {
-                    this.#add(projectPath);
-                }
+                this.#add(projectPath);
             }
 
             rl.close();
