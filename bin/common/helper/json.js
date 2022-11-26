@@ -29,7 +29,7 @@ export default new class {
      * @param data {object}
      */
     write(file, data) {
-        fs.writeFileSync(file, this.#encode(data));
+        fs.writeFileSync(file, this.#encode(data), {encoding: 'utf8'});
     }
 
     /**
@@ -53,6 +53,6 @@ export default new class {
      * @returns {string}
      */
     #encode(json) {
-        return JSON.stringify(json);
+        return JSON.stringify(json, null, 2);
     }
 }

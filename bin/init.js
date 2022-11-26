@@ -1,104 +1,151 @@
-import powershell from './common/helper/powershell.js';
-import projectConfigFacade from "./configuration/facades/project-config-facade.js";
+import readline from "readline";
+import os from "os";
+import path from "path";
 
-import { fileURLToPath } from 'url';
-import readline from 'readline';
-import chalk from 'chalk';
-import path from 'path';
-import fs from 'fs';
+import json from "./common/helper/json.js";
 
 "use strict";
 export default new class {
+    #fileName = 'dever.json';
+
+    #root;
+    #filePath;
+
+    constructor() {
+        this.#root = os.homedir();
+        this.#filePath = path.join(this.#root, this.#fileName);
+    }
+
     /**
-     * Initializes dever configuration file if not existing and finds all available dever.json supported projects
+     * Add dever to project
      * @return {Promise<void>}
      */
-    async init() {
-        if (!projectConfigFacade.any()) {
-            await this.#findProjects();
+    async init(_path) {
+        _path = typeof _path === 'string' && 'dever.json' !== path.basename(_path) ? path.join(_path, 'dever.json') : _path;
+        const projectPath = _path ?? this.#filePath;
+
+        const config = json.read(projectPath);
+        if (Object.keys(config).length > 0) {
+            this.#warn(projectPath);
             return;
         }
 
         const rl = readline.createInterface(process.stdin, process.stdout);
-        await rl.question('Are you sure you want to start the search for dever supported projects? [yes]/no:', async (answer) => {
+        await rl.question(`Are you sure that you want to add dever support to project? (${projectPath}) [yes]/no:`, async (answer) => {
             const lcAnswer = answer.toLowerCase();
             if (lcAnswer === 'y' || lcAnswer === 'yes') {
-                await this.#findProjects();
+                const config = json.read(this.#filePath);
+                if (Object.keys(config).length === 0) {
+                    this.#add(projectPath);
+                }
             }
 
             rl.close();
         });
     }
 
-    /**
-     * Finds all available dever.json supported projects
-     * @returns {Promise<void>}
-     */
-    async #findProjects() {
-        console.log('Initialization has started.. Please wait..');
-
-        const __filename = fileURLToPath(import.meta.url);
-        const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
-
-        const raw = await powershell.executeFileSync(file);
-        if (raw == null || raw?.length === 0) {
-            console.error(chalk.yellow('Could not find any dever supported projects'));
-            return;
-        }
-
-        const paths = raw.trim().split('\n');
-
-        const projects = projectConfigFacade.getAll();
-        this.#removeProjects(projects, paths);
-        this.#addProjects(projects, paths);
-
-        console.log('Initialization has been completed!');
-
-        this.#informOfUnsupportedProjects();
+    #add(path) {
+        json.write(path, {
+            version: 1,
+            name: "example-project-dever",
+            keywords: [
+                "example",
+                "ex",
+                "example-project",
+                "example-project-dever"
+            ],
+            segments: [
+                {
+                    "key": "env",
+                    "name": "Environment",
+                    "description": "Environment setup",
+                    "properties": {
+                        "name_required": false,
+                        "elevated": false
+                    },
+                    actions: [
+                        {
+                            "name": "ps-cmd",
+                            "optional": false,
+                            "type": "powershell-command",
+                            "command": "echo 'test'",
+                            "wait": {
+                                "when": "before",
+                                "time": 1000
+                            }
+                        },
+                        {
+                            "name": "ps-cmd-2",
+                            "optional": false,
+                            "runOnce": true,
+                            "up": {
+                                "type": "powershell-command",
+                                "command": "echo 'up'",
+                            },
+                            "down": {
+                                "type": "powershell-command",
+                                "command": "echo 'down'",
+                            }
+                        },
+                        {
+                            "name": "ps-script",
+                            "optional": false,
+                            "type": "powershell-script",
+                            "file": "/path/to/script.ps1"
+                        },
+                        {
+                            "name": "mssql",
+                            "type": "docker-container",
+                            "container": {
+                                "name": "mssql",
+                                "image": "mcr.microsoft.com/mssql/server:2019-latest",
+                                "ports": ["1433:1433"],
+                                "variables": [
+                                    "ACCEPT_EULA=Y",
+                                    "SA_PASSWORD=Password123"
+                                ],
+                            }
+                        },
+                        {
+                            "name": "create-database",
+                            "type": "mssql",
+                            "sql": {
+                                "username": "sa",
+                                "password": "Password123",
+                                "option": "create-database",
+                                "database": "example"
+                            }
+                        },
+                        {
+                            "name": "create-table",
+                            "type": "mssql",
+                            "sql": {
+                                "username": "sa",
+                                "password": "Password123",
+                                "option": "insert",
+                                "database": "example",
+                                "table": "example",
+                                "columns": [
+                                    {
+                                        "key": "name",
+                                        "valueType": "varchar(255)",
+                                        "value": "testing?"
+                                    },
+                                    {
+                                        "key": "Id",
+                                        "valueType": "int",
+                                        "value": 55
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
     }
 
-    /**
-     * Removes projects that are not found anymore
-     * @param projects {Project[]}
-     * @param paths {string[]}
-     */
-    #removeProjects(projects, paths) {
-        const notFoundProjects = projects.filter(x => !paths.some(y => y === x.location.full));
-        for (const notFoundProject of notFoundProjects) {
-            projectConfigFacade.remove(notFoundProject.id);
-        }
-    }
-
-    /**
-     * Add project to .dever configuration file
-     * @param projects {Project[]}
-     * @param paths {string[]}
-     */
-    #addProjects(projects, paths) {
-        const newProjects = paths.filter(x => !projects.some(y => y.location.full === x));
-        for (const newProject of newProjects) {
-            const file = newProject.trim();
-
-            if (!file) {
-                return;
-            }
-
-            if ('dever.json' !== path.basename(file)) {
-                return;
-            }
-
-            projectConfigFacade.add(file);
-        }
-    }
-
-    /**
-     * Check if there is any dever.json which has an unsupported version
-     */
-    #informOfUnsupportedProjects() {
-        const projects = projectConfigFacade.getAll();
-        if (projects.some(x => !x.supported || !x.validKeywords || !x.validSchema)) {
-            console.warn(chalk.yellow('One or more of the found projects are not supported'));
-            console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
-        }
+    #warn(path) {
+        console.log(`dever is already initialized: ${path}. To reinitialize, please delete dever.json`);
     }
 }
