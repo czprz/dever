@@ -70,7 +70,9 @@ end of the execution.
 | Command                                                      | Description                                                          |
 |--------------------------------------------------------------|----------------------------------------------------------------------|
 | dever                                                        | Shows help context for dever options                                 |
-| dever init                                                   | Initializes dever by finding all dever.json files on your machine    |
+| dever init                                                   | Adds dever support to project in location of terminal                |
+| dever init -p, --path                                        | Adds dever to support to project in location of path                 |
+| dever scan                                                   | Scans for all dever supported projects                               |
 | dever list                                                   | Lists all found projects                                             |
 | dever list --not-supported                                   | Lists all found not supported projects                               |
 | dever config set [key] [value]                               | Sets config key to value provided                                    |
