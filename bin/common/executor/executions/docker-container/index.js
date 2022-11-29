@@ -57,6 +57,10 @@ export default new class extends ExecutionInterface {
                     break;
                 }
                 case docker.states.Running:
+                    if (this.#changed(container)) {
+                        return;
+                    }
+
                     this._success(Operation.AlreadyRunning);
                     break;
                 case docker.states.NotFound: {
@@ -113,6 +117,29 @@ export default new class extends ExecutionInterface {
 
         return true;
     }
+
+    /**
+     * Check if container has changed
+     * @param container {Container}
+     * @return {boolean}
+     */
+    #changed(container) {
+        const ports = docker.container.getPorts(container.name);
+        const variables = docker.container.getVariables(container.name);
+
+        if (container.image !== docker.container.getImage(container.name) ||
+            ports.length !== container.ports.length || ports.some(x => !container.ports.includes(x)) ||
+            variables.length !== container.variables.length || variables.some(x => !container.variables.includes(x))) {
+            this._started(Operation.Changing);
+            docker.container.remove(container.name);
+            docker.container.create(container);
+            this._success(Operation.Changed);
+
+            return true;
+        }
+
+        return false;
+    }
 }
 
 export const Operation = Object.freeze({
@@ -124,6 +151,8 @@ export const Operation = Object.freeze({
     'Recreated': 'recreated',
     'Creating': 'creating',
     'Created': 'created',
+    'Changing': 'changing',
+    'Changed': 'changed',
     'AlreadyRunning': 'already-running',
     'NotFound': 'not-found',
     'NotRunning': 'not-running',

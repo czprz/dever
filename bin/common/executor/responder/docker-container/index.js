@@ -27,7 +27,11 @@ export default new class extends Informer {
             case Operation.Recreated:
             case Operation.CouldNotCreateOrStart:
             case Operation.CouldNotStop:
+            case Operation.Changed:
                 this._inform_partial(log.status === Status.Error ? `failed` : `done`, log);
+                break;
+            case Operation.Changing:
+                this._inform_partial(`docker-container: '${name}' is being changed... `, log);
                 break;
             case Operation.AlreadyRunning:
                 this._inform('success', `docker-container: '${name}' is already running`);

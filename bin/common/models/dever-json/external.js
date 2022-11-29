@@ -299,7 +299,7 @@ class DbColumn {
     value;
 }
 
-class Container {
+export class Container {
     /**
      * Name
      * @var {string}
