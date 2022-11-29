@@ -5,6 +5,7 @@ import configValidator from "../../common/helper/config-validator.js";
 
 // noinspection ES6UnusedImports
 import {
+    Container as InContainer,
     Project as InProject,
     Segment as InSegment,
     Action as InAction,
@@ -13,6 +14,7 @@ import {
 } from '../../common/models/dever-json/internal.js';
 // noinspection ES6UnusedImports
 import {
+    Container as ExContainer,
     Project as ExProject,
     Segment as ExSegment,
     Action as ExAction,
@@ -117,11 +119,28 @@ export default new class {
             file: execution.file,
             command: execution.command,
             sql: execution.sql,
-            container: execution.container,
+            container: this.#mapContainer(execution.container),
             package: execution.package,
             runAsElevated: execution.runAsElevated ?? false,
             wait: execution.wait,
             options: this.#mapOptions(execution.options)
+        }
+    }
+
+    /**
+     * @param container {ExContainer}
+     * @returns {InContainer}
+     */
+    #mapContainer(container) {
+        if (container == null) {
+            return null;
+        }
+
+        return {
+            name: container.name,
+            ports: container.ports ?? [],
+            variables: container.variables ?? [],
+            image: container.image
         }
     }
 

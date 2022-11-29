@@ -56,7 +56,7 @@ export default new class {
             stdio: ['ignore']
         });
 
-        return variables?.trim().replace(/'|\[|]/g, '').split(' ');
+        return variables?.trim().replace(/'|\[|]/g, '').split(' ').slice(0, -1);
     }
 
     /**
