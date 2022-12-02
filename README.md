@@ -37,7 +37,7 @@ Example of the content in a dever.json can be found here. [dever-example.json](d
 After dever has been installed. Run below command for finding all dever.json
 
 ```
-dever init
+dever scan
 ```
 
 After you can list all found projects using below command
