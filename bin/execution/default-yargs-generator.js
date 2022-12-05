@@ -32,18 +32,18 @@ export default new class {
             })
             .command({
                 command: 'scan',
-                desc: 'Scans for dever.json files',
+                desc: 'Scans for dever supported projects',
                 handler: () => {
                     scanner.scan().catch(console.error);
                 }
             })
             .command({
                 command: 'list',
-                desc: `List all projects found by running 'dever init'`,
+                desc: `List all dever supported projects`,
                 builder: (yargs) => {
                     yargs
                         .option('not-supported', {
-                            describe: 'List all projects with a dever.json which version is not supported'
+                            describe: 'List all unsupported dever projects'
                         });
                 },
                 handler: (argv) => {
@@ -62,7 +62,7 @@ export default new class {
 
         yargs.command({
             command: '[keyword]',
-            desc: 'Functionality for helping project development'
+            desc: 'Project segment handling'
         });
     }
 
@@ -82,11 +82,11 @@ export default new class {
     #listAllProjects() {
         const projects = projectConfigFacade.getAll()?.filter(x => x.supported && x.validSchema && x.validKeywords);
         if (projects == null || projects.length === 0) {
-            console.error(`Could not find any projects. Please try running ${chalk.green('dever init')}`);
+            console.error(`Could not find any projects. Please try running ${chalk.green('dever scan')}`);
             return;
         }
 
-        console.log(`List of all projects found after last ${chalk.green('dever init')} scan`);
+        console.log('List of all projects found after last ' + chalk.green('dever scan'));
 
         for (const project of projects) {
             console.log(`${chalk.blue(project.name)} - ${chalk.green(project.internal.keywords)}`);
@@ -96,11 +96,11 @@ export default new class {
     #listAllUnsupportedProjects() {
         const projects = projectConfigFacade.getAll()?.filter(x => !x.supported || !x.validSchema || !x.validKeywords);
         if (projects == null || projects.length === 0) {
-            console.error(`Could not find any unsupported projects. Please try running ${chalk.green('dever init')}`);
+            console.error('Could not find any unsupported projects. Please try running ' + chalk.green('dever scan'));
             return;
         }
 
-        console.log(`List of all unsupported found after last ${chalk.green('dever init')} scan`);
+        console.log('List of all unsupported found after last ' + chalk.green('dever scan'));
         console.log(`Use 'dever validate -f [filePath]' to find out why they're unsupported`);
 
         for (const project of projects) {
@@ -123,7 +123,7 @@ export default new class {
     #setupForValidation(yargs) {
         yargs.command({
             command: 'validate',
-            desc: `Validate dever.json config file before running 'dever init'`,
+            desc: `Validate dever.json config file`,
             builder: (yargs) => {
                 yargs
                     .option('f', {
