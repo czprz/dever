@@ -46,7 +46,8 @@ export default new class {
             return false;
         }
 
-        return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) || runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
+        return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
+            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
     }
 
     /**
@@ -92,7 +93,8 @@ export default new class {
         }
 
         return {
-            when: wait.when, seconds: wait.time
+            when: wait.when,
+            seconds: wait.time
         };
     }
 
