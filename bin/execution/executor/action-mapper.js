@@ -41,12 +41,12 @@ export default new class {
             return false;
         }
 
-        if (action.container == null && action.down == null && runtime.down) {
+        if (!this.#hasUp(action) && runtime.up ||
+            !this.#hasDown(action) && runtime.down) {
             return false;
         }
 
-        return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
+        return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) || runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
     }
 
     /**
@@ -92,8 +92,7 @@ export default new class {
         }
 
         return {
-            when: wait.when,
-            seconds: wait.time
+            when: wait.when, seconds: wait.time
         };
     }
 
@@ -118,6 +117,38 @@ export default new class {
         }
 
         return action[key];
+    }
+
+    /**
+     * Checks if action has any up executions
+     * @param action {Action}
+     * @return {boolean}
+     */
+    #hasUp(action) {
+        return action.up != null ||
+            this.#hasAnyGenerics(action);
+    }
+
+    /**
+     * Check if action has any down executions
+     * @param action {Action}
+     * @return {boolean}
+     */
+    #hasDown(action) {
+        return action.down != null ||
+            this.#hasAnyGenerics(action);
+    }
+
+    /**
+     * Checks for any generic executions
+     * @param action {Action}
+     */
+    #hasAnyGenerics(action) {
+        return action.container != null ||
+            action.file != null ||
+            action.command != null ||
+            action.package != null ||
+            action.sql != null;
     }
 }
 
