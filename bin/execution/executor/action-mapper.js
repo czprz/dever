@@ -41,6 +41,10 @@ export default new class {
             return false;
         }
 
+        if (action.container == null && action.down == null && runtime.down) {
+            return false;
+        }
+
         return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
             runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
     }
