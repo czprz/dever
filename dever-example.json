@@ -87,6 +87,7 @@
         },
         {
           "name": "create-database",
+          "group": ["docker", "database"],
           "up": {
             "type": "mssql",
             "sql": {

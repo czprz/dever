@@ -1,6 +1,7 @@
 import executor from "./index.js";
 import runtimeMapper from "./runtime-mapper.js";
 import hashCheckerDialog from "../../common/helper/hash-checker-dialog.js";
+import {Action} from "../../common/models/dever-json/internal.js";
 
 import chalk from "chalk";
 import customOptionsYargsCreator from "../../common/helper/options/custom-options-yargs-creator.js";
@@ -193,13 +194,13 @@ export default new class {
             return;
         }
 
-        if (argv.group && !actions.some(action => action.group === argv.group)) {
+        if (argv.group && !actions.some(action => action.group.some(a => a.toLowerCase() === argv.group.toLowerCase()))) {
             console.error(chalk.yellow(`No actions with group '${argv.group}' found`));
             return;
         }
 
         for (const action of actions) {
-            if (argv.group && action.group !== argv.group) {
+            if (argv.group && !action.group.some(x => x.toLowerCase() === argv.group.toLowerCase())) {
                 continue;
             }
 

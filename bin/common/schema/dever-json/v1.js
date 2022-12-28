@@ -146,7 +146,16 @@ const itemsSchema = {
     properties: {
         name: {type: "string"},
         type: typeSchema,
-        group: {type: "string"},
+        group: {
+            anyOf: [
+                {
+                    type: "string"
+                },
+                {
+                    type: "array"
+                }
+            ]
+        },
         optional: {type: "boolean"},
         runOnce: {type: "boolean"},
         up: executableSchema,
