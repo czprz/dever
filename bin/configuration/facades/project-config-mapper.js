@@ -94,7 +94,7 @@ export default new class {
                 runOnce: x.runOnce ?? false,
                 hasRun: hasRunActions?.find(y => y.name === x.name)?.hasRun ?? false,
                 lastHash: hasRunActions?.find(y => y.name === x.name)?.lastHash ?? null,
-                group: x.group,
+                group: this.mapGroup(x.group),
                 up: this.#mapExecution(x.up),
                 down: this.#mapExecution(x.down),
                 wait: x.wait,
@@ -185,5 +185,22 @@ export default new class {
                 keywords: null
             }
         };
+    }
+
+    /**
+     * Map possible string or array of strings to array of strings
+     * @param group {string|Array<string>}
+     * @return {Array<string>}
+     */
+    mapGroup(group) {
+        if (group == null) {
+            return [];
+        }
+
+        if (Array.isArray(group)) {
+            return group;
+        }
+
+        return [group];
     }
 }
