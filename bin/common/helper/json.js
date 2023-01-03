@@ -33,6 +33,19 @@ export default new class {
     }
 
     /**
+     * Check if file exists
+     * @param file {string}
+     * @return {boolean}
+     */
+    exists(file) {
+        try {
+            return !!fs.existsSync(file);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /**
      * Decodes json to object
      * @param {string} json
      * @returns {object}
