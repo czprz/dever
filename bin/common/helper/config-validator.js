@@ -26,9 +26,16 @@ export default new class {
      */
     validateFile(file) {
         try {
+            if (!json.exists(file)) {
+                return {
+                    status: false,
+                    message: `no dever.json found at location`
+                }
+            }
+
             const config = json.read(file);
-            if (config == null) {
-                return {status: false, message: 'could not find any dever.json at location'};
+            if (config == null || Object.keys(config).length === 0) {
+                return {status: false, message: 'empty dever.json found at location'};
             }
 
             // Todo: Improve support of multiple dever-json versions by using schema-validator
