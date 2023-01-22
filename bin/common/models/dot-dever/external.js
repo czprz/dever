@@ -9,6 +9,12 @@ export class Config {
      * @type {boolean}
      */
     skipAllHashChecks;
+
+    /**
+     * Last time version was checked in milliseconds
+     * @param {number}
+     */
+    lastVersionCheckMs;
 }
 
 export class Project {

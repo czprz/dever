@@ -25,8 +25,9 @@ export default {
                 additionalProperties: false
             }
         },
-        skipAllHashChecks: {type: "boolean"}
+        skipAllHashChecks: {type: "boolean"},
+        lastVersionCheckMs: {type: "number"}
     },
-    required: ["projects", "skipAllHashChecks"],
+    required: ["projects", "skipAllHashChecks", "lastVersionCheckMs"],
     additionalProperties: false
 }
