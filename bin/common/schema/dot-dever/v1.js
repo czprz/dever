@@ -28,6 +28,6 @@ export default {
         skipAllHashChecks: {type: "boolean"},
         lastVersionCheckMs: {type: "number"}
     },
-    required: ["projects", "skipAllHashChecks", "lastVersionCheckMs"],
+    required: ["projects", "skipAllHashChecks"],
     additionalProperties: false
 }

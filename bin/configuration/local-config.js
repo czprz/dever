@@ -58,6 +58,11 @@ export default new class {
         return this.#filePath;
     }
 
+    /**
+     * Map project
+     * @param project
+     * @return {{path, hasRunActions: (HasRunAction[]|[]|*|*[]), lastHash: (string|null|*), skipHashCheck: (boolean|*|boolean)}}
+     */
     #projectMap(project) {
         return {
             path: project.path,
