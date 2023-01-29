@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "ajv": "^8.12.0",
-    "axios": "^1.2.3",
+    "axios": "^1.2.6",
     "chalk": "^5.2.0",
     "enquirer": "^2.3.6",
     "execa": "^6.1.0",
-    "mssql": "^9.1.0",
+    "mssql": "^9.1.1",
     "rxjs": "^7.8.0",
     "sudo-prompt": "^9.2.1",
     "winston": "^3.8.2",
