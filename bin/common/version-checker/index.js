@@ -7,8 +7,8 @@ export default new class {
      */
     check() {
         // TODO: Figure out the best way of executing this
+        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs) ?? 0;
         const now = Date.now();
-        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs) ?? now;
 
         if (now > lastVersionCheckMs + 86400000) {
             this.#checkForUpdates();
@@ -23,12 +23,18 @@ export default new class {
 
     #checkForUpdates() {
         const options = {
-            url: 'https://api.dever.land/dever/latest/version',
+            url: 'https://api.dever.land/latest/version',
             timeout: 100,
         };
 
+        // TODO: Should not be blocking
+
         https.get(options, res => {
+            if (res.statusCode !== 200) {
+                return;
+            }
             res.on('data', data => {
+
                 console.log(data.toString());
                 // TODO: Improve message to user
             });
