@@ -1,43 +1,48 @@
 import ConfigFacade from "../../configuration/facades/config-facade.js";
 import https from 'https';
+import chalk from "chalk";
 
 export default new class {
     /**
      * Check for updates and notifies if there is a new version
      */
     check() {
-        // TODO: Figure out the best way of executing this
-        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs) ?? 0;
+        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
         if (now > lastVersionCheckMs + 86400000) {
             this.#checkForUpdates();
         }
 
-        // TODO: Testing with and without lastVersionCheckMs in .dever
-
         ConfigFacade.update(config => {
             config.lastVersionCheckMs = now;
         });
     }
 
+    /**
+     * Check for updates
+     */
     #checkForUpdates() {
         const options = {
-            url: 'https://api.dever.land/latest/version',
-            timeout: 100,
+            hostname: 'api.dever.land',
+            path: '/version/latest',
+            method: 'GET'
         };
 
-        // TODO: Should not be blocking
+        https.request(options, (res) => {
+            let data = ''
 
-        https.get(options, res => {
-            if (res.statusCode !== 200) {
-                return;
-            }
-            res.on('data', data => {
-
-                console.log(data.toString());
-                // TODO: Improve message to user
+            res.on('data', (chunk) => {
+                data += chunk;
             });
-        });
+
+            res.on('end', () => {
+                // TODO: Compare against current version
+                console.log(chalk.greenBright(`\n\ndever ${JSON.parse(data)} is now available`) + `\n\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`)
+            });
+
+        }).on("error", (err) => {
+            console.log("Error: ", err)
+        }).end()
     }
 }
