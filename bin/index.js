@@ -4,6 +4,8 @@ import defaultYargsGenerator from './execution/default-yargs-generator.js';
 import projectYargsGenerator from './execution/project-yargs-generator.js';
 import projectConfigFacade from "./configuration/facades/project-config-facade.js";
 
+import versionChecker from './common/version-checker/index.js';
+
 import constants from './common/constants.js';
 
 import enquirer from 'enquirer';
@@ -105,3 +107,5 @@ class EntryPoint {
 }
 
 new EntryPoint().start();
+
+versionChecker.check();
