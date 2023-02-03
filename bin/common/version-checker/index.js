@@ -16,17 +16,18 @@ export default new class {
 
         if (now > lastVersionCheckMs + 86400000) {
             this.#checkForUpdates();
-        }
 
-        ConfigFacade.update(config => {
-            config.lastVersionCheckMs = now;
-        });
+            ConfigFacade.update(config => {
+                config.lastVersionCheckMs = now;
+            });
+        }
     }
 
     /**
      * Check for updates
      */
     #checkForUpdates() {
+        // TODO: Change to https://api.dever.land/dever/version/latest
         const options = {
             hostname: 'api.dever.land',
             path: '/version/latest',
@@ -56,7 +57,7 @@ export default new class {
                 if (currentVersion.major > version.major ||
                     currentVersion.major === version.major && currentVersion.minor > version.minor ||
                     currentVersion.major === version.major && currentVersion.minor === version.minor && currentVersion.patch > version.patch) {
-                    console.log(`\n\n${chalk.greenBright(`dever ${version.full} is now available`)}`);
+                    console.log(`\n\n${chalk.greenBright(`@czprz/dever ${version.full} is now available`)}`);
                     console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
                 }
             });
