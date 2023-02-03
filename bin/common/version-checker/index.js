@@ -14,13 +14,13 @@ export default new class {
         const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
-        if (now > lastVersionCheckMs + 86400000) {
+        // if (now > lastVersionCheckMs + 86400000) {
             this.#checkForUpdates();
 
-            ConfigFacade.update(config => {
-                config.lastVersionCheckMs = now;
-            });
-        }
+        //     ConfigFacade.update(config => {
+        //         config.lastVersionCheckMs = now;
+        //     });
+        // }
     }
 
     /**
@@ -44,8 +44,8 @@ export default new class {
 
             res.on('end', async () => {
                 const parsed = JSON.parse(data);
-                const version = this.#getVersion(parsed);
-                if (version == null) {
+                const newestVersion = this.#getVersion(parsed);
+                if (newestVersion == null) {
                     return;
                 }
 
@@ -54,10 +54,10 @@ export default new class {
                     return;
                 }
 
-                if (currentVersion.major > version.major ||
-                    currentVersion.major === version.major && currentVersion.minor > version.minor ||
-                    currentVersion.major === version.major && currentVersion.minor === version.minor && currentVersion.patch > version.patch) {
-                    console.log(`\n\n${chalk.greenBright(`@czprz/dever ${version.full} is now available`)}`);
+                if (newestVersion.major > currentVersion.major ||
+                    newestVersion.major === currentVersion.major && newestVersion.minor > currentVersion.minor ||
+                    newestVersion.major === currentVersion.major && newestVersion.minor === currentVersion.minor && newestVersion.patch > currentVersion.patch) {
+                    console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
                     console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
                 }
             });
