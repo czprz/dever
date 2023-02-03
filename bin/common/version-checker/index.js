@@ -14,13 +14,13 @@ export default new class {
         const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
-        // if (now > lastVersionCheckMs + 86400000) {
+        if (now > lastVersionCheckMs + 86400000) {
             this.#checkForUpdates();
 
-        //     ConfigFacade.update(config => {
-        //         config.lastVersionCheckMs = now;
-        //     });
-        // }
+            ConfigFacade.update(config => {
+                config.lastVersionCheckMs = now;
+            });
+        }
     }
 
     /**
