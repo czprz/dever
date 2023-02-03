@@ -12,7 +12,7 @@ export default new class {
             case "skipallhashchecks":
                 this.#getSkipAllHashChecks();
                 break;
-            case "lastversioncheck":
+            case "lastversioncheckms":
                 this.#getLastVersionCheck();
                 break;
             case "projects.n.path":

@@ -16,6 +16,9 @@ export default new class {
             case "skipallhashchecks":
                 this.#saveSkipAllHashChecks(unstructuredKey, value);
                 break;
+            case 'lastversioncheckms':
+                this.#saveLastVersionCheck(unstructuredKey, value);
+                break;
             case "projects.n.path":
                 this.#savePath(key.id, unstructuredKey, value);
                 break;
@@ -94,6 +97,17 @@ export default new class {
 
         const config = localConfig.get();
         config.skipAllHashChecks = value === 'true' || value === '1';
+        localConfig.write(config);
+    }
+
+    #saveLastVersionCheck(unstructuredKey, value) {
+        if (!typeValidator.isValidNumber(value)) {
+            console.warn(chalk.red(`Could not set '${value}' to '${unstructuredKey}'. Must a number.`));
+            return;
+        }
+
+        const config = localConfig.get();
+        config.lastVersionCheckMs = +value;
         localConfig.write(config);
     }
 }
