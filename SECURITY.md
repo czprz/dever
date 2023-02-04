@@ -4,10 +4,10 @@
 
 Which versions are currently supported with security updates.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.13.*   | :white_check_mark: |
-| < 0.12.*   | :x:                |
+| Version  | Supported          |
+|----------| ------------------ |
+| 0.14.*   | :white_check_mark: |
+| < 0.13.* | :x:                |
 
 ## Reporting a Vulnerability
 
