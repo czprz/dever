@@ -153,7 +153,7 @@ export class Action extends Step {
     lastHash;
 
     /**
-     * @type {string | null}
+     * @type {string | Array<string> | null}
      */
     group;
 

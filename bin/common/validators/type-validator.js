@@ -47,4 +47,13 @@ export default new class {
 
         return versionChecker.supportedVersion(content.version);
     }
+
+    /**
+     * Validates that a value is a number
+     * @param value {*}
+     * @return {boolean}
+     */
+    isValidNumber(value) {
+        return !isNaN(value);
+    }
 }

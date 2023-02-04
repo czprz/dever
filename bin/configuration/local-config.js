@@ -38,7 +38,8 @@ export default new class {
 
         return {
             projects: config?.projects?.map(this.#projectMap) ?? [],
-            skipAllHashChecks: config?.skipAllHashChecks ?? false
+            skipAllHashChecks: config?.skipAllHashChecks ?? false,
+            lastVersionCheckMs: config?.lastVersionCheckMs ?? 0
         };
     }
 
@@ -58,6 +59,11 @@ export default new class {
         return this.#filePath;
     }
 
+    /**
+     * Map project
+     * @param project
+     * @return {{path, hasRunActions: (HasRunAction[]|[]|*|*[]), lastHash: (string|null|*), skipHashCheck: (boolean|*|boolean)}}
+     */
     #projectMap(project) {
         return {
             path: project.path,

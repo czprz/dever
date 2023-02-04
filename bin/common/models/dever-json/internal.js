@@ -193,7 +193,7 @@ export class Action extends Step {
     lashHash;
 
     /**
-     * @type {string | null}
+     * @type {Array<string>}
      */
     group;
 

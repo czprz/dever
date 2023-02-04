@@ -12,6 +12,9 @@ export default new class {
             case "skipallhashchecks":
                 this.#getSkipAllHashChecks();
                 break;
+            case "lastversioncheckms":
+                this.#getLastVersionCheck();
+                break;
             case "projects.n.path":
                 this.#showProjectPath(key.id);
                 break;
@@ -67,5 +70,10 @@ export default new class {
     #showProjectSkipHashCheck(id) {
         const config = projectConfigFacade.getLocalValues(id);
         console.log(config.skipHashCheck);
+    }
+
+    #getLastVersionCheck() {
+        const config = localConfig.get();
+        console.log(config.lastVersionCheckMs);
     }
 }

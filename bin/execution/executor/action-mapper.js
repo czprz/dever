@@ -28,10 +28,9 @@ export default new class {
      */
     #filtering(action, runtime) {
         const lowerCaseName = action?.name?.toLowerCase();
-        const lowerCaseGroup = action?.group?.toLowerCase();
 
         const notIncluded = runtime.include.executions.length > 0 && !runtime.include.executions.some(x => x.toLowerCase() === lowerCaseName);
-        const notIncludedGroup = runtime.include.groups.length > 0 && !runtime.include.groups.some(x => x.toLowerCase() === lowerCaseGroup);
+        const notIncludedGroup = runtime.include.groups.length > 0 && !runtime.include.groups.some(x => this.#hasGroup(action, x));
 
         if (notIncluded || notIncludedGroup) {
             return false;
@@ -47,7 +46,7 @@ export default new class {
         }
 
         return !(runtime.exclude.executions.length > 0 && runtime.exclude.executions.some(x => x.toLowerCase() === lowerCaseName) ||
-            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => x.toLowerCase() === lowerCaseGroup));
+            runtime.exclude.groups.length > 0 && runtime.exclude.groups.some(x => this.#hasGroup(action, x)));
     }
 
     /**
@@ -152,6 +151,16 @@ export default new class {
             action.package != null ||
             action.sql != null;
     }
+
+    /**
+     * Checks if action has a matching group
+     * @param action {Action}
+     * @param groupName {string}
+     * @return {boolean}
+     */
+    #hasGroup(action, groupName) {
+        return action.group.some(a => a.toLowerCase() === groupName.toLowerCase());
+    }
 }
 
 export class Execute {
@@ -208,7 +217,7 @@ export class Executable extends Execute {
     name;
 
     /**
-     * @type {string}
+     * @type {Array<string>}
      */
     group;
 
