@@ -27,10 +27,9 @@ export default new class {
      * Check for updates
      */
     #checkForUpdates() {
-        // TODO: Change to https://api.dever.land/dever/version/latest
         const options = {
             hostname: 'api.dever.land',
-            path: '/version/latest',
+            path: '/dever/version/latest',
             method: 'GET',
             timeout: 100
         };
