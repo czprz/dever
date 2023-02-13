@@ -4,6 +4,7 @@ import PowershellScriptInformer from './powershell-script/index.js';
 import MSSQLInformer from './mssql/index.js';
 import ChocolateyInformer from './chocolatey/index.js';
 import PowerShellCommandInformer from './powershell-command/index.js';
+import WingetInformer from './winget/index.js';
 
 import {Executable} from "../../../execution/executor/action-mapper.js";
 import {ExecutionLog} from "../models.js";
@@ -33,6 +34,9 @@ export default new class {
                 break;
             case "chocolatey":
                 ChocolateyInformer.inform(log, executable?.name);
+                break;
+            case "winget":
+                WingetInformer.inform(log, executable?.name);
                 break;
             default:
                 break;
