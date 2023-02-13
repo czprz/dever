@@ -21,7 +21,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Executes chocolatey command
+     * Execute winget command
      */
     async _execute(execute, runtime) {
         switch (true) {
@@ -35,7 +35,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Installs chocolatey package
+     * Installs winget package
      * @param execute {Execute}
      * @param runtime {Runtime}
      */
@@ -52,7 +52,7 @@ export default new class extends ExecutionInterface {
     }
 
     /**
-     * Uninstalls chocolatey package
+     * Uninstalls winget package
      * @param execute {Execute}
      */
     #down(execute) {
