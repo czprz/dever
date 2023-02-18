@@ -8,9 +8,10 @@ import fs from 'fs';
 
 export default new class {
     /**
-     * Check for updates and notifies if there is a new version
+     * Checks for updates
+     * @returns {Promise<void>}
      */
-    async check() {
+    async fetch() {
         const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
@@ -20,6 +21,30 @@ export default new class {
             ConfigFacade.update(config => {
                 config.lastVersionCheckMs = now;
             });
+        }
+    }
+
+    /**
+     * Notifies if there is a new version
+     */
+    async inform() {
+        // TODO: get version from .dever
+
+        const newestVersion = this.#getVersion(parsed);
+        if (newestVersion == null) {
+            return;
+        }
+
+        const currentVersion = await this.#getActualVersion();
+        if (currentVersion == null) {
+            return;
+        }
+
+        if (newestVersion.major > currentVersion.major ||
+            newestVersion.major === currentVersion.major && newestVersion.minor > currentVersion.minor ||
+            newestVersion.major === currentVersion.major && newestVersion.minor === currentVersion.minor && newestVersion.patch > currentVersion.patch) {
+            console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
+            console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
         }
     }
 
@@ -39,26 +64,12 @@ export default new class {
 
             res.on('data', (chunk) => {
                 data += chunk;
+                const parsed = JSON.parse(data);
+                // TODO: Save version to .dever
             });
 
             res.on('end', async () => {
-                const parsed = JSON.parse(data);
-                const newestVersion = this.#getVersion(parsed);
-                if (newestVersion == null) {
-                    return;
-                }
 
-                const currentVersion = await this.#getActualVersion();
-                if (currentVersion == null) {
-                    return;
-                }
-
-                if (newestVersion.major > currentVersion.major ||
-                    newestVersion.major === currentVersion.major && newestVersion.minor > currentVersion.minor ||
-                    newestVersion.major === currentVersion.major && newestVersion.minor === currentVersion.minor && newestVersion.patch > currentVersion.patch) {
-                    console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
-                    console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
-                }
             });
         }).end();
     }
