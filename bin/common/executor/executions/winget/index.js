@@ -47,7 +47,7 @@ export default new class extends ExecutionInterface {
         try {
             this._started(Operation.Installing);
 
-            shell.executeSync(`winget install ${execute.package} --silent`);
+            shell.executeSync(`winget install -h --accept-package-agreements --accept-source-agreements -e --id ${execute.package}`);
 
             this._success(Operation.Installed);
         } catch (error) {
@@ -63,7 +63,7 @@ export default new class extends ExecutionInterface {
         try {
             this._started(Operation.Uninstalling);
 
-            shell.executeSync(`winget uninstall ${execute.package} --silent`);
+            shell.executeSync(`winget uninstall -h --accept-package-agreements --accept-source-agreements -e --id ${execute.package}`);
 
             this._success(Operation.Uninstalled);
         } catch (error) {
