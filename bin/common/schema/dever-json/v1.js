@@ -71,7 +71,7 @@ const packageSchema = {
 
 const typeSchema = {
     type: "string",
-    pattern: "^(docker-container|powershell-command|powershell-script|docker-compose|mssql|chocolatey)$"
+    pattern: "^(docker-container|powershell-command|powershell-script|docker-compose|mssql|chocolatey|winget)$"
 };
 
 const waitSchema = {
