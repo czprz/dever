@@ -106,6 +106,8 @@ class EntryPoint {
     }
 }
 
+versionChecker.fetch();
+
 new EntryPoint().start();
 
-versionChecker.check();
+versionChecker.inform();
