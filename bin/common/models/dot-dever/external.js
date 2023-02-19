@@ -15,6 +15,12 @@ export class Config {
      * @param {number}
      */
     lastVersionCheckMs;
+
+    /**
+     * Version of latest available release
+     * @param {string}
+     */
+    latestVersion;
 }
 
 export class Project {
