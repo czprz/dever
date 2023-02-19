@@ -39,7 +39,8 @@ export default new class {
         return {
             projects: config?.projects?.map(this.#projectMap) ?? [],
             skipAllHashChecks: config?.skipAllHashChecks ?? false,
-            lastVersionCheckMs: config?.lastVersionCheckMs ?? 0
+            lastVersionCheckMs: config?.lastVersionCheckMs ?? 0,
+            latestVersion: config?.latestVersion ?? null
         };
     }
 

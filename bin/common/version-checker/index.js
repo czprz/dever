@@ -2,8 +2,8 @@ import ConfigFacade from "../../configuration/facades/config-facade.js";
 import https from 'https';
 import chalk from "chalk";
 
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import path, {dirname} from 'path';
+import {fileURLToPath} from 'url';
 import fs from 'fs';
 
 export default new class {
@@ -12,15 +12,8 @@ export default new class {
      * @returns {Promise<void>}
      */
     async fetch() {
-        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
-        const now = Date.now();
-
-        if (now > lastVersionCheckMs + 86400000) {
+        if (this.#conditionForVersionChecking()) {
             this.#checkForUpdates();
-
-            ConfigFacade.update(config => {
-                config.lastVersionCheckMs = now;
-            });
         }
     }
 
@@ -28,9 +21,16 @@ export default new class {
      * Notifies if there is a new version
      */
     async inform() {
-        // TODO: get version from .dever
+        if (!this.#conditionForVersionChecking()) {
+            return;
+        }
 
-        const newestVersion = this.#getVersion(parsed);
+        const version = ConfigFacade.getSingle((config) => config.latestVersion);
+        if (version == null) {
+            return;
+        }
+
+        const newestVersion = this.#getVersion(version);
         if (newestVersion == null) {
             return;
         }
@@ -46,6 +46,17 @@ export default new class {
             console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
             console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
         }
+
+        ConfigFacade.update(config => {
+            config.lastVersionCheckMs = Date.now();
+        });
+    }
+
+    #conditionForVersionChecking() {
+        const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
+        const now = Date.now();
+
+        return now > lastVersionCheckMs + 86400000;
     }
 
     /**
@@ -65,13 +76,19 @@ export default new class {
             res.on('data', (chunk) => {
                 data += chunk;
                 const parsed = JSON.parse(data);
-                // TODO: Save version to .dever
-            });
 
-            res.on('end', async () => {
+                const newestVersion = this.#getVersion(parsed);
+                if (newestVersion == null) {
+                    return;
+                }
 
+                ConfigFacade.update((config) => {
+                    config.latestVersion = newestVersion.full;
+                });
             });
-        }).end();
+        })
+            .on('error', () => {})
+            .end();
     }
 
     /**
