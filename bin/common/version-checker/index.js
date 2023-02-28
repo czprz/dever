@@ -26,7 +26,7 @@ export default new class {
         }
 
         const version = ConfigFacade.getSingle((config) => config.latestVersion);
-        if (version == null) {
+        if (version === "0.0.0") {
             return;
         }
 
