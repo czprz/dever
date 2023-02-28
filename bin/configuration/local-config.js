@@ -40,7 +40,7 @@ export default new class {
             projects: config?.projects?.map(this.#projectMap) ?? [],
             skipAllHashChecks: config?.skipAllHashChecks ?? false,
             lastVersionCheckMs: config?.lastVersionCheckMs ?? 0,
-            latestVersion: config?.latestVersion ?? "0.0.0"
+            latestVersion: config?.latestVersion ?? null
         };
     }
 
