@@ -25,8 +25,10 @@ export default new class {
             return;
         }
 
+        this.#hasChecked();
+
         const version = ConfigFacade.getSingle((config) => config.latestVersion);
-        if (version === "0.0.0") {
+        if (version == null) {
             return;
         }
 
@@ -46,17 +48,26 @@ export default new class {
             console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
             console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
         }
-
-        ConfigFacade.update(config => {
-            config.lastVersionCheckMs = Date.now();
-        });
     }
 
+    /**
+     * Ensures version check doesn't occur too often. If e.g. it's not able to fetch version
+     * @returns {boolean}
+     */
     #conditionForVersionChecking() {
         const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
         return now > lastVersionCheckMs + 86400000;
+    }
+
+    /**
+     * Informs .dever that user has run version check
+     */
+    #hasChecked() {
+        ConfigFacade.update(config => {
+            config.lastVersionCheckMs = Date.now();
+        });
     }
 
     /**
