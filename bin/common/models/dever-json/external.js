@@ -97,10 +97,22 @@ export class Execution {
     package;
 
     /**
-     * Informs whether a dependency needs to be run as elevated user
+     * Only run execution when specified
+     * @type {boolean}
+     */
+    optional;
+
+    /**
+     * Only run execution once
+     * @type {boolean}
+     */
+    runOnce;
+
+    /**
+     * Run execution as elevated
      * @type {boolean | null}
      */
-    runAsElevated;
+    elevated;
 
     /**
      * Custom options that will be passed along to dependency
@@ -141,6 +153,11 @@ export class Action extends Step {
      * @type {boolean}
      */
     runOnce;
+
+    /**
+     * @type {boolean}
+     */
+    elevated;
 
     /**
      * @type {boolean}
