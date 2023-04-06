@@ -5,7 +5,7 @@ import init from "../init.js";
 
 import path from 'path';
 import chalk from 'chalk';
-import scanner from "../scanner.js";
+import scanner from "../scanner/index.js";
 
 "use strict";
 export default new class {
