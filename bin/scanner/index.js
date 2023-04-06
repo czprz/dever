@@ -1,10 +1,12 @@
 import chalk from "chalk";
 import readline from "readline";
 import path from "path";
-import fs from "fs";
-import {execSync} from "child_process";
+import os from "os";
 
-import projectConfigFacade from "./configuration/facades/project-config-facade.js";
+import projectConfigFacade from "../configuration/facades/project-config-facade.js";
+
+import winScan from './windows.js';
+import linScan from './linux.js';
 
 "use strict";
 export default new class {
@@ -36,12 +38,14 @@ export default new class {
     async #findProjects() {
         console.log('Scanning has started.. Please wait..');
 
-        const paths = [];
-        const disks = this.#getDisks();
+        let paths = [];
 
-        for (const disk of disks) {
-            const files = this.#findFilesByName(disk, 'dever.json');
-            paths.push(...files);
+        if (os.platform() === 'win32') {
+            paths = await winScan.scan();
+        } else if (os.platform() === 'linux') {
+            paths = await linScan.scan();
+        } else {
+            throw new Error('Unsupported operating system: ' + os.platform());
         }
 
         if (paths?.length === 0) {
@@ -102,75 +106,4 @@ export default new class {
             console.warn(chalk.yellow(`Check 'dever list --not-supported' to get a list of the unsupported projects`));
         }
     }
-
-    /**
-     * Check if the folder should be skipped
-     * @param folderName {string}
-     * @returns {boolean}
-     */
-    #isSkipFolder(folderName) {
-        return ['Windows', 'Program Files', 'Program Files (x86)', 'ProgramData', 'AppData', 'node_modules'].includes(folderName);
-    }
-
-    /**
-     * Find all files with the given name
-     * @param rootPath {string}
-     * @param filename {string}
-     * @param files {string[]}
-     * @returns {string[]}
-     */
-    #findFilesByName(rootPath, filename, files = []) {
-        try {
-            if (fs.existsSync(rootPath)) {
-                const contents = fs.readdirSync(rootPath);
-
-                for (const file of contents) {
-                    const filePath = path.join(rootPath, file);
-
-                    try {
-                        const fileStat = fs.statSync(filePath);
-
-                        if (fileStat.isDirectory()) {
-                            if (!this.#isSkipFolder(file)) {
-                                this.#findFilesByName(filePath, filename, files);
-                            }
-                        } else if (file === filename) {
-                            files.push(filePath);
-                        }
-                    } catch (err) {
-                        if (err.code !== 'EPERM' && err.code !== 'EBUSY' && err.code !== 'EACCES' && err.code !== 'ENOENT') {
-                            throw err;
-                        }
-                    }
-                }
-            }
-        } catch (err) {
-            if (err.code !== 'EPERM' && err.code !== 'EACCES' && err.code !== 'ENOENT') {
-                throw err;
-            }
-        }
-
-        return files;
-    }
-
-    /**
-     * Get all local disks volume names
-     * @returns {Array<string>}
-     */
-    #getDisks() {
-        const disks = [];
-
-        const output = execSync('wmic logicaldisk get deviceid, volumename, description, mediatype').toString();
-        const lines = output.trim().split('\r\n').slice(1);
-
-        for (const line of lines) {
-            const [_, volumeName, mediaType] = line.trim().split(/\s{2,}/);
-
-            if (mediaType === '12') {
-                disks.push(volumeName + '\\');
-            }
-        }
-
-        return disks;
-    };
 }
