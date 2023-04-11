@@ -85,21 +85,18 @@ export default new class {
      * @return {InAction[]}
      */
     #mapActions(actions, hasRunActions) {
-
         return actions?.map(x => {
             return {
-                ...this.#mapExecution(x),
+                ...this.#mapExecution(x, null),
                 name: x.name,
-                optional: x.optional ?? false,
-                runOnce: x.runOnce ?? false,
                 hasRun: hasRunActions?.find(y => y.name === x.name)?.hasRun ?? false,
                 lastHash: hasRunActions?.find(y => y.name === x.name)?.lastHash ?? null,
                 group: this.mapGroup(x.group),
-                up: this.#mapExecution(x.up),
-                down: this.#mapExecution(x.down),
+                up: this.#mapExecution(x.up, x),
+                down: this.#mapExecution(x.down, x),
                 wait: x.wait,
-                after: this.#mapExecution(x.after),
-                before: this.#mapExecution(x.before),
+                after: this.#mapExecution(x.after, x),
+                before: this.#mapExecution(x.before, x),
             }
         })
     }
@@ -107,9 +104,10 @@ export default new class {
     /**
      *
      * @param execution {ExExecution|ExAction}
+     * @param action {ExAction|null}
      * @returns {InExecution}
      */
-    #mapExecution(execution) {
+    #mapExecution(execution, action) {
         if (execution == null) {
             return null;
         }
@@ -121,9 +119,11 @@ export default new class {
             sql: execution.sql,
             container: this.#mapContainer(execution.container),
             package: execution.package,
-            runAsElevated: execution.runAsElevated ?? false,
             wait: execution.wait,
-            options: this.#mapOptions(execution.options)
+            options: this.#mapOptions(execution.options),
+            elevated: execution.elevated ?? action?.elevated,
+            optional: execution.optional ?? action?.optional,
+            runOnce: execution.runOnce ?? action?.runOnce,
         }
     }
 

@@ -1,11 +1,12 @@
 import chalk from "chalk";
 import readline from "readline";
-import {fileURLToPath} from "url";
 import path from "path";
-import fs from "fs";
+import os from "os";
 
-import projectConfigFacade from "./configuration/facades/project-config-facade.js";
-import powershell from "./common/helper/powershell.js";
+import projectConfigFacade from "../configuration/facades/project-config-facade.js";
+
+import winScan from './windows.js';
+import linScan from './linux.js';
 
 "use strict";
 export default new class {
@@ -37,16 +38,20 @@ export default new class {
     async #findProjects() {
         console.log('Scanning has started.. Please wait..');
 
-        const __filename = fileURLToPath(import.meta.url);
-        const file = path.join(path.dirname(fs.realpathSync(__filename)), 'common/find_all_dever_json_files.ps1');
+        let paths = [];
 
-        const raw = await powershell.executeFileSync(file);
-        if (raw == null || raw?.length === 0) {
+        if (os.platform() === 'win32') {
+            paths = await winScan.scan();
+        } else if (os.platform() === 'linux') {
+            paths = await linScan.scan();
+        } else {
+            throw new Error('Unsupported operating system: ' + os.platform());
+        }
+
+        if (paths?.length === 0) {
             console.error(chalk.yellow('Could not find any dever supported projects'));
             return;
         }
-
-        const paths = raw.trim().split('\n');
 
         const projects = projectConfigFacade.getAll();
         this.#removeProjects(projects, paths);
