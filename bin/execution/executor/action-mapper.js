@@ -205,6 +205,11 @@ export class Execute {
     package;
 
     /**
+     * @type {TyeOptions | null}
+     */
+    tyeOptions;
+
+    /**
      * @type {Option | null}
      */
     options;
@@ -271,6 +276,20 @@ export class Wait {
      * @type {number}
      */
     seconds;
+}
+
+export class TyeOptions {
+    /**
+     * Tye command ('deploy','undeploy','run','build')
+     * @type {string}
+     */
+    command;
+
+    /**
+     * List of tye yaml files
+     * @type {string[]}
+     */
+    files;
 }
 
 /** DOCKER */
