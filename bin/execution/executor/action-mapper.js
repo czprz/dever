@@ -72,6 +72,7 @@ export default new class {
             command: this.#getValue(action, 'command', runtime),
             container: this.#getValue(action, 'container', runtime),
             package: this.#getValue(action, 'package', runtime),
+            tyeOptions: this.#getValue(action, 'tyeOptions', runtime),
             options: this.#getValue(action, 'options', runtime),
             wait: this.#getWait(action, runtime),
             before: this.#getValue(action, 'before', runtime),
