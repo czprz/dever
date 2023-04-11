@@ -18,7 +18,7 @@ export default new class extends ExecutionInterface {
      */
     check() {
         try {
-            execSync('tye', { windowsHide: true, encoding: 'UTF-8', stdio: "ignore" });
+            execSync('tye -?', { windowsHide: true, encoding: 'UTF-8', stdio: "ignore" });
             return this._success(Operation.DependencyCheck, true);
         } catch {
             return this._error(Operation.DependencyCheck, null, true);
@@ -29,8 +29,11 @@ export default new class extends ExecutionInterface {
      * Executes tye
      */
     async _execute(execute, runtime) {
+        const start = runtime.up ? Operation.Starting : Operation.Stopping;
+        const end = runtime.up ? Operation.Started : Operation.Stopped;
+
         try {
-            this._started(Operation.Executing);
+            this._started(start);
 
             let command = "tye";
             command = this.#addCommand(command, execute);
@@ -38,9 +41,9 @@ export default new class extends ExecutionInterface {
 
             await powershell.executeSync(command, execute.elevated);
 
-            this._success(Operation.Executed);
+            this._success(end);
         } catch (e) {
-            this._error(Operation.Executed, e);
+            this._error(end, e);
         }
     }
 
@@ -69,4 +72,4 @@ export default new class extends ExecutionInterface {
     }
 }
 
-export const Operation = Object.freeze({Executing: 'executing', Executed: 'executed', DependencyCheck: 'dependency-check'});
+export const Operation = Object.freeze({Starting: 'starting', Started: 'started', Stopping: 'stopping', Stopped: 'stopped', DependencyCheck: 'dependency-check'});

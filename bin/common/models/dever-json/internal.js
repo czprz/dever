@@ -137,6 +137,12 @@ export class Execution {
     package;
 
     /**
+     * Tye options only used when type is 'tye'
+     * @type {TyeOptions | null}
+     */
+    tyeOptions;
+
+    /**
      * Custom options that will be passed along to dependency
      * @type {Option[] | null}
      */
@@ -373,6 +379,20 @@ export class DbColumn {
      * @var {any=} null
      */
     value;
+}
+
+export class TyeOptions {
+    /**
+     * Tye command
+     * @type {string}
+     */
+    command;
+
+    /**
+     * Tye config files
+     * @type {string[]}
+     */
+    files;
 }
 
 export class Container {
