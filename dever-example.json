@@ -48,6 +48,23 @@
           }
         },
         {
+          "name": "tye",
+          "up": {
+            "type": "tye",
+            "tyeOptions": {
+              "command": "deploy",
+              "files": ["tye1.yaml"]
+            }
+          },
+          "down": {
+            "type": "tye",
+            "tyeOptions": {
+              "command": "undeploy",
+              "files": ["tye2.yaml"]
+            }
+          }
+        },
+        {
           "name": "winget-install-example",
           "type": "winget",
           "package": "Microsoft.SQLServerManagementStudio"
