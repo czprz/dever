@@ -135,7 +135,10 @@ const executableSchema = {
         options: {
             type: "array",
             items: optionsSchema
-        }
+        },
+        optional: {type: "boolean"},
+        runOnce: {type: "boolean"},
+        elevated: {type: "boolean"},
     },
     required: ["type"],
     additionalProperties: false
@@ -158,6 +161,7 @@ const itemsSchema = {
         },
         optional: {type: "boolean"},
         runOnce: {type: "boolean"},
+        elevated: {type: "boolean"},
         up: executableSchema,
         down: executableSchema,
         package: packageSchema,

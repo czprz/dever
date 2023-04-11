@@ -1,6 +1,6 @@
 {
   "name": "@czprz/dever",
-  "version": "0.14.1-beta",
+  "version": "0.14.5-beta",
   "description": "Development Helper (dev-er) to speed up and keep local development environment consistent",
   "author": "Casper Overholm Elkrog",
   "keywords": [
@@ -22,15 +22,15 @@
   },
   "dependencies": {
     "ajv": "^8.12.0",
-    "axios": "^1.3.3",
+    "axios": "^1.3.5",
     "chalk": "^5.2.0",
     "enquirer": "^2.3.6",
-    "execa": "^7.0.0",
+    "execa": "^7.1.1",
     "mssql": "^9.1.1",
     "rxjs": "^7.8.0",
     "sudo-prompt": "^9.2.1",
     "winston": "^3.8.2",
-    "yargs": "^17.7.0"
+    "yargs": "^17.7.1"
   },
   "repository": {
     "type": "git",

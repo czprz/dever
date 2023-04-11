@@ -2,25 +2,72 @@ import ConfigFacade from "../../configuration/facades/config-facade.js";
 import https from 'https';
 import chalk from "chalk";
 
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import path, {dirname} from 'path';
+import {fileURLToPath} from 'url';
 import fs from 'fs';
 
 export default new class {
     /**
-     * Check for updates and notifies if there is a new version
+     * Checks for updates
+     * @returns {Promise<void>}
      */
-    async check() {
+    async fetch() {
+        if (this.#conditionForVersionChecking()) {
+            this.#checkForUpdates();
+        }
+    }
+
+    /**
+     * Notifies if there is a new version
+     */
+    async inform() {
+        if (!this.#conditionForVersionChecking()) {
+            return;
+        }
+
+        this.#hasChecked();
+
+        const version = ConfigFacade.getSingle((config) => config.latestVersion);
+        if (version == null) {
+            return;
+        }
+
+        const newestVersion = this.#getVersion(version);
+        if (newestVersion == null) {
+            return;
+        }
+
+        const currentVersion = await this.#getActualVersion();
+        if (currentVersion == null) {
+            return;
+        }
+
+        if (newestVersion.major > currentVersion.major ||
+            newestVersion.major === currentVersion.major && newestVersion.minor > currentVersion.minor ||
+            newestVersion.major === currentVersion.major && newestVersion.minor === currentVersion.minor && newestVersion.patch > currentVersion.patch) {
+            console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
+            console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
+        }
+    }
+
+    /**
+     * Ensures version check doesn't occur too often. If e.g. it's not able to fetch version
+     * @returns {boolean}
+     */
+    #conditionForVersionChecking() {
         const lastVersionCheckMs = ConfigFacade.getSingle(config => config?.lastVersionCheckMs);
         const now = Date.now();
 
-        if (now > lastVersionCheckMs + 86400000) {
-            this.#checkForUpdates();
+        return now > lastVersionCheckMs + 86400000;
+    }
 
-            ConfigFacade.update(config => {
-                config.lastVersionCheckMs = now;
-            });
-        }
+    /**
+     * Informs .dever that user has run version check
+     */
+    #hasChecked() {
+        ConfigFacade.update(config => {
+            config.lastVersionCheckMs = Date.now();
+        });
     }
 
     /**
@@ -39,28 +86,20 @@ export default new class {
 
             res.on('data', (chunk) => {
                 data += chunk;
-            });
-
-            res.on('end', async () => {
                 const parsed = JSON.parse(data);
+
                 const newestVersion = this.#getVersion(parsed);
                 if (newestVersion == null) {
                     return;
                 }
 
-                const currentVersion = await this.#getActualVersion();
-                if (currentVersion == null) {
-                    return;
-                }
-
-                if (newestVersion.major > currentVersion.major ||
-                    newestVersion.major === currentVersion.major && newestVersion.minor > currentVersion.minor ||
-                    newestVersion.major === currentVersion.major && newestVersion.minor === currentVersion.minor && newestVersion.patch > currentVersion.patch) {
-                    console.log(`\n\n${chalk.greenBright(`@czprz/dever ${newestVersion.full} is now available`)}`);
-                    console.log(`\nUse ${chalk.blueBright('npm update -g @czprz/dever')} for upgrading to latest version`);
-                }
+                ConfigFacade.update((config) => {
+                    config.latestVersion = newestVersion.full;
+                });
             });
-        }).end();
+        })
+            .on('error', () => {})
+            .end();
     }
 
     /**
