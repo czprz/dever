@@ -119,6 +119,7 @@ export default new class {
             sql: execution.sql,
             container: this.#mapContainer(execution.container),
             package: execution.package,
+            tyeOptions: execution.tyeOptions,
             wait: execution.wait,
             options: this.#mapOptions(execution.options),
             elevated: execution.elevated ?? action?.elevated,
