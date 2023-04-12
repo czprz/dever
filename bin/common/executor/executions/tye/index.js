@@ -54,6 +54,10 @@ export default new class extends ExecutionInterface {
      * @returns {string}
      */
     #addConfigFiles(command, execute) {
+        if (!execute.tyeOptions.files || execute.tyeOptions.files.length === 0) {
+            return command;
+        }
+
         const configs = execute.tyeOptions.files.map((file, i) => {
             const filePath = path.join(execute.location, file);
             return `--config "${filePath}"` + (i === execute.tyeOptions.files.length - 1 ? "" : " ");
