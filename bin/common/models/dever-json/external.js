@@ -330,10 +330,16 @@ export class TyeOptions {
     command;
 
     /**
-     * Tye files
-     * @type {string[]}
+     * Tye command arguments
+     * @type {string[]|null}
      */
-    files;
+    args;
+
+    /**
+     * Tye config file path
+     * @type {string|null}
+     */
+    file;
 }
 
 export class Container {
