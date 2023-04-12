@@ -287,10 +287,15 @@ export class TyeOptions {
     command;
 
     /**
-     * List of tye yaml files
-     * @type {string[]}
+     * Tye command arguments
      */
-    files;
+    args;
+
+    /**
+     * tye configuration file
+     * @type {string|null}
+     */
+    file;
 }
 
 /** DOCKER */

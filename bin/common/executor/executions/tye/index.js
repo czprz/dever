@@ -36,9 +36,12 @@ export default new class extends ExecutionInterface {
             this._started(start);
 
             let command = "tye";
+            // TODO: Change execution location to be the root of the project
             command = this.#addCommand(command, execute);
             command = this.#addConfigFiles(command, execute);
 
+            // TODO: Check if project tye works without config file
+            // TODO: Might need to run in a new window
             await powershell.executeSync(command, execute.elevated);
 
             this._success(end);
@@ -58,11 +61,8 @@ export default new class extends ExecutionInterface {
             return command;
         }
 
-        const configs = execute.tyeOptions.files.map((file, i) => {
-            const filePath = path.join(execute.location, file);
-            return `--config "${filePath}"` + (i === execute.tyeOptions.files.length - 1 ? "" : " ");
-        });
-        return `${command} ${configs}`;
+        const filePath = path.join(execute.location, execute.tyeOptions.file);
+        return `${command} ${filePath}`;
     }
 
     /**
