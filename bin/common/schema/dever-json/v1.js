@@ -122,11 +122,6 @@ const optionsSchema = {
     additionalProperties: false
 };
 
-const tyeFilesSchema = {
-    type: "string",
-    pattern: "^.*\\.ya?ml$"
-}
-
 const tyeOptionsSchema = {
     type: "object",
     properties: {
@@ -134,11 +129,19 @@ const tyeOptionsSchema = {
             type: "string",
             pattern: "^(run|build|deploy|undeploy)$"
         },
-        files: {
+        args: {
             type: "array",
-            items: tyeFilesSchema
+            items: {
+                type: "string",
+                pattern: "^-{1,2}[A-z0-9].*$"
+            }
+        },
+        path: {
+            type: "string",
+            pattern: "^.*\\.ya?ml$"
         }
-    }
+    },
+    required: ["command"]
 };
 
 const executableSchema = {
