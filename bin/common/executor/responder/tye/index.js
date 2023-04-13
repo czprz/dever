@@ -19,8 +19,11 @@ export default new class extends Informer {
             case Operation.Stopped:
                 this._inform_partial(log.status === Status.Error ? `failed` : `done`, log);
                 break;
-            case Operation.DependencyCheck:
+            case Operation.CheckIfTyeIsInstalled:
                 this._inform('error', `Tye command not available. Please install tye.`);
+                break;
+            case Operation.CheckIfDockerIsRunning:
+                this._inform('error', `Docker engine not running. Please start docker and retry command.`);
                 break;
             default:
                 break;
