@@ -1,8 +1,9 @@
 import {ExecutionInterface} from "../../models.js";
+import docker from "../../../helper/docker/index.js";
 
 import {exec} from "child_process";
 import path from "path";
-import docker from "../../../helper/docker/index.js";
+import os from "os";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -45,18 +46,47 @@ export default new class extends ExecutionInterface {
             command = this.#addConfigFile(command, execute);
 
             const workingDir = execute.location;
-            const childProcess = exec(`start powershell.exe -command "cd ${workingDir} ; ${command}"`, {
+            const shellCommand = this.#makeCommand(workingDir, command);
+
+            const childProcess = exec(shellCommand, {
                 detached: true,
                 stdio: 'ignore',
                 shell: true,
                 timeout: 1000
             });
+
             childProcess.unref();
 
             this._success(end);
         } catch (e) {
             this._error(end, e);
         }
+    }
+
+    /**
+     * Constructs shell command
+     * @param workingDir {string}
+     * @param command {string}
+     * @returns {string}
+     */
+    #makeCommand(workingDir, command) {
+        let shellCommand = '';
+
+        switch (os.platform()) {
+            case 'win32':
+                shellCommand = `start powershell.exe -command "cd ${workingDir} ; ${command}"`;
+                break;
+            case 'darwin':
+                shellCommand = `osascript -e 'tell app "Terminal" to do script "cd ${workingDir} ; ${command}"'`;
+                break;
+            case 'linux':
+                shellCommand = `gnome-terminal --working-directory="${workingDir}" -- bash -c "${command}"`;
+                break;
+            default:
+                throw new Error(`Unsupported platform: ${os.platform()}`);
+        }
+
+        return shellCommand;
     }
 
     /**
