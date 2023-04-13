@@ -288,6 +288,7 @@ export class TyeOptions {
 
     /**
      * Tye command arguments
+     * @type {string[]}
      */
     args;
 
