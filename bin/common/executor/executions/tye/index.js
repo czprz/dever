@@ -1,7 +1,7 @@
 import {ExecutionInterface} from "../../models.js";
 import docker from "../../../helper/docker/index.js";
 
-import {exec} from "child_process";
+import {exec, execSync} from "child_process";
 import path from "path";
 import os from "os";
 
@@ -23,10 +23,10 @@ export default new class extends ExecutionInterface {
         }
 
         try {
-            exec('tye -?', {windowsHide: true, encoding: 'UTF-8', stdio: "ignore"});
-            return this._success(Operation.CheckIfTyeIsInstalled, true);
+            execSync('tye -?', {windowsHide: true, encoding: 'UTF-8', stdio: "ignore"});
+            return this._success(Operation.DependencyCheck, true);
         } catch {
-            return this._error(Operation.DependencyCheck, null, true);
+            return this._error(Operation.CheckIfTyeIsInstalled, null, true);
         }
     }
 
@@ -42,6 +42,7 @@ export default new class extends ExecutionInterface {
 
             let command = `tye`;
             command = this.#addCommand(command, execute);
+            // TODO: Check args
             command = this.#addArgs(command, execute);
             command = this.#addConfigFile(command, execute);
 
@@ -130,4 +131,5 @@ export const Operation = Object.freeze({
     Stopped: 'stopped',
     CheckIfDockerIsRunning: 'check-docker',
     CheckIfTyeIsInstalled: 'check-tye',
+    DependencyCheck: 'dependency-check',
 });
