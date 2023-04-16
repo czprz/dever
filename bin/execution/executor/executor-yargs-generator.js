@@ -54,7 +54,7 @@ export default new class {
                 }
             })
             .command({
-                command: 'up-group [name]',
+                command: 'up-group <name>',
                 desc: 'Run group of actions',
                 builder: (yargs) => {
                     yargs
@@ -87,7 +87,7 @@ export default new class {
                 }
             })
             .command({
-                command: 'run [name]',
+                command: 'run <name>',
                 desc: 'Run action continuously',
                 builder: (yargs) => {
                     yargs
@@ -159,7 +159,7 @@ export default new class {
                 }
             })
             .command({
-                command: 'down-group [name]',
+                command: 'down-group <name>',
                 desc: 'Take down one or more group of actions',
                 builder: (yargs) => {
                     yargs
