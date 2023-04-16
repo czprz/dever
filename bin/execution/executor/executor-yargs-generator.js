@@ -99,13 +99,25 @@ export default new class {
                             alias: 't',
                             describe: 'Number of times to run action (0 - infinite)',
                             type: 'number',
-                            default: 0
+                            default: 0,
+                            coerce: (value) => {
+                                if (value < 0) {
+                                    throw new Error('Option --times, -t must be positive value');
+                                }
+                                return value;
+                            }
                         })
                         .option('interval', {
                             alias: 'i',
                             describe: 'Interval between runs (seconds)',
                             type: 'number',
-                            demandOption: true
+                            demandOption: true,
+                            coerce: (value) => {
+                                if (value < 0) {
+                                    throw new Error('Option --interval, -i must be positive value');
+                                }
+                                return value;
+                            }
                         });
 
                     customOptionsYargsCreator.addToYargs(yargs, segment.actions)
