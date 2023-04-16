@@ -5,7 +5,7 @@ export default new class {
      * @returns {Runtime}
      */
     getRuntime(args) {
-        const up = this.#hasValue(args, 'up');
+        const up = this.#hasValue(args, 'up') || this.#hasValue(args, 'run');
         const down = this.#hasValue(args, 'down');
         const upGroup = this.#hasValue(args, 'up-group');
         const downGroup = this.#hasValue(args, 'down-group');
@@ -20,6 +20,8 @@ export default new class {
         return {
             up: up || upGroup,
             down: down || downGroup,
+            times: args.times,
+            interval: args.interval,
             include: {
                 executions: up || down ? this.#getVariables(args['name']) : [],
                 groups: upGroup || downGroup ? this.#getVariables(args[`name`]) : []
@@ -63,6 +65,18 @@ export class Runtime {
      * @type {boolean}
      */
     down;
+
+    /**
+     * Times to run the actions
+     * @type {number | null}
+     */
+    times;
+
+    /**
+     * Interval between each run
+     * @type {number | null}
+     */
+    interval;
 
     /**
      * List of groups and executions to be included in starting or stopping

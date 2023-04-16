@@ -12,6 +12,12 @@ export class Args {
     down;
 
     /**
+     * Option for running environment
+     * @type {string}
+     */
+    run;
+
+    /**
      * Starts one or more groups of executions
      * @type {boolean|string|string[]}
      */
@@ -22,6 +28,18 @@ export class Args {
      * @type {boolean|string|string[]}
      */
     downGroup;
+
+    /**
+     * Number of times to run
+     * @type {number|null}
+     */
+    times;
+
+    /**
+     * Interval between each run
+     * @type {number|null}
+     */
+    interval;
 
     /**
      * Option (optional) included with start for starting environment cleanly
