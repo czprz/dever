@@ -19,6 +19,14 @@ export default new class {
     }
 
     /**
+     * Get raw config
+     * @returns {*}
+     */
+    raw() {
+        return json.read(this.#filePath);
+    }
+
+    /**
      * Get dever configuration
      * @returns {Config}
      */
