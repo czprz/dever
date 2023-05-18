@@ -101,37 +101,7 @@ export class ExecutionInterface {
      * @param runtime {Runtime}
      */
     async handle(execute, runtime) {
-        if (runtime.times != null) {
-            await this.#run(execute, runtime);
-            return;
-        }
-
         await this._execute(execute, runtime);
-    }
-
-    /**
-     * Run command multiple times
-     * @param execute {Execute}
-     * @param runtime {Runtime}
-     * @returns {Promise<void>}
-     */
-    async #run(execute, runtime) {
-        let count = 1;
-        let completed = false;
-
-        while (!completed) {
-            await this._execute(execute, runtime);
-
-            if (runtime.times !== 0 && count === runtime.times) {
-                completed = true;
-            } else {
-                await new Promise(resolve => setTimeout(resolve, runtime.interval));
-            }
-
-            if (runtime.times > 0) {
-                count++;
-            }
-        }
     }
 
     /**
