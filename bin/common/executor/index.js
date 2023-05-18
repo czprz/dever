@@ -5,7 +5,6 @@ import powershell_command from "../../common/executor/executions/powershell-comm
 import mssql from "../../common/executor/executions/mssql/index.js";
 import chocolatey from "./executions/chocolatey/index.js";
 import winget from './executions/winget/index.js';
-import tye from "./executions/tye/index.js";
 
 export default new class {
     /**
@@ -29,8 +28,6 @@ export default new class {
                 return chocolatey;
             case "winget":
                 return winget;
-            case "tye":
-                return tye;
             default:
                 throw new Error(`'${type}' type is not supported`);
         }

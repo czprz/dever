@@ -61,7 +61,7 @@ export class Properties {
 
 export class Execution {
     /**
-     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey','tye')
+     * Define which handler you're using ('docker-container','powershell-command','powershell-script','docker-compose','mssql','chocolatey')
      * @type {string} @required
      */
     type;
@@ -89,12 +89,6 @@ export class Execution {
      * @type {Container | null}
      */
     container;
-
-    /**
-     * Tye options only used when type is 'tye'
-     * @type {TyeOptions | null}
-     */
-    tyeOptions;
 
     /**
      * Chocolatey object only used when type is 'chocolatey'
@@ -320,20 +314,6 @@ class DbColumn {
      * @var {any=} null
      */
     value;
-}
-
-export class TyeOptions {
-    /**
-     * Tye command
-     * @type {string}
-     */
-    command;
-
-    /**
-     * Tye files
-     * @type {string[]}
-     */
-    files;
 }
 
 export class Container {
