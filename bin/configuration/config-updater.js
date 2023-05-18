@@ -19,10 +19,10 @@ export default new class {
             case 'lastversioncheckms':
                 this.#saveLastVersionCheck(unstructuredKey, value);
                 break;
-            case "latestversion":
+            case "latestVersion":
                 this.#saveLatestVersion(unstructuredKey, value);
                 break;
-            case "migrationversion":
+            case "migrationVersion":
                 this.#saveMigrationVersion(unstructuredKey, value);
                 break;
             case "projects.n.path":
@@ -125,11 +125,6 @@ export default new class {
     #saveMigrationVersion(unstructuredKey, value) {
         if (!typeValidator.isValidNumber(value)) {
             console.warn(chalk.red(`Could not set '${value}' to '${unstructuredKey}'. Must a valid number.`));
-            return;
-        }
-
-        if (value < 0) {
-            console.warn(chalk.red(`Could not set '${value}' to '${unstructuredKey}'. Must be greater than or equal to 0.`));
             return;
         }
 
