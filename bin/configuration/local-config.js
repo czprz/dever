@@ -19,14 +19,6 @@ export default new class {
     }
 
     /**
-     * Get raw config
-     * @returns {*}
-     */
-    raw() {
-        return json.read(this.#filePath);
-    }
-
-    /**
      * Get dever configuration
      * @returns {Config}
      */
@@ -39,6 +31,7 @@ export default new class {
             };
         }
 
+        // TODO: Still needed?
         const result = SchemaValidator.validate(SchemaTypes.DotDever, 1, config);
         if (!result) {
             throw new Error('.dever failed parsing. Please verify structure of the config file');
