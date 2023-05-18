@@ -1,6 +1,6 @@
+import localConfig from "../local-config.js";
 import configUpdater from "../config-updater.js";
 import configGetter from "../config-getter.js";
-import ConfigFacade from "../facades/config-facade.js";
 
 import {Config} from "../../common/models/dot-dever/external.js";
 
@@ -48,7 +48,7 @@ export default new class {
      * Show location of dever configuration file
      */
     #showLocation() {
-        const filePath = ConfigFacade.getLocation();
+        const filePath = localConfig.getFilePath();
         if (filePath == null) {
             console.error('Could not find dever.json');
             return;
@@ -61,7 +61,7 @@ export default new class {
      * Lists all key and values in .dever
      */
     #listConfig() {
-        const config = ConfigFacade.get();
+        const config = localConfig.get();
 
         this.#listArrayOrObject(null, null, config);
     }
