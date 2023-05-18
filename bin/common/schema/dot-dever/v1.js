@@ -27,9 +27,8 @@ export default {
         },
         skipAllHashChecks: {type: "boolean"},
         lastVersionCheckMs: {type: "number"},
-        latestVersion: {type: ["string", "null"]},
-        migrationVersion: {type: "number"}
+        latestVersion: {type: ["string", "null"]}
     },
-    required: ["projects", "skipAllHashChecks", "migrationVersion"],
+    required: ["projects", "skipAllHashChecks"],
     additionalProperties: false
 }

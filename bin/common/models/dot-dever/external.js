@@ -21,12 +21,6 @@ export class Config {
      * @param {string}
      */
     latestVersion;
-
-    /**
-     * Migration version
-     * @param {number}
-     */
-    migrationVersion;
 }
 
 export class Project {
