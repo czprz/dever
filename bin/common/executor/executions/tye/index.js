@@ -42,6 +42,7 @@ export default new class extends ExecutionInterface {
 
             let command = `tye`;
             command = this.#addCommand(command, execute);
+            // TODO: Check args
             command = this.#addArgs(command, execute);
             command = this.#addConfigFile(command, execute);
 
@@ -114,45 +115,12 @@ export default new class extends ExecutionInterface {
         return `${command} ${execute.tyeOptions.command}`;
     }
 
-    /**
-     * Adds arguments to tye command
-     * @param command {string}
-     * @param execute {Execute}
-     * @returns {string}
-     */
     #addArgs(command, execute) {
         if (!execute.tyeOptions.args || execute.tyeOptions.args.length === 0) {
             return command;
         }
 
-        this.#checkArgs(execute);
-
         return `${command} ${execute.tyeOptions.args.join(' ')}`;
-    }
-
-    /**
-     * Checks if arguments are valid
-     * @param execute {Execute}
-     */
-    #checkArgs(execute) {
-        for (const arg of execute.tyeOptions.args) {
-            if (!this.IsValidArgument(arg)) {
-                throw new Error('Semicolon or ampersand is not allowed in tye arguments.');
-            }
-        }
-    }
-
-    IsValidArgument(str) {
-        if (str.split(/\r?\n/).length > 1) {
-            return false;
-        }
-
-        const line = str.trim();
-        if (!line.startsWith('-')) {
-            return false;
-        }
-
-        return !(line.includes(' ; ') || line.includes(' && '));
     }
 }
 
