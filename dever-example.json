@@ -53,18 +53,14 @@
             "type": "tye",
             "tyeOptions": {
               "command": "deploy",
-              "args": [
-                "--dashboard",
-                "--watch"
-              ],
-              "file": "tye1.yaml"
+              "files": ["tye1.yaml"]
             }
           },
           "down": {
             "type": "tye",
             "tyeOptions": {
               "command": "undeploy",
-              "file": "tye2.yaml"
+              "files": ["tye2.yaml"]
             }
           }
         },
