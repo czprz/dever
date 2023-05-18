@@ -57,6 +57,16 @@ export default new class {
     }
 
     /**
+     * Get actual value from .dever project
+     * @param id {number}
+     * @return {ExternalProject | null}
+     */
+    getLocalValues(id) {
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        return projects[id];
+    }
+
+    /**
      * @callback getSingleRequest
      * @param {ExternalProject} config
      */
