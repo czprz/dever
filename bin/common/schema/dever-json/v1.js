@@ -136,7 +136,7 @@ const tyeOptionsSchema = {
                 pattern: "^-{1,2}[A-z0-9].*$"
             }
         },
-        file: {
+        path: {
             type: "string",
             pattern: "^.*\\.ya?ml$"
         }
