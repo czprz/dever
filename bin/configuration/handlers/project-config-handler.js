@@ -115,7 +115,7 @@ export default new class {
      * @param project {Project}
      */
     #listConfig(argv, project) {
-        const local = projectConfigFacade.getLocalValues(project.id);
-        console.log(chalk.yellow(`skipHashCheck: `) + local.skipHashCheck);
+        const skipHashCheck = projectConfigFacade.getSingle(project.id, x => x.skipHashCheck);
+        console.log(chalk.yellow(`skipHashCheck: `) + skipHashCheck);
     }
 }
