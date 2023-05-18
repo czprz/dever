@@ -152,7 +152,7 @@ export default new class extends ExecutionInterface {
             return false;
         }
 
-        return !(line.includes(';') || line.includes('&&'));
+        return !(line.includes(' ; ') || line.includes(' && '));
     }
 }
 
