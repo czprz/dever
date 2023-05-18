@@ -40,4 +40,12 @@ export default new class {
     get() {
         return localConfig.get();
     }
+
+    /**
+     * Get .dever file location
+     * @return {string}
+     */
+    getLocation() {
+        return localConfig.getFilePath();
+    }
 }
