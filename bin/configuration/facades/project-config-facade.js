@@ -1,6 +1,6 @@
 import json from "../../common/helper/json.js";
-import localConfig from "../local-config.js";
 import projectConfigMapper from "./project-config-mapper.js";
+import ConfigFacade from "./config-facade.js";
 
 import {Project} from "../../common/models/dever-json/internal.js";
 // noinspection ES6UnusedImports
@@ -15,12 +15,12 @@ export default new class {
      * @return {boolean}
      */
     any() {
-        const config = localConfig.get();
-        if (config == null || config.projects == null) {
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        if (projects == null) {
             return false;
         }
 
-        return config.projects.length > 0;
+        return projects.length > 0;
     }
 
     /**
@@ -62,8 +62,27 @@ export default new class {
      * @return {ExternalProject | null}
      */
     getLocalValues(id) {
-        const config = localConfig.get();
-        return config.projects[id];
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        return projects[id];
+    }
+
+    /**
+     * @callback getSingleRequest
+     * @param {ExternalProject} config
+     */
+
+    /**
+     * @param id {number}
+     * @param fn {getSingleRequest}
+     * @return {any}
+     */
+    getSingle(id, fn) {
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        if (projects == null || projects.length === 0) {
+            throw new Error("No projects found");
+        }
+
+        return fn(projects[id]);
     }
 
     /**
@@ -77,11 +96,14 @@ export default new class {
      * @param fn {updateRequest}
      */
     update(id, fn) {
-        const config = localConfig.get();
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        if (projects == null || projects.length === 0) {
+            throw new Error("No projects found");
+        }
 
-        fn(config.projects[id]);
+        fn(projects[id]);
 
-        localConfig.write(config);
+        ConfigFacade.update(x => x.projects = projects);
     }
 
     /**
@@ -89,16 +111,16 @@ export default new class {
      * @param file {string}
      */
     add(file) {
-        const config = localConfig.get();
+        const projects = ConfigFacade.getSingle(x => x?.projects);
 
-        config.projects.push({
+        projects.push({
             path: file,
             lastHash: null,
             skipHashCheck: false,
             hasRunActions: [],
         });
 
-        localConfig.write(config);
+        ConfigFacade.update(x => x.projects = projects);
     }
 
     /**
@@ -106,14 +128,14 @@ export default new class {
      * @param id {number}
      */
     remove(id) {
-        const config = localConfig.get();
-        if (config == null) {
+        const projects = ConfigFacade.getSingle(x => x?.projects);
+        if (projects == null || projects.length === 0) {
             return;
         }
 
-        config.projects.splice(id, 1);
+        projects.splice(id, 1);
 
-        localConfig.write(config);
+        ConfigFacade.update(x => x.projects = projects);
     }
 
     /**
@@ -121,7 +143,7 @@ export default new class {
      * @returns {Project[] | null}
      */
     #getProjects() {
-        const config = localConfig.get();
+        const config = ConfigFacade.get();
         if (config == null || config.projects == null || config.projects.length === 0) {
             return null;
         }
