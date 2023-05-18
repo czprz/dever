@@ -48,11 +48,6 @@
           }
         },
         {
-          "name": "winget-install-example",
-          "type": "winget",
-          "package": "Microsoft.SQLServerManagementStudio"
-        },
-        {
           "name": "ps-command",
           "type": "powershell-command",
           "command": "print Hello World",
