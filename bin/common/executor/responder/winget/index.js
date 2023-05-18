@@ -10,10 +10,10 @@ export default new class extends Informer {
     inform(log, name) {
         switch (log.operation) {
             case Operation.Installing:
-                this._inform_partial(`winget: '${name}' is being installed... `, log);
+                this._inform_partial(`chocolatey: '${name}' is being installed... `, log);
                 break;
             case Operation.Uninstalling:
-                this._inform_partial(`winget: '${name}' is being uninstalled... `, log);
+                this._inform_partial(`chocolatey: '${name}' is being uninstalled... `, log);
                 break;
             case Operation.Installed:
             case Operation.Uninstalled:
