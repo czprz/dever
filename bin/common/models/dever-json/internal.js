@@ -131,7 +131,7 @@ export class Execution {
     container;
 
     /**
-     * Name of package to be installed. Used with Chocolatey and Winget
+     * Chocolatey object only used when type is 'chocolatey'
      * @type {string | null}
      */
     package;
