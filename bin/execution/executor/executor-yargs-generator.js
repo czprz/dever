@@ -93,7 +93,8 @@ export default new class {
                     yargs
                         .positional('name', {
                             describe: 'Name of the action',
-                            type: 'string'
+                            type: 'string',
+                            demandOption: true
                         })
                         .option('times', {
                             alias: 't',
@@ -111,6 +112,7 @@ export default new class {
                     customOptionsYargsCreator.addToYargs(yargs, segment.actions)
                 },
                 handler: (argv) => {
+                    // TODO: Implement
                     this.#execute(segment, project, argv).catch(console.error);
                 }
             })
