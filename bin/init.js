@@ -99,27 +99,6 @@ export default new class {
                             "file": "/path/to/script.ps1"
                         },
                         {
-                            "name": "tye",
-                            "up": {
-                                "type": "tye",
-                                "tyeOptions": {
-                                    "command": "deploy",
-                                    "args": [
-                                        "--dashboard",
-                                        "--watch"
-                                    ],
-                                    "file": "tye1.yaml"
-                                }
-                            },
-                            "down": {
-                                "type": "tye",
-                                "tyeOptions": {
-                                    "command": "undeploy",
-                                    "file": "tye2.yaml"
-                                }
-                            }
-                        },
-                        {
                             "name": "mssql",
                             "type": "docker-container",
                             "container": {
