@@ -24,8 +24,11 @@ export default new class {
      */
     get() {
         const config = json.read(this.#filePath);
-        if (config == null) {
-            throw new Error('.dever could not be found.');
+        if (Object.keys(config).length === 0) {
+            return {
+                projects: [],
+                skipAllHashChecks: false
+            };
         }
 
         // TODO: Still needed?
@@ -35,10 +38,10 @@ export default new class {
         }
 
         return {
-            projects: config.projects.map(this.#projectMap),
-            skipAllHashChecks: config.skipAllHashChecks,
-            lastVersionCheckMs: config.lastVersionCheckMs,
-            latestVersion: config.latestVersion
+            projects: config?.projects?.map(this.#projectMap) ?? [],
+            skipAllHashChecks: config?.skipAllHashChecks ?? false,
+            lastVersionCheckMs: config?.lastVersionCheckMs ?? 0,
+            latestVersion: config?.latestVersion ?? null
         };
     }
 

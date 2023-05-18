@@ -11,7 +11,6 @@ import constants from './common/constants.js';
 import enquirer from 'enquirer';
 
 import yargs from 'yargs';
-import Migrator from "./migrator/index.js";
 
 class EntryPoint {
     #argv;
@@ -21,10 +20,6 @@ class EntryPoint {
     }
 
     start() {
-        if (!Migrator.migrate()) {
-            return;
-        }
-
         if (this.#argv.length === 0 || constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             this.#defaultYargs();
             return;
