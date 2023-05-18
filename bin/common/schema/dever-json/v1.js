@@ -122,25 +122,6 @@ const optionsSchema = {
     additionalProperties: false
 };
 
-const tyeFilesSchema = {
-    type: "string",
-    pattern: "^.*\\.ya?ml$"
-}
-
-const tyeOptionsSchema = {
-    type: "object",
-    properties: {
-        command: {
-            type: "string",
-            pattern: "^(run|build|deploy|undeploy)$"
-        },
-        files: {
-            type: "array",
-            items: tyeFilesSchema
-        }
-    }
-};
-
 const executableSchema = {
     type: "object",
     properties: {
@@ -150,7 +131,6 @@ const executableSchema = {
         command: commandSchema,
         file: fileSchema,
         container: containerSchema,
-        tyeOptions: tyeOptionsSchema,
         wait: waitSchema,
         options: {
             type: "array",
@@ -215,7 +195,7 @@ const segmentSchema = {
     properties: {
         key: {type: "string"},
         name: {type: "string"},
-        description: {type: "string"},
+        description: {type:"string"},
         properties: propertiesSchema,
         actions: {
             type: "array",

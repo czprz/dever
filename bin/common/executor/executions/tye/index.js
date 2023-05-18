@@ -17,7 +17,6 @@ export default new class extends ExecutionInterface {
      */
     check() {
         try {
-            // TODO: Add tye run --config tye1.yaml --config tye2.yaml
             execSync('tye', { windowsHide: true, encoding: 'UTF-8', stdio: "ignore" });
             return this._success(Operation.DependencyCheck, true);
         } catch {
