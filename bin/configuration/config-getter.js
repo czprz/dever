@@ -15,12 +15,6 @@ export default new class {
             case "lastversioncheckms":
                 this.#getLastVersionCheck();
                 break;
-            case "latestVersion":
-                this.#getLatestVersion();
-                break;
-            case "migrationVersion":
-                this.#getMigrationVersion();
-                break;
             case "projects.n.path":
                 this.#showProjectPath(key.id);
                 break;
@@ -81,15 +75,5 @@ export default new class {
     #getLastVersionCheck() {
         const lastVersionCheckMs = ConfigFacade.getSingle(x => x.lastVersionCheckMs);
         console.log(lastVersionCheckMs);
-    }
-
-    #getLatestVersion() {
-        const latestVersion = ConfigFacade.getSingle(x => x.latestVersion);
-        console.log(latestVersion);
-    }
-
-    #getMigrationVersion() {
-        const migrationVersion = ConfigFacade.getSingle(x => x.migrationVersion);
-        console.log(migrationVersion);
     }
 }
