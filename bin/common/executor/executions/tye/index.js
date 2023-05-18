@@ -1,9 +1,9 @@
 import {ExecutionInterface} from "../../models.js";
 import docker from "../../../helper/docker/index.js";
-import platformSelector from "../../../helper/platform-selector.js";
 
 import {exec, execSync} from "child_process";
 import path from "path";
+import os from "os";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -46,11 +46,7 @@ export default new class extends ExecutionInterface {
             command = this.#addConfigFile(command, execute);
 
             const workingDir = execute.location;
-            const shellCommand = platformSelector.get({
-                windows: `start powershell.exe -command "cd ${workingDir} ; ${command}"`,
-                darwin: `osascript -e 'tell app "Terminal" to do script "cd ${workingDir} ; ${command}"'`,
-                linux: `gnome-terminal --working-directory="${workingDir}" -- bash -c "${command}"`,
-            });
+            const shellCommand = this.#makeCommand(workingDir, command);
 
             const childProcess = exec(shellCommand, {
                 detached: true,
@@ -65,6 +61,32 @@ export default new class extends ExecutionInterface {
         } catch (e) {
             this._error(end, e);
         }
+    }
+
+    /**
+     * Constructs shell command
+     * @param workingDir {string}
+     * @param command {string}
+     * @returns {string}
+     */
+    #makeCommand(workingDir, command) {
+        let shellCommand = '';
+
+        switch (os.platform()) {
+            case 'win32':
+                shellCommand = `start powershell.exe -command "cd ${workingDir} ; ${command}"`;
+                break;
+            case 'darwin':
+                shellCommand = `osascript -e 'tell app "Terminal" to do script "cd ${workingDir} ; ${command}"'`;
+                break;
+            case 'linux':
+                shellCommand = `gnome-terminal --working-directory="${workingDir}" -- bash -c "${command}"`;
+                break;
+            default:
+                throw new Error(`Unsupported platform: ${os.platform()}`);
+        }
+
+        return shellCommand;
     }
 
     /**
