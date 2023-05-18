@@ -1,8 +1,8 @@
 import {ExecutionInterface} from "../../models.js";
+import powershell from "../../../helper/powershell.js";
 
-import {exec} from "child_process";
+import {execSync} from "child_process";
 import path from "path";
-import docker from "../../../helper/docker/index.js";
 
 "use strict";
 export default new class extends ExecutionInterface {
@@ -17,13 +17,9 @@ export default new class extends ExecutionInterface {
      * Check dependencies for tye execution
      */
     check() {
-        if (!docker.is_docker_running()) {
-            return this._error(Operation.CheckIfDockerIsRunning, null, true);
-        }
-
         try {
-            exec('tye -?', {windowsHide: true, encoding: 'UTF-8', stdio: "ignore"});
-            return this._success(Operation.CheckIfTyeIsInstalled, true);
+            execSync('tye -?', { windowsHide: true, encoding: 'UTF-8', stdio: "ignore" });
+            return this._success(Operation.DependencyCheck, true);
         } catch {
             return this._error(Operation.DependencyCheck, null, true);
         }
@@ -39,19 +35,14 @@ export default new class extends ExecutionInterface {
         try {
             this._started(start);
 
-            let command = `tye`;
+            let command = "tye";
+            // TODO: Change execution location to be the root of the project
             command = this.#addCommand(command, execute);
-            command = this.#addArgs(command, execute);
-            command = this.#addConfigFile(command, execute);
+            command = this.#addConfigFiles(command, execute);
 
-            const workingDir = execute.location;
-            const childProcess = exec(`start powershell.exe -command "cd ${workingDir} ; ${command}"`, {
-                detached: true,
-                stdio: 'ignore',
-                shell: true,
-                timeout: 1000
-            });
-            childProcess.unref();
+            // TODO: Check if project tye works without config file
+            // TODO: Might need to run in a new window
+            await powershell.executeSync(command, execute.elevated);
 
             this._success(end);
         } catch (e) {
@@ -65,7 +56,7 @@ export default new class extends ExecutionInterface {
      * @param execute {Execute}
      * @returns {string}
      */
-    #addConfigFile(command, execute) {
+    #addConfigFiles(command, execute) {
         if (!execute.tyeOptions.files || execute.tyeOptions.files.length === 0) {
             return command;
         }
@@ -83,21 +74,6 @@ export default new class extends ExecutionInterface {
     #addCommand(command, execute) {
         return `${command} ${execute.tyeOptions.command}`;
     }
-
-    #addArgs(command, execute) {
-        if (!execute.tyeOptions.args || execute.tyeOptions.args.length === 0) {
-            return command;
-        }
-
-        return `${command} ${execute.tyeOptions.args.join(' ')}`;
-    }
 }
 
-export const Operation = Object.freeze({
-    Starting: 'starting',
-    Started: 'started',
-    Stopping: 'stopping',
-    Stopped: 'stopped',
-    CheckIfDockerIsRunning: 'check-docker',
-    CheckIfTyeIsInstalled: 'check-tye',
-});
+export const Operation = Object.freeze({Starting: 'starting', Started: 'started', Stopping: 'stopping', Stopped: 'stopped', DependencyCheck: 'dependency-check'});
