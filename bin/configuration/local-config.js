@@ -1,16 +1,29 @@
+import json from '../common/helper/json.js';
 import SchemaValidator, {SchemaTypes} from "../common/validators/schema-validator.js";
 
 import {Config} from "../common/models/dot-dever/external.js";
-import ConfigLoader from "./config-loader.js";
+
+import path from 'path';
+import os from 'os';
 
 "use strict";
 export default new class {
+    #fileName = '.dever';
+
+    #root;
+    #filePath;
+
+    constructor() {
+        this.#root = os.homedir();
+        this.#filePath = path.join(this.#root, this.#fileName);
+    }
+
     /**
      * Get dever configuration
      * @returns {Config}
      */
     get() {
-        const config = ConfigLoader.get();
+        const config = json.read(this.#filePath);
         if (config == null) {
             throw new Error('.dever could not be found.');
         }
@@ -25,8 +38,7 @@ export default new class {
             projects: config.projects.map(this.#projectMap),
             skipAllHashChecks: config.skipAllHashChecks,
             lastVersionCheckMs: config.lastVersionCheckMs,
-            latestVersion: config.latestVersion,
-            migrationVersion: config.migrationVersion,
+            latestVersion: config.latestVersion
         };
     }
 
@@ -35,7 +47,7 @@ export default new class {
      * @param config {Config}
      */
     write(config) {
-        ConfigLoader.write(config);
+        json.write(this.#filePath, config);
     }
 
     /**
@@ -43,7 +55,7 @@ export default new class {
      * @return {string}
      */
     getFilePath() {
-        return ConfigLoader.getFilePath();
+        return this.#filePath;
     }
 
     /**

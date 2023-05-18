@@ -56,14 +56,4 @@ export default new class {
     isValidNumber(value) {
         return !isNaN(value);
     }
-
-    /**
-     * Validates that a value is a valid version
-     * @param value {string}
-     * @returns {boolean}
-     */
-    isValidVersion(value) {
-        const versionPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-        return versionPattern.test(value);
-    }
 }
