@@ -87,36 +87,6 @@ export default new class {
                 }
             })
             .command({
-                command: 'run [name]',
-                desc: 'Run action continuously',
-                builder: (yargs) => {
-                    yargs
-                        .positional('name', {
-                            describe: 'Name of the action',
-                            type: 'string',
-                            demandOption: true
-                        })
-                        .option('times', {
-                            alias: 't',
-                            describe: 'Number of times to run action (0 - infinite)',
-                            type: 'number',
-                            default: 0
-                        })
-                        .option('interval', {
-                            alias: 'i',
-                            describe: 'Interval between runs (seconds)',
-                            type: 'number',
-                            demandOption: true
-                        });
-
-                    customOptionsYargsCreator.addToYargs(yargs, segment.actions)
-                },
-                handler: (argv) => {
-                    // TODO: Implement
-                    this.#execute(segment, project, argv).catch(console.error);
-                }
-            })
-            .command({
                 command: 'down [name]',
                 desc: 'Take down actions',
                 builder: (yargs) => {
