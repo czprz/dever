@@ -1,6 +1,6 @@
 import typeValidator from "../common/validators/type-validator.js";
 import projectConfigFacade from "./facades/project-config-facade.js";
-import ConfigFacade from "./facades/config-facade.js";
+import localConfig from "./local-config.js";
 
 import chalk from "chalk";
 
@@ -95,7 +95,9 @@ export default new class {
             return;
         }
 
-        ConfigFacade.update(x => x.skipAllHashChecks = value === 'true' || value === '1')
+        const config = localConfig.get();
+        config.skipAllHashChecks = value === 'true' || value === '1';
+        localConfig.write(config);
     }
 
     #saveLastVersionCheck(unstructuredKey, value) {
@@ -104,6 +106,8 @@ export default new class {
             return;
         }
 
-        ConfigFacade.update(x => x.lastVersionCheckMs = +value)
+        const config = localConfig.get();
+        config.lastVersionCheckMs = +value;
+        localConfig.write(config);
     }
 }
