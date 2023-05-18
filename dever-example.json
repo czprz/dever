@@ -13,7 +13,8 @@
       "description": "Environment variables",
       "properties": {
         "elevated": true,
-        "name_required": true
+        "name_required": true,
+        "simple_run": true
       },
       "actions": [
         {
