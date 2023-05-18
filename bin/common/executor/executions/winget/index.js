@@ -16,12 +16,8 @@ export default new class extends ExecutionInterface {
      * Check dependencies for winget execution
      */
     check() {
-        try {
-            shell.executeSync(`winget -?`);
-            return this._success(Operation.DependencyCheck);
-        } catch (e) {
-            return this._error(Operation.DependencyCheck);
-        }
+        // Todo: Check if winget is supported
+        return this._success(Operation.DependencyCheck, true);
     }
 
     /**
