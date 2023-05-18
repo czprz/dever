@@ -9,7 +9,7 @@ export default new class {
      * Validate schema
      * @param type {SchemaTypes|string}
      * @param version {number}
-     * @param json {string|object}
+     * @param json {string}
      * @return {boolean}
      */
     validate(type, version, json) {
@@ -27,7 +27,7 @@ export default new class {
 
     /**
      * Runs AJV schema validation
-     * @param json {string|object}
+     * @param json {string}
      * @param schema {object}
      * @returns {boolean}
      */

@@ -2,6 +2,12 @@ import localConfig from "../local-config.js";
 import {Config} from '../../common/models/dot-dever/external.js';
 
 export default new class {
+    #config = null;
+
+    constructor() {
+        this.#config = localConfig.get();
+    }
+
     /**
      * @callback updateRequest
      * @param {Config} config

@@ -1,5 +1,5 @@
+import localConfig from "./local-config.js";
 import projectConfigFacade from "./facades/project-config-facade.js";
-import ConfigFacade from "./facades/config-facade.js";
 
 export default new class {
     /**
@@ -50,8 +50,8 @@ export default new class {
      * Show current value of skipAllHashChecks
      */
     #getSkipAllHashChecks() {
-        const skipAllHashChecks = ConfigFacade.getSingle(x => x.skipAllHashChecks)
-        console.log(skipAllHashChecks);
+        const config = localConfig.get();
+        console.log(config.skipAllHashChecks);
     }
 
     /**
@@ -59,8 +59,8 @@ export default new class {
      * @param id {number}
      */
     #showProjectPath(id) {
-        const path = projectConfigFacade.getSingle(id, x => x.path);
-        console.log(path);
+        const config = projectConfigFacade.getLocalValues(id);
+        console.log(config.path);
     }
 
     /**
@@ -68,12 +68,12 @@ export default new class {
      * @param id {number}
      */
     #showProjectSkipHashCheck(id) {
-        const skipHashCheck = projectConfigFacade.getSingle(id, x => x.skipHashCheck);
-        console.log(skipHashCheck);
+        const config = projectConfigFacade.getLocalValues(id);
+        console.log(config.skipHashCheck);
     }
 
     #getLastVersionCheck() {
-        const lastVersionCheckMs = ConfigFacade.getSingle(x => x.lastVersionCheckMs);
-        console.log(lastVersionCheckMs);
+        const config = localConfig.get();
+        console.log(config.lastVersionCheckMs);
     }
 }
