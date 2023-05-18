@@ -19,6 +19,12 @@ export default new class {
             case 'lastversioncheckms':
                 this.#saveLastVersionCheck(unstructuredKey, value);
                 break;
+            case "latestVersion":
+                this.#saveLatestVersion(unstructuredKey, value);
+                break;
+            case "migrationVersion":
+                this.#saveMigrationVersion(unstructuredKey, value);
+                break;
             case "projects.n.path":
                 this.#savePath(key.id, unstructuredKey, value);
                 break;
@@ -105,5 +111,23 @@ export default new class {
         }
 
         ConfigFacade.update(x => x.lastVersionCheckMs = +value)
+    }
+
+    #saveLatestVersion(unstructuredKey, value) {
+        if (!typeValidator.isValidVersion(value)) {
+            console.warn(chalk.red(`Could not set '${value}' to '${unstructuredKey}'. Must a valid version.`));
+            return;
+        }
+
+        ConfigFacade.update(x => x.latestVersion = value)
+    }
+
+    #saveMigrationVersion(unstructuredKey, value) {
+        if (!typeValidator.isValidNumber(value)) {
+            console.warn(chalk.red(`Could not set '${value}' to '${unstructuredKey}'. Must a valid number.`));
+            return;
+        }
+
+        ConfigFacade.update(x => x.migrationVersion = value)
     }
 }

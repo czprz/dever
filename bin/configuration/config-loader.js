@@ -28,4 +28,12 @@ export default new class {
     write(config) {
         json.write(this.#filePath, config);
     }
+
+    /**
+     * Get file path to .dever
+     * @returns {string}
+     */
+    getFilePath() {
+        return this.#filePath;
+    }
 }
