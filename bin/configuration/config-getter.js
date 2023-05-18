@@ -15,10 +15,10 @@ export default new class {
             case "lastversioncheckms":
                 this.#getLastVersionCheck();
                 break;
-            case "latestVersion":
+            case "latestversion":
                 this.#getLatestVersion();
                 break;
-            case "migrationVersion":
+            case "migrationversion":
                 this.#getMigrationVersion();
                 break;
             case "projects.n.path":
