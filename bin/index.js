@@ -27,6 +27,12 @@ class EntryPoint {
 
         versionChecker.fetch();
 
+        await this.projectSelection();
+
+        versionChecker.inform();
+    }
+
+    async projectSelection() {
         if (this.#argv.length === 0 || constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             this.#defaultYargs();
             return;
@@ -53,7 +59,7 @@ class EntryPoint {
             choices: projects.map(x => this.mapChoices(x)),
         };
 
-        enquirer
+        await enquirer
             .prompt(options)
             .then((answer) => {
                 const checkedAnswer = EntryPoint.#getAnswer(answer);
@@ -61,8 +67,6 @@ class EntryPoint {
                 EntryPoint.#projectYargs(keyword, project);
             })
             .catch((_) => _);
-
-        versionChecker.inform();
     }
 
     #defaultYargs() {
