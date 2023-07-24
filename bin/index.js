@@ -20,10 +20,12 @@ class EntryPoint {
         this.#argv = process.argv.slice(2);
     }
 
-    start() {
+    async start() {
         if (!Migrator.migrate()) {
             return;
         }
+
+        versionChecker.fetch();
 
         if (this.#argv.length === 0 || constants.notAllowedKeywords.some(x => x === this.#argv[0])) {
             this.#defaultYargs();
@@ -59,6 +61,8 @@ class EntryPoint {
                 EntryPoint.#projectYargs(keyword, project);
             })
             .catch((_) => _);
+
+        versionChecker.inform();
     }
 
     #defaultYargs() {
@@ -111,8 +115,4 @@ class EntryPoint {
     }
 }
 
-versionChecker.fetch();
-
 new EntryPoint().start();
-
-versionChecker.inform();
