@@ -13,12 +13,7 @@ export default new class {
             return true;
         }
 
-        if (dotDever.migrate(config)) {
-            config.migrationVersion = this.#migrationVersion;
-            configLoader.write(config);
-
-            console.log(`Migration to version ${this.#migrationVersion} completed successfully`);
-
+        if (dotDever.migrate(config, this.#migrationVersion)) {
             return true;
         } else {
             console.error(chalk.redBright('Migration of .dever failed validation.'));
