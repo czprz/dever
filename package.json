@@ -1,6 +1,6 @@
 {
   "name": "@czprz/dever",
-  "version": "0.15.4-beta",
+  "version": "0.15.5-beta",
   "description": "Development Helper (dev-er) to speed up and keep local development environment consistent",
   "author": "Casper Overholm Elkrog",
   "keywords": [
