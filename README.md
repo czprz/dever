@@ -130,7 +130,7 @@ the [releases on this repository](https://github.com/czprz/dever/releases).
 
 ## Authors
 
-* **[Casper Overholm Elkrog](https://github.com/czprz)** - *Initial work*
+* **[Casper Overholm Elkrog](https://github.com/czprz)**
 
 See also the list of [contributors](https://github.com/czprz/dever/network/) who participated in this project.
 
