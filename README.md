@@ -16,7 +16,7 @@ git clone https://github.com/czprz/dever.git
 ### Prerequisites
 
 ```
-NodeJS 18.9.0 or higher
+NodeJS 18.20.* or higher
 ```
 
 ### Installing
